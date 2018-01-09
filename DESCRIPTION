@@ -1,0 +1,24 @@
+Package: panelr
+Title: Regression Models and Diagnostics for Panel and Repeated Measures Data
+Version: 0.0.0.9000
+Authors@R: person("Jacob A.", "Long", email = "long.1377@osu.edu", role = c("aut", "cre"))
+Description: This package implements several methods for creating regression
+  models that take advantage of the unique aspects of 
+  panel data. It automates the "within-between" (also known as
+  "between-within" and "hybrid") specification that combines the
+  desirable aspects of both fixed effects and random effects econometric models
+  and fits them in the lme4 package. Bayesian estimation of these models is 
+  supported via the brms package.
+Depends: R (>= 3.4.0)
+Imports: dplyr,
+      tidyr,
+      lme4,
+      nlme,
+      pbkrtest,
+      jtools
+Suggests: brms,
+    testthat
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1.9000
