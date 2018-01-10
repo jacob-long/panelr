@@ -1,3 +1,6 @@
+#' @importFrom stats as.formula terms
+#' @import stringr
+
 wb_formula_parser <- function(formula, dv) {
 
   conds <- sum(attr(gregexpr("\\|", formula)[[1]], "match.length"))
@@ -126,17 +129,17 @@ wb_formula_parser <- function(formula, dv) {
 
 }
 
-wb_estimator <- function(estimator, pf, dv, data) {
+wb_model <- function(model, pf, dv, data) {
 
   # Create empty stab terms vector so I can pass it along even for other
-  # estimators
+  # models
   stab_terms <- c()
 
-  # Estimators that require de-meaning
+  # models that require de-meaning
   within_family <- c("w-b","within-between","within","stability","fixed")
 
   # De-mean varying vars if needed
-  if (estimator %in% within_family) { # within estimators
+  if (model %in% within_family) { # within models
 
     # Iterate through the varying variables
     for (v in pf$varying) {
@@ -147,8 +150,8 @@ wb_estimator <- function(estimator, pf, dv, data) {
 
   }
 
-  # Create extra piece of formula based on estimator
-  if (estimator %in% c("w-b","within-between","contextual")) {
+  # Create extra piece of formula based on model
+  if (model %in% c("w-b","within-between","contextual")) {
     # Contextual model is same as within-between, just no de-meaning
 
     # Make formula add-on
@@ -160,12 +163,12 @@ wb_estimator <- function(estimator, pf, dv, data) {
       }
     }
 
-  } else if (estimator %in% c("within","fixed")) { # Many know it as fixed
+  } else if (model %in% c("within","fixed")) { # Many know it as fixed
 
     # Don't need to worry about constants, etc.
     add_form <- ""
 
-  } else if (estimator == "stability") {
+  } else if (model == "stability") {
 
     # Make formula add-on
     for (v in pf$varying) {
@@ -183,7 +186,7 @@ wb_estimator <- function(estimator, pf, dv, data) {
     }
 
 
-  } else if (estimator %in% c("between","random")) {
+  } else if (model %in% c("between","random")) {
 
     # It doesn't need anything special
     add_form <- ""

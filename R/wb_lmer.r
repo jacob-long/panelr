@@ -1,8 +1,168 @@
-#' @export
+#' @title Panel regression models
+#' @description Fit "within-between" and several other regression variants
+#'   for panel data in a multi-level modeling framework.
+#' @param formula Model formula. See details for crucial
+#'   info on `panelr`'s formula syntax.
+#' @param data The data, either a `panel_data` object or `data.frame`.
+#' @param id If `data` is not a `panel_data` object, then the name of the
+#'   individual id column. Otherwise, leave as NULL, the default.
+#' @param wave If `data` is not a `panel_data` object, then the name of the
+#'   panel wave column. Otherwise, leave as NULL, the default.
+#' @param model One of `"w-b"`, `"within"`, `"between"`,
+#'   `"contextual"`, or `"stability"`. See details for more on these options.
+#' @param use.wave Should the wave be included as a predictor? Default is
+#'   FALSE.
+#' @param wave.factor Should the wave variable be treated as an unordered
+#'   factor instead of continuous? Default is FALSE.
+#' @param min.waves What is the minimum number of waves an individual must
+#'   have participated in to be included in the analysis? Default is `2` and
+#'   any valid number is accepted. `"all"` is also acceptable if you want to
+#'   include only complete panelists.
+#' @param family Use this to specify GLM link families. Default is `gaussian`,
+#'   the linear model.
+#' @param pR2 Calculate a pseudo R-squared? Default is FALSE because it
+#'   often adds a great deal of computation time if sample sizes are medium
+#'   size or larger.
+#' @param pvals Calculate p values? Default is TRUE but for some complex
+#'   linear models, this may take a long time to compute using the `pbkrtest`
+#'   package.
+#' @param weights If using weights, either the name of the column in the data
+#'   that contains the weights or a vector of the weights.
+#' @param ... Additional arguments provided to [lme4::lmer()],
+#'   [lme4::glmer()], or [lme4::glmer.nb()].
+#' @return A `wbm` object.
+#' @author Jacob A. Long
+#' @details
 #'
+#' **Formula syntax**
+#'
+#' The within-between models, and multilevel panel models more generally,
+#' distinguish between time-varying and time-invariant predictors. These are,
+#' as they sound, variables that are either measured repeatedly (in every wave)
+#' in the case of time-varying predictors or only once in the case of
+#' time-invariant predictors. You need to specify these separately in the
+#' formula to tell the model which variables you expect to change over time and
+#' which will not. The primary way of doing so is via the `|` operator.
+#'
+#' As an example, we can look at the [WageData] included in this
+#' package. We will create a model that predicts the logarithm of the
+#' individual's wages (`lwage`) with their union status (`union`), which can
+#' change over time, and their race (`blk`; dichotomized as black or
+#' non-black),
+#' which does not change throughout the period of study. Our formula will look
+#' like this:
+#'
+#' `lwage ~ union | blk`
+#'
+#' We put time-varying variables before the first `|` and time-invariant
+#' variables afterwards. You can specify lags like `lag(union)` for time-varying
+#' variables; for more than 1 lag, include the number: `lag(union, 2)`.
+#'
+#' After the first `|` go the time-invariant variables. Note that if you put a
+#' time-varying variable here, only the first wave measure will be used — in
+#' some cases this will be what you want. You may also take a time-varying
+#' variable --- let's say weeks worked (`wks`) --- and use `imean(wks)` to
+#' include the individual's mean across all waves as a predictor while omitting
+#' the per-wave measures.
+#'
+#' There is also a place for a second `|`. Here you can specify cross-level
+#' interactions (within-level interactions can be specified here as well).
+#' If I wanted the interaction term for `union` and `blk` --- to see whether
+#' the effect of union status depended on one's race --- I would specify the
+#' formula this way:
+#'
+#' `lwage ~ union | blk | union * blk`
+#'
+#' Another use for the post-second `|` section of the formula is for changing
+#' the random effects specification. By default, only a random intercept is
+#' specified in the call to [lme4::lmer()]/[lme4::glmer()]. If you would like
+#' to specify other random slopes, include them here using the typical `lme4`
+#' syntax:
+#'
+#' `lwage ~ union | blk | (union | id)`
+#'
+#' Note that if your random slope term has non-alphanumeric characters (like
+#' if you want a random slope for `lag(union)`, then *for the random effect
+#' specification only*, you need to put that term in backticks. For example,
+#'
+#' ```
+#' lwage ~ lag(union) | blk | (`lag(union)` | id)
+#' ```
+#'
+#' This is just a limitation of the way the formulas are dealt with by
+#' `panelr`.
+#'
+#' One last thing to know: If you want to use the second `|` but not the first,
+#' put a 1 or 0 after the first, like this:
+#'
+#' `lwage ~ union | 1 | (union | id)`
+#'
+#' Of course, with no time-invariant variables, you need no `|` operators at
+#' all.
+#'
+#' **Models**
+#'
+#' As a convenience, `wbm` does the heavy lifting for specifying the
+#' within-between model correctly. Of course, as a side effect it only
+#' takes a few easy tweaks to specify the model slightly differently. You
+#' can change this behavior with the `model` argument.
+#'
+#' By default, the argument is `"w-b"` (equivalently, `"within-between"`).
+#' This means, for each time-varying predictor, you have two types of
+#' variables in the model. The "between" effect is represented by the
+#' individual-level mean for each entity (e.g., each respondent to a panel
+#' survey). The "within" effect is represented by each wave's measure *with
+#' the individual-level mean* subtracted. Some refer to this as "de-meaning."
+#' Thinking in a Hausman test framework --- with the within-between model as
+#' described here --- you should expect the within and between
+#' coefficients to be the same if a random effects model were appropriate.
+#'
+#' The contextual model is very similar (use argument `"contextual"`). In
+#' some situations, this will be more intuitive to interpret. Empirically,
+#' the only difference compared to the within-between specification is that
+#' the contextual model does not subtract the individual-level means from the
+#' wave-level measures. This also changes the interpretation of the
+#' between-subject coefficients: In the contextual model, they are the
+#' *difference* between the within and between effects. If there's no
+#' difference between within and between effects, then, the coefficients will
+#' be 0.
+#'
+#' To fit a random effects model, use either `"between"` or `"random"`. This
+#' involves no de-meaning and no individual-level means whatsoever.
+#'
+#' To fit a fixed effects model, use either `"within"` or `"fixed"`. Any
+#' between-subjects terms in the formula will be ignored. The time-varying
+#' variables will be de-meaned, but the individual-level mean is not included
+#' in the model.
+#'
+#' Another option is what I'm calling `"stability"`, which is a non-standard
+#' term. This is another convenience, this being one you could do yourself
+#' through the formula syntax. The idea is that while the within effect and
+#' predicting change is great, sometimes you want to really drill down on how
+#' people that are *generally* high or low on the construct differ from each
+#' other. The "stability" specification creates interaction terms with the
+#' individual level means and the time variable, giving you something like a
+#' growth curve model but with the particular question of whether the growth
+#' trend depends on the average level of a time-varying variable. This can be
+#' particularly informative when you are concerned that your time-varying
+#' variable changes so infrequently that there just isn't enough variation
+#' to glean anything from the within effect.
+#'
+#'
+#' @examples
+#' data("WageData")
+#' wages <- panel_data(WageData, id = id, wave = t)
+#' model <- wbm(lwage ~ lag(union) + wks | blk + fem | blk * lag(union),
+#'          data = wages)
+#' summary(model)
+#'
+#' @export
+#' @rdname wbm
+#' @seealso [wbm_stan()] for a Bayesian estimation option.
+#' @importFrom stats as.formula gaussian terms
 
 wbm <- function(formula, data, id = NULL, wave = NULL,
-                estimator = "w-b", use.wave = FALSE, wave.factor = FALSE,
+                model = "w-b", use.wave = FALSE, wave.factor = FALSE,
                 min.waves = 2, family = gaussian,
                 pR2 = FALSE, pvals = TRUE, weights = NULL, ...) {
 
@@ -64,7 +224,7 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
     weights <- data[[weights]]
   }
 
-  e <- wb_estimator(estimator, pf, dv, data)
+  e <- wb_model(model, pf, dv, data)
 
   data <- e$data
 
@@ -115,31 +275,38 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
 
   if (as.character(substitute(family)) == "gaussian") {
 
-    model <- lme4::lmer(fin_formula, data = data,
+    fit <- lme4::lmer(fin_formula, data = data,
                         weights = weights, ...)
 
   } else if (as.character(substitute(family)) == "negbinomial") {
 
-    model <- lme4::glmer.nb(fin_formula, data = data,
+    fit <- lme4::glmer.nb(fin_formula, data = data,
                             weights = weights, ...)
 
   } else {
 
-    model <- lme4::glmer(fin_formula, data = data, family = family,
+    fit <- lme4::glmer(fin_formula, data = data, family = family,
                          weights = weights, ...)
 
   }
 
   # Getting jtools summary info so it isn't re-run every time summary()
   # is called
-  j <- jtools::j_summ(model, pvals = pvals, r.squared = pR2)
+  t0 <- Sys.time()
+  j <- suppressMessages(jtools::j_summ(fit, pvals = pvals, r.squared = pR2))
+  t1 <- Sys.time()
+  if (t1 - t0 > 5) {
+    message("If wbm is taking too long to run, you can try setting",
+            "pvals = FALSE or pR2 = FALSE.")
+  }
+
   j2 <- attributes(j)
 
-  out <- list(model = model, data = data, fin_formula = fin_formula)
+  out <- list(model = fit, data = data, fin_formula = fin_formula)
 
   out <- structure(out, dv = dv, id = id, wave = wave,
               num_distinct = num_distinct,
-              varying = pf$varying, estimator = estimator,
+              varying = pf$varying, model = model,
               stab_terms = e$stab_terms,
               max_wave = maxwave, min_wave = minwave, ints = ints,
               pvals = pvals, pR2 = pR2, jsumm = j, jatts = j2)
@@ -151,9 +318,18 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
 }
 
 #' @export
-#'
+#' @importFrom stats family
 
-summary.wbm <- function(x, digits = getOption("jtools-digits", 2), ...) {
+summary.wbm <- function(object, ...) {
+
+  dots <- list(...)
+  if ("digits" %in% names(dots)) {
+    digits <- digits
+  } else {
+    digits <- getOption("jtools-digits", 2)
+  }
+
+  x <- object
 
   x2 <- attributes(x)
   j <- x2$jsumm
@@ -175,12 +351,12 @@ summary.wbm <- function(x, digits = getOption("jtools-digits", 2), ...) {
         ", Link: ", family(x$model)$link, "\n", sep = "")
   }
 
-  # Name the estimator
-  est_name <- x2$estimator
-  if (x2$estimator == "w-b") {est_name <- "within-between"}
+  # Name the model
+  est_name <- x2$model
+  if (x2$model == "w-b") {est_name <- "within-between"}
   if (est_name == "random") {est_name <- "between"}
 
-  est_info <- paste("Estimator: ", est_name, "\n\n", sep = "")
+  est_info <- paste("Specification: ", est_name, "\n\n", sep = "")
 
   mod_fit <- paste("MODEL FIT: ",
       "\n", "AIC = ", round(j2$aic, j2$digits),
@@ -299,7 +475,7 @@ summary.wbm <- function(x, digits = getOption("jtools-digits", 2), ...) {
 
   }
 
-  if (is.null(nrow(coefs))) { # Can't have single row table
+  if (is.null(nrow(coefs)) && est_name != "within") { # Can't have single row
 
     if (dim(coefs)[1] > 0) {
       vec <- coefs
@@ -311,13 +487,17 @@ summary.wbm <- function(x, digits = getOption("jtools-digits", 2), ...) {
       between_table <- NULL
     }
 
-  } else {
+  } else if (est_name != "within") {
 
     between_table <- as.table(coefs)
 
+  } else {
+
+    between_table <- NULL
+
   }
 
-  if (x2$estimator == "stability") {
+  if (x2$model == "stability") {
 
     if (length(x2$stab_terms) == 1) { # Can't have single row table
 
@@ -368,7 +548,7 @@ summary.wbm <- function(x, digits = getOption("jtools-digits", 2), ...) {
   out <- list(ranef_table = ranef_table, time_trends = time_trends,
               within_table = within_table, between_table = between_table,
               entity_icc = entity_icc, mod_info = mod_info, mod_fit = mod_fit,
-              estimator = x2$estimator, est_name = est_name,
+              model = x2$model, est_name = est_name,
               est_info = est_info, ints_table = ints_table, df_msg = df_msg)
   class(out) <- "summary.wbm"
   return(out)
@@ -409,7 +589,7 @@ print.summary.wbm <- function(x, ...) {
 
   }
 
-  if (x$estimator == "stability") {
+  if (x$model == "stability") {
 
     cat("BETWEEN-ENTITY TIME TRENDS:\n")
     print(x$time_trends)
@@ -442,7 +622,7 @@ print.summary.wbm <- function(x, ...) {
 #                 pvals = TRUE, weights = NULL, ...) {
 #
 #
-#   estimator <- "within" # it's just always within now
+#   model <- "within" # it's just always within now
 #
 #   # Get data prepped
 #   if (class(data)[1] == "panel_data") {
@@ -504,7 +684,7 @@ print.summary.wbm <- function(x, ...) {
 #     weights <- data[[weights]]
 #   }
 #
-#   e <- wb_estimator(estimator, pf, dv, data)
+#   e <- wb_model(model, pf, dv, data)
 #
 #   data <- e$data
 #
@@ -533,7 +713,7 @@ print.summary.wbm <- function(x, ...) {
 #
 #   out <- structure(out, dv = dv, id = id, wave = wave,
 #                    num_distinct = num_distinct,
-#                    varying = pf$varying, estimator = estimator,
+#                    varying = pf$varying, model = model,
 #                    max_wave = maxwave, min_wave = minwave,
 #                    pvals = pvals, jsumm = j, jatts = j2)
 #
@@ -557,10 +737,10 @@ print.summary.wbm <- function(x, ...) {
 #
 #   mod_info <- paste0(mod_info, "Model type: OLS\n")
 #
-#   # Name the estimator
-#   est_name <- x2$estimator
+#   # Name the model
+#   est_name <- x2$model
 #
-#   est_info <- paste("Estimator: ", est_name, "\n\n", sep = "")
+#   est_info <- paste("model: ", est_name, "\n\n", sep = "")
 #
 #   mod_fit <- paste0("MODEL FIT: ",
 #                    "\n", "R-squared = ", round(j2$rsq, j2$digits), "\n\n")
@@ -626,7 +806,7 @@ print.summary.wbm <- function(x, ...) {
 #
 #   out <- list(within_table = within_table, mod_info = mod_info,
 #               mod_fit = mod_fit,
-#               estimator = x2$estimator, est_name = est_name,
+#               model = x2$model, est_name = est_name,
 #               est_info = est_info)
 #   class(out) <- "summary.wlm"
 #   return(out)
@@ -657,7 +837,7 @@ print.summary.wbm <- function(x, ...) {
 
 
 
-# wb_lme <- function(formula, data, id = NULL, wave = NULL, estimator = "w-b",
+# wb_lme <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
 #                    use.wave = TRUE, wave.factor = FALSE,
 #                    min.waves = 2, model.cor = TRUE, weights = NULL) {
 #
@@ -719,7 +899,7 @@ print.summary.wbm <- function(x, ...) {
 #     weights <- data[[weights]]
 #   }
 #
-#   e <- wb_estimator(estimator, pf, dv, data)
+#   e <- wb_model(model, pf, dv, data)
 #
 #   data <- e$data
 #
@@ -760,7 +940,7 @@ print.summary.wbm <- function(x, ...) {
 #   out <- list(model = model, data = data, fin_formula = fin_formula,
 #               dv = dv, id = id, wave = wave,
 #               model_cor = model.cor, num_distinct = num_distinct,
-#               varying = pf$varying, estimator = estimator,
+#               varying = pf$varying, model = model,
 #               stab_terms = e$stab_terms)
 #
 #   class(out) <- "wb_lme"
@@ -779,13 +959,13 @@ print.summary.wbm <- function(x, ...) {
 #   cat("Dependent variable:", x$dv, "\n")
 #   cat("Model type: Linear mixed effects\n")
 #
-#   # Name the estimator
-#   est_name <- x$estimator
-#   if (x$estimator == "w-b") {est_name <- "within-between"}
-#   if (x$estimator == "stability") {
+#   # Name the model
+#   est_name <- x$model
+#   if (x$model == "w-b") {est_name <- "within-between"}
+#   if (x$model == "stability") {
 #     est_name <- "within-between with between-entity time trends"
 #   }
-#   cat("Estimator: ", est_name, "\n\n", sep = "")
+#   cat("model: ", est_name, "\n\n", sep = "")
 #
 #   cat("MODEL FIT:\n")
 #   cat("AIC =", summary(x$model)$AIC, "\n")
@@ -864,7 +1044,7 @@ print.summary.wbm <- function(x, ...) {
 #   }
 #   cat("\n")
 #
-#   if (x$estimator == "stability") {
+#   if (x$model == "stability") {
 #
 #     cat("BETWEEN-ENTITY TIME TRENDS:\n")
 #     if (length(x$stab_terms) == 1) { # Can't have single row table

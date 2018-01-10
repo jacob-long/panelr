@@ -1,4 +1,12 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-^\.panel-simulations.R$
 ^appveyor\.yml$
+^README\.Rmd$
+^README-.*\.png$
+^\.travis\.yml$
+^codecov\.yml$
+^examples\.R$
+^naes\.R$
+^panel\-simulations\.R$
+^diagnostics\.R$
+^data\-raw$

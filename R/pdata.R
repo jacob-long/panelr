@@ -1,3 +1,18 @@
+#' @title Create panel data frames
+#' @description Format your data for use with \pkg{panelr}.
+#' @param data A data frame.
+#' @param id The name of the column (unquoted) that identifies
+#'   participants/entities. A new column will be created called `id`,
+#'   overwriting any column that already has that name.
+#' @param wave The name of the column (unquoted) that identifies
+#'   waves or periods. A new column will be created called `wave`,
+#'   overwriting any column that already has that name.
+#' @return A `panel_data` object.
+#' @examples
+#' data("WageData")
+#' wages <- panel_data(WageData, id = id, wave = t)
+#'
+#' @rdname panel_data
 #' @import dplyr
 #' @export
 
@@ -61,13 +76,23 @@ complete_cases <- function(data, min.waves = "all") {
 
   data <- data[data[["id"]] %in% keeps,]
 
-  data <- panel_data(data = data, id = id, wave = wave)
-
   return(data)
 
 }
 
+#' @title Filter out entities with too few observations
+#' @description This function allows you to define a minimum number of
+#'   waves/periods and exclude all individuals with fewer observations than
+#'   that.
+#' @param data A [panel_data()] frame.
+#' @param formula A formula, like the one you'll be using to specify your model.
+#' @param vars As an alternative to formula, a vector of variable names.
+#' @param min.waves What is the minimum number of observations to be kept?
+#'   Default is `"all"`, but it can be any number.
+#' @return A `panel_data` frame.
+#' @rdname complete_data
 #' @export
+#' @importFrom stats complete.cases as.formula
 
 complete_data <- function(data, formula = NULL, vars = NULL,
                           min.waves = "all") {
@@ -96,8 +121,6 @@ complete_data <- function(data, formula = NULL, vars = NULL,
   keeps <- names(t)[keeps]
 
   data <- data[data[["id"]] %in% keeps,]
-
-  data <- panel_data(data = data, id = id, wave = wave)
 
   return(data)
 

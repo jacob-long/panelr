@@ -1,6 +1,16 @@
-
+#' @title Make model frames for panel_data objects
+#' @description This is similar to model.frame, but is designed specifically
+#'   for [panel_data()] data frames. It's a workhorse in [wbm()]
+#'   but may be useful in scripting use as well.
+#' @param formula A formula. Note that to get an individual-level mean with
+#'   incomplete data (e.g., panel attrition), you should use `imean()` rather
+#'   than `mean()`.
+#' @param data A [panel_data()] frame.
+#' @return A [panel_data()] frame with only the columns needed to fit
+#'   a model as described by the formula.
 #' @import magrittr
 #' @import dplyr
+#' @rdname model_frame
 #' @export
 
 model_frame <- function(formula, data) {
@@ -49,6 +59,7 @@ model_frame <- function(formula, data) {
 }
 
 #' @import dplyr
+#' @importFrom rlang :=
 
 get_var <- function(data, var) {
 
