@@ -178,6 +178,21 @@ model <- wbm(lwage ~ lag(union) + wks | blk + fem | blk * lag(union),
 summary(model)
 
 }
+\references{
+Allison, P. (2009). \emph{Fixed effects regression models}.
+Thousand Oaks, CA: SAGE Publications.
+https://doi.org/10.4135/9781412993869.d33
+
+Bell, A., & Jones, K. (2015). Explaining fixed effects: Random effects
+modeling of time-series cross-sectional and panel data.
+\emph{Political Science Research and Methods}, \emph{3}, 133–153.
+https://doi.org/10.1017/psrm.2014.7
+
+Curran, P. J., & Bauer, D. J. (2011). The disaggregation of within-person
+and between-person effects in longitudinal models of change.
+\emph{Annual Review of Psychology}, \emph{62}, 583–619.
+https://doi.org/10.1146/annurev.psych.093008.100356
+}
 \seealso{
 \code{\link[=wbm_stan]{wbm_stan()}} for a Bayesian estimation option.
 }

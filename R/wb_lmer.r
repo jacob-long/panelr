@@ -148,13 +148,28 @@
 #' variable changes so infrequently that there just isn't enough variation
 #' to glean anything from the within effect.
 #'
-#'
 #' @examples
 #' data("WageData")
 #' wages <- panel_data(WageData, id = id, wave = t)
 #' model <- wbm(lwage ~ lag(union) + wks | blk + fem | blk * lag(union),
 #'          data = wages)
 #' summary(model)
+#'
+#' @references
+#'
+#' Allison, P. (2009). *Fixed effects regression models*.
+#' Thousand Oaks, CA: SAGE Publications.
+#' https://doi.org/10.4135/9781412993869.d33
+#'
+#' Bell, A., & Jones, K. (2015). Explaining fixed effects: Random effects
+#' modeling of time-series cross-sectional and panel data.
+#' *Political Science Research and Methods*, *3*, 133–153.
+#' https://doi.org/10.1017/psrm.2014.7
+#'
+#' Curran, P. J., & Bauer, D. J. (2011). The disaggregation of within-person
+#' and between-person effects in longitudinal models of change.
+#' *Annual Review of Psychology*, *62*, 583–619.
+#' https://doi.org/10.1146/annurev.psych.093008.100356
 #'
 #' @export
 #' @rdname wbm
@@ -296,7 +311,7 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
   j <- suppressMessages(jtools::j_summ(fit, pvals = pvals, r.squared = pR2))
   t1 <- Sys.time()
   if (t1 - t0 > 5) {
-    message("If wbm is taking too long to run, you can try setting",
+    message("If wbm is taking too long to run, you can try setting ",
             "pvals = FALSE or pR2 = FALSE.")
   }
 
