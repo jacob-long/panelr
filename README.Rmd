@@ -6,13 +6,13 @@ output: github_document
 
 ```{r, echo = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
+  collapse = FALSE,
   comment = "#>",
   fig.path = "README-"
 )
 ```
 
-[![Travis-CI Build Status](https://travis-ci.org/jacob-long/panelr.svg?branch=master)](https://travis-ci.org/jacob-long/panelr)[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/jacob-long/panelr?branch=master&svg=true)](https://ci.appveyor.com/project/jacob-long/panelr)[![Coverage Status](https://img.shields.io/codecov/c/github/jacob-long/panelr/master.svg)](https://codecov.io/github/jacob-long/panelr?branch=master)
+[![Travis-CI Build Status](https://travis-ci.org/jacob-long/panelr.svg?branch=master)](https://travis-ci.org/jacob-long/panelr) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/jacob-long/panelr?branch=master&svg=true)](https://ci.appveyor.com/project/jacob-long/panelr) [![Coverage Status](https://img.shields.io/codecov/c/github/jacob-long/panelr/master.svg)](https://codecov.io/github/jacob-long/panelr?branch=master)
 
 
 # panelr
