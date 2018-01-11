@@ -10,3 +10,5 @@
 ^panel\-simulations\.R$
 ^diagnostics\.R$
 ^data\-raw$
+^cran-comments\.md$
+^CONDUCT\.md$
