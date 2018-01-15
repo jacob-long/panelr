@@ -129,7 +129,7 @@ wb_formula_parser <- function(formula, dv) {
 
 }
 
-wb_model <- function(model, pf, dv, data, dynamic = FALSE) {
+wb_model <- function(model, pf, dv, data) {
 
   # Create empty stab terms vector so I can pass it along even for other
   # models
@@ -146,12 +146,6 @@ wb_model <- function(model, pf, dv, data, dynamic = FALSE) {
       # De-mean
       data[v] <- data[v] - data[pf$meanvars[v]]
 
-    }
-
-    if (dynamic == TRUE) {
-      lagdv <- paste0("lag(", dv, ")")
-      dvmean <- paste0("imean(", dv, ")")
-      data[lagdv] <- data[lagdv] - data[dvmean]
     }
 
   }

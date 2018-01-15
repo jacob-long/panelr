@@ -6,8 +6,7 @@
 \usage{
 wbm(formula, data, id = NULL, wave = NULL, model = "w-b",
   use.wave = FALSE, wave.factor = FALSE, min.waves = 2,
-  family = gaussian, dynamic = FALSE, pR2 = FALSE, pvals = TRUE,
-  weights = NULL, ...)
+  family = gaussian, pR2 = FALSE, pvals = TRUE, weights = NULL, ...)
 }
 \arguments{
 \item{formula}{Model formula. See details for crucial
@@ -37,10 +36,6 @@ include only complete panelists.}
 
 \item{family}{Use this to specify GLM link families. Default is \code{gaussian},
 the linear model.}
-
-\item{dynamic}{Include the lagged dependent variable? Caution is advised
-if you want to do this, but it is hard to fit this model via the formula
-syntax. Default is FALSE.}
 
 \item{pR2}{Calculate a pseudo R-squared? Default is FALSE because it
 often adds a great deal of computation time if sample sizes are medium
@@ -80,8 +75,9 @@ individual's wages (\code{lwage}) with their union status (\code{union}), which 
 change over time, and their race (\code{blk}; dichotomized as black or
 non-black),
 which does not change throughout the period of study. Our formula will look
-like this:\preformatted{lwage ~ union | blk
-}
+like this:
+
+\code{lwage ~ union | blk}
 
 We put time-varying variables before the first \code{|} and time-invariant
 variables afterwards. You can specify lags like \code{lag(union)} for time-varying
@@ -98,15 +94,17 @@ There is also a place for a second \code{|}. Here you can specify cross-level
 interactions (within-level interactions can be specified here as well).
 If I wanted the interaction term for \code{union} and \code{blk} --- to see whether
 the effect of union status depended on one's race --- I would specify the
-formula this way:\preformatted{lwage ~ union | blk | union * blk
-}
+formula this way:
+
+\code{lwage ~ union | blk | union * blk}
 
 Another use for the post-second \code{|} section of the formula is for changing
 the random effects specification. By default, only a random intercept is
 specified in the call to \code{\link[lme4:lmer]{lme4::lmer()}}/\code{\link[lme4:glmer]{lme4::glmer()}}. If you would like
 to specify other random slopes, include them here using the typical \code{lme4}
-syntax:\preformatted{lwage ~ union | blk | (union | id)
-}
+syntax:
+
+\code{lwage ~ union | blk | (union | id)}
 
 Note that if your random slope term has non-alphanumeric characters (like
 if you want a random slope for \code{lag(union)}, then \emph{for the random effect
@@ -117,8 +115,9 @@ This is just a limitation of the way the formulas are dealt with by
 \code{panelr}.
 
 One last thing to know: If you want to use the second \code{|} but not the first,
-put a 1 or 0 after the first, like this:\preformatted{lwage ~ union | 1 | (union | id)
-}
+put a 1 or 0 after the first, like this:
+
+\code{lwage ~ union | 1 | (union | id)}
 
 Of course, with no time-invariant variables, you need no \code{|} operators at
 all.
