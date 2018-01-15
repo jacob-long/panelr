@@ -12,3 +12,4 @@
 ^data\-raw$
 ^cran-comments\.md$
 ^CONDUCT\.md$
+^docs$

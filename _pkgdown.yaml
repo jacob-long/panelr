@@ -1,0 +1,26 @@
+template:
+  params:
+    bootswatch: flatly
+
+navbar:
+  type: inverse
+  left:
+    - icon: fa-home
+      href: index.html
+    - icon: fa-file-code-o
+      text: "Documentation"
+      href: reference/index.html
+    - icon: fa-newspaper-o
+      text: "News"
+      href: news/index.html
+#    - icon: fa-book
+#      text: "Vignettes"
+#      menu:
+#      -  text: Tools for summarizing and visualizing regression models
+#         href: articles/summ.html
+#      -  text: Exploring interactions with continuous predictors in regression models
+#         href: articles/interactions.html
+  right:
+    - icon: fa-github fa-lg
+      text: "Github"
+      href: https://github.com/jacob-long/panelr
