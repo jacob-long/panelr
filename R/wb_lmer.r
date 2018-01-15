@@ -20,6 +20,9 @@
 #'   include only complete panelists.
 #' @param family Use this to specify GLM link families. Default is `gaussian`,
 #'   the linear model.
+#' @param dynamic Include the lagged dependent variable? Caution is advised
+#'   if you want to do this, but it is hard to fit this model via the formula
+#'   syntax. Default is FALSE.
 #' @param pR2 Calculate a pseudo R-squared? Default is FALSE because it
 #'   often adds a great deal of computation time if sample sizes are medium
 #'   size or larger.
@@ -52,7 +55,9 @@
 #' which does not change throughout the period of study. Our formula will look
 #' like this:
 #'
-#' `lwage ~ union | blk`
+#' ```
+#' lwage ~ union | blk
+#' ```
 #'
 #' We put time-varying variables before the first `|` and time-invariant
 #' variables afterwards. You can specify lags like `lag(union)` for time-varying
@@ -71,7 +76,9 @@
 #' the effect of union status depended on one's race --- I would specify the
 #' formula this way:
 #'
-#' `lwage ~ union | blk | union * blk`
+#' ```
+#' lwage ~ union | blk | union * blk
+#' ```
 #'
 #' Another use for the post-second `|` section of the formula is for changing
 #' the random effects specification. By default, only a random intercept is
@@ -79,7 +86,9 @@
 #' to specify other random slopes, include them here using the typical `lme4`
 #' syntax:
 #'
-#' `lwage ~ union | blk | (union | id)`
+#' ```
+#' lwage ~ union | blk | (union | id)
+#' ```
 #'
 #' Note that if your random slope term has non-alphanumeric characters (like
 #' if you want a random slope for `lag(union)`, then *for the random effect
@@ -95,7 +104,9 @@
 #' One last thing to know: If you want to use the second `|` but not the first,
 #' put a 1 or 0 after the first, like this:
 #'
-#' `lwage ~ union | 1 | (union | id)`
+#' ```
+#' lwage ~ union | 1 | (union | id)
+#' ```
 #'
 #' Of course, with no time-invariant variables, you need no `|` operators at
 #' all.
@@ -178,7 +189,7 @@
 
 wbm <- function(formula, data, id = NULL, wave = NULL,
                 model = "w-b", use.wave = FALSE, wave.factor = FALSE,
-                min.waves = 2, family = gaussian,
+                min.waves = 2, family = gaussian, dynamic = FALSE,
                 pR2 = FALSE, pvals = TRUE, weights = NULL, ...) {
 
   # Get data prepped
@@ -228,6 +239,11 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
   if (!is.null(weights)) {
     mf_form <- paste(mf_form, "+", weights)
   }
+  # Add lagged DV
+  if (dynamic == TRUE) {
+    mf_form <- paste0(mf_form, " + lag(", dv, ")", " + imean(", dv, ")")
+  }
+
   # Pass to special model_frame function that respects tibble groupings
   data <- model_frame(as.formula(mf_form), data = data)
 
@@ -239,7 +255,7 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
     weights <- data[[weights]]
   }
 
-  e <- wb_model(model, pf, dv, data)
+  e <- wb_model(model, pf, dv, data, dynamic)
 
   data <- e$data
 
@@ -249,6 +265,10 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
 
   if (wave.factor == TRUE) {
     data[,wave] <- as.factor(data[,wave])
+  }
+
+  if (dynamic == TRUE) {
+    e$fin_formula <- paste0(e$fin_formula, " + lag(", dv, ")")
   }
 
   if (pf$conds > 2) {
@@ -324,7 +344,8 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
               varying = pf$varying, model = model,
               stab_terms = e$stab_terms,
               max_wave = maxwave, min_wave = minwave, ints = ints,
-              pvals = pvals, pR2 = pR2, jsumm = j, jatts = j2)
+              pvals = pvals, pR2 = pR2, jsumm = j, jatts = j2,
+              dynamic = dynamic)
 
   class(out) <- "wbm"
 
@@ -397,6 +418,9 @@ summary.wbm <- function(object, ...) {
   varying <- x2$varying
   if (est_name == "within") {
     varying <- c("(Intercept)", varying)
+  }
+  if (x2$dynamic == TRUE) {
+    varying <- c(varying, paste0("lag(", x2$dv, ")"))
   }
 
   if (x2$pvals == TRUE) {

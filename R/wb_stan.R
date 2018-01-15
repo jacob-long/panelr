@@ -50,9 +50,9 @@
 
 wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
                    use.wave = FALSE, wave.factor = FALSE, min.waves = 2,
-                   model.cor = FALSE, family = gaussian, fit_model = TRUE,
-                   chains = 3, iter = 2000, scale = FALSE, save_ranef = FALSE,
-                   weights = NULL, ...) {
+                   model.cor = FALSE, family = gaussian, dynamic = FALSE,
+                   fit_model = TRUE, chains = 3, iter = 2000, scale = FALSE,
+                   save_ranef = FALSE, weights = NULL, ...) {
 
   # Get data prepped
   if (class(data)[1] == "panel_data") {
@@ -101,6 +101,10 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
   if (!is.null(weights)) {
     mf_form <- paste(mf_form, "+", weights)
   }
+  # Add lagged DV
+  if (dynamic == TRUE) {
+    mf_form <- paste0(mf_form, " + lag(", dv, ")", " + imean(", dv, ")")
+  }
   # Pass to special model_frame function that respects tibble groupings
   data <- model_frame(as.formula(mf_form), data = data)
 
@@ -109,7 +113,7 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
   maxwave <- max(data["wave"])
   minwave <- min(data["wave"])
 
-  e <- wb_model(model, pf, dv, data)
+  e <- wb_model(model, pf, dv, data, dynamic)
 
   data <- e$data
 
@@ -119,6 +123,10 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
 
   if (wave.factor == TRUE) {
     data[,wave] <- as.factor(data[,wave])
+  }
+
+  if (dynamic == TRUE) {
+    e$fin_formula <- paste0(e$fin_formula, " + lag.", dv, ".")
   }
 
   fin_formula <- formula_esc(e$fin_formula,

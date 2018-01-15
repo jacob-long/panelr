@@ -6,8 +6,9 @@
 \usage{
 wbm_stan(formula, data, id = NULL, wave = NULL, model = "w-b",
   use.wave = FALSE, wave.factor = FALSE, min.waves = 2,
-  model.cor = FALSE, family = gaussian, fit_model = TRUE, chains = 3,
-  iter = 2000, scale = FALSE, save_ranef = FALSE, weights = NULL, ...)
+  model.cor = FALSE, family = gaussian, dynamic = FALSE,
+  fit_model = TRUE, chains = 3, iter = 2000, scale = FALSE,
+  save_ranef = FALSE, weights = NULL, ...)
 }
 \arguments{
 \item{formula}{Model formula. See details for crucial
@@ -42,6 +43,10 @@ runtime, and avoid warnings for non-linear models.}
 
 \item{family}{Use this to specify GLM link families. Default is \code{gaussian},
 the linear model.}
+
+\item{dynamic}{Include the lagged dependent variable? Caution is advised
+if you want to do this, but it is hard to fit this model via the formula
+syntax. Default is FALSE.}
 
 \item{fit_model}{Fit the model? Default is TRUE. If FALSE, only the model
 code is returned.}

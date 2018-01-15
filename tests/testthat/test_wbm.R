@@ -224,6 +224,21 @@ test_that("wbm summary works", {
 })
 
 
+# Dynamic specification ---------------------------------------------------
+context("Dynamic specification")
+
+wb <- wbm(wks ~ union + lag(lwage) | blk,
+          data = wages, pvals = TRUE, dynamic = TRUE)
+
+test_that("wbm works", {
+  expect_s3_class(wb, "wbm")
+})
+test_that("wbm summary works", {
+  expect_s3_class(swb <- summary(wb), "summary.wbm")
+  expect_output(print(swb))
+})
+
+
 # wbm_stan ----------------------------------------------------------------
 context("wbm_stan")
 model <- wbm_stan(lwage ~ lag(union) + wks | blk + fem | blk * lag(union),
@@ -258,3 +273,10 @@ test_that("wbm_stan works w/ other models", {
   expect_s3_class(model3$stan_code, "brmsmodel")
 })
 
+model <- wbm_stan(lwage ~ lag(union) + wks | blk + fem,
+                  data = wages, chains = 1, iter = 2000, fit_model = FALSE,
+                  dynamic = TRUE)
+test_that("wbm_stan works w/ dynamic specification", {
+  expect_s3_class(model$stan_data, "standata")
+  expect_s3_class(model$stan_code, "brmsmodel")
+})
