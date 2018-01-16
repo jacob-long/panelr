@@ -4,8 +4,6 @@ output: github_document
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# panelr
-
 ```{r, echo = FALSE}
 knitr::opts_chunk$set(
   collapse = FALSE,
@@ -14,7 +12,10 @@ knitr::opts_chunk$set(
 )
 ```
 
-[![GitHub tag](https://img.shields.io/github/tag/jacob-long/panelr.svg?label=Github)](https://github.com/jacob-long/panelr) [![Travis-CI Build Status](https://travis-ci.org/jacob-long/panelr.svg?branch=master)](https://travis-ci.org/jacob-long/panelr) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/jacob-long/panelr?branch=master&svg=true)](https://ci.appveyor.com/project/jacob-long/panelr) [![Coverage Status](https://img.shields.io/codecov/c/github/jacob-long/panelr/master.svg)](https://codecov.io/github/jacob-long/panelr?branch=master)
+[![Travis-CI Build Status](https://travis-ci.org/jacob-long/panelr.svg?branch=master)](https://travis-ci.org/jacob-long/panelr) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/jacob-long/panelr?branch=master&svg=true)](https://ci.appveyor.com/project/jacob-long/panelr) [![Coverage Status](https://img.shields.io/codecov/c/github/jacob-long/panelr/master.svg)](https://codecov.io/github/jacob-long/panelr?branch=master)
+
+
+# panelr
 
 This is an R package designed to aid in the analysis of panel data, 
 designs in which the same group of respondents/entities are contacted/measured
