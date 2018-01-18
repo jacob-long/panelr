@@ -223,6 +223,30 @@ test_that("wbm summary works", {
   expect_output(print(swb))
 })
 
+# wbm with detrending ---------------------------------------------------
+context("wbm with detrending")
+
+wb1 <- wbm(wks ~ union + lag(lwage) | blk | (union | id),
+          data = wages, pvals = FALSE, detrend = TRUE)
+wb2 <- wbm(wks ~ union + lag(lwage) | blk | (union | id),
+           data = wages, pvals = FALSE, detrend = TRUE,
+           balance_correction = TRUE)
+
+test_that("wbm works (detrend only)", {
+  expect_s3_class(wb1, "wbm")
+})
+test_that("wbm works (w/ balance_correction)", {
+  expect_s3_class(wb2, "wbm")
+})
+test_that("wbm summary works (detrend only)", {
+  expect_s3_class(swb1 <- summary(wb1), "summary.wbm")
+  expect_output(print(swb1))
+})
+test_that("wbm summary works (detrend only)", {
+  expect_s3_class(swb2 <- summary(wb2), "summary.wbm")
+  expect_output(print(swb2))
+})
+
 
 # wbm_stan ----------------------------------------------------------------
 context("wbm_stan")
@@ -256,5 +280,23 @@ test_that("wbm_stan works w/ other models", {
   expect_s3_class(model2$stan_code, "brmsmodel")
   expect_s3_class(model3$stan_data, "standata")
   expect_s3_class(model3$stan_code, "brmsmodel")
+})
+
+model <- wbm_stan(lwage ~ lag(union) + wks | blk + fem | (blk | id),
+                  data = wages, chains = 1, iter = 2000, fit_model = FALSE,
+                  detrend = TRUE)
+
+test_that("wbm_stan works w/ detrending", {
+  expect_s3_class(model$stan_data, "standata")
+  expect_s3_class(model$stan_code, "brmsmodel")
+})
+
+model <- wbm_stan(lwage ~ lag(union) + wks | blk + fem | (blk | id),
+                  data = wages, chains = 1, iter = 2000, fit_model = FALSE,
+                  detrend = TRUE, balance_correction = TRUE)
+
+test_that("wbm_stan works w/ balance correction", {
+  expect_s3_class(model$stan_data, "standata")
+  expect_s3_class(model$stan_code, "brmsmodel")
 })
 

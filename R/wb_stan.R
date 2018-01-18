@@ -49,8 +49,9 @@
 #' @importFrom stats as.formula gaussian terms
 
 wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
-                   use.wave = FALSE, wave.factor = FALSE, min.waves = 2,
-                   model.cor = FALSE, family = gaussian, fit_model = TRUE,
+                   detrend = FALSE, use.wave = FALSE, wave.factor = FALSE,
+                   min.waves = 2, model.cor = FALSE, family = gaussian,
+                   fit_model = TRUE, balance_correction = FALSE, dt_order = 1,
                    chains = 3, iter = 2000, scale = FALSE, save_ranef = FALSE,
                    weights = NULL, ...) {
 
@@ -92,11 +93,29 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
   # Pass to helper function
   pf <- wb_formula_parser(formula, dv)
 
-  # Create formula to pass to model_frame
-  mf_form <- paste(paste0(dv, " ~ "),
-                   paste(pf$allvars, collapse = " + "),
-                   " + ",
-                   paste(pf$meanvars, collapse = " + "))
+  # Need to do detrending before lags, etc.
+  if (detrend == TRUE) {
+    
+    data <- detrend(data, pf, dt_order, balance_correction)
+    # Create formula to pass to model_frame
+    mf_form <- paste(paste0(dv, " ~ "), paste(pf$allvars, collapse = " + "))
+    
+    # Need to escape manually created meanvars
+    meanvars <- pf$meanvars
+    meanvars <- sapply(meanvars, bt)
+    
+    mf_form <- paste(mf_form, "+", paste(meanvars, collapse = " + "))
+    
+  } else {
+    
+    # Create formula to pass to model_frame
+    mf_form <- paste(paste0(dv, " ~ "),
+                     paste(pf$allvars, collapse = " + "),
+                     " + ",
+                     paste(pf$meanvars, collapse = " + "))
+    
+  }
+  
   # Add weights to keep it in the DF
   if (!is.null(weights)) {
     mf_form <- paste(mf_form, "+", weights)
@@ -109,7 +128,7 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
   maxwave <- max(data["wave"])
   minwave <- min(data["wave"])
 
-  e <- wb_model(model, pf, dv, data)
+  e <- wb_model(model, pf, dv, data, detrend)
 
   data <- e$data
 
