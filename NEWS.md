@@ -1,3 +1,12 @@
+# panelr 0.2.0
+
+New feature:
+
+* `detrend` and `balance_correction` arguments were added to `wbm` to implement
+the procedures described in Curran and Bauer (2011). These, respectively,
+account for over-time trends in the predictors and correcting between-subject
+effects when panels are unbalanced.
+
 # panelr 0.1.1
 
 * Added a `NEWS.md` file to track changes to the package.
