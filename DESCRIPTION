@@ -12,6 +12,7 @@ Description: This package implements several methods for creating regression
 Depends: R (>= 3.4.0)
 Imports: dplyr,
       tidyr,
+      tibble,
       lme4,
       pbkrtest,
       jtools,

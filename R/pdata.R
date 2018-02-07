@@ -7,6 +7,8 @@
 #' @param wave The name of the column (unquoted) that identifies
 #'   waves or periods. A new column will be created called `wave`,
 #'   overwriting any column that already has that name.
+#' @param ... Attributes for adding onto this method. See
+#'  [tibble::new_tibble()] for a run-through of the logic. 
 #' @return A `panel_data` object.
 #' @examples
 #' data("WageData")
@@ -16,7 +18,7 @@
 #' @import dplyr
 #' @export
 
-panel_data <- function(data, id = NULL, wave = NULL) {
+panel_data <- function(data, id = "id", wave = "wave", ...) {
 
   id <- as.character(substitute(id))
   wave <- as.character(substitute(wave))
@@ -27,10 +29,15 @@ panel_data <- function(data, id = NULL, wave = NULL) {
   }
 
   # Let's make sure ID var doesn't get confused for numeric
-  data$id <- factor(data$id)
+  if (!is.factor(data$id)) {data$id <- factor(data$id)}
 
   # Group by case ID
-  data <- group_by(data, id)
+  if ("id" %nin% group_vars(data)) {data <- group_by(data, id, add = TRUE)}
+  # Warn about multi-grouped DFs
+  if (length(group_vars(data)) > 1) {
+    message(paste("Detected additional grouping variables. Be aware this may",
+                  "\ncause unexpected behavior or incorrect results."))
+  } 
 
   # Append wave column if wave isn't already called wave
   if (wave != "wave") {
@@ -47,11 +54,10 @@ panel_data <- function(data, id = NULL, wave = NULL) {
 
   # Ordering by wave and then group ensures lag functions work right
   data <- arrange(data, wave, .by_group = TRUE)
-
-  # Inherit from df, tibble
-  data <-
-    structure(data, class = c("panel_data", "grouped_df", "tbl_df",
-                              "data.frame"))
+  
+  # Inherit from df, tibble, and grouped_df (last one is critical)
+  data <- tibble::new_tibble(data, ..., 
+                             subclass = c("panel_data", "grouped_df"))
 
   return(data)
 

@@ -4,7 +4,7 @@
 \alias{panel_data}
 \title{Create panel data frames}
 \usage{
-panel_data(data, id = NULL, wave = NULL)
+panel_data(data, id = "id", wave = "wave", ...)
 }
 \arguments{
 \item{data}{A data frame.}
@@ -16,6 +16,9 @@ overwriting any column that already has that name.}
 \item{wave}{The name of the column (unquoted) that identifies
 waves or periods. A new column will be created called \code{wave},
 overwriting any column that already has that name.}
+
+\item{...}{Attributes for adding onto this method. See
+\code{\link[tibble:new_tibble]{tibble::new_tibble()}} for a run-through of the logic.}
 }
 \value{
 A \code{panel_data} object.
