@@ -132,5 +132,73 @@ complete_data <- function(data, formula = NULL, vars = NULL,
 
 }
 
+#' @title Convert long panel data to wide format
+#' @description This function takes [panel_data()] objects as input as converts
+#'   them to wide format for use in SEM and other situations when such a format
+#'   is needed.
+#' @param data The `panel_data` frame.
+#' @param separator When the variables are labeled with the wave number,
+#'   what should separate the variable name and wave number? By default,
+#'   it is "_". In other words, a variable named `var` will be 
+#'   `var_1`, `var_2`, and so on in the wide data frame.
+#' @return A data.frame with 1 row per respondent.
+#'
+#' @details 
+#' 
+#'  This is a wrapper for [stats::reshape()], which is renowned for being 
+#'  pretty confusing to use. This function automatically detects which of the
+#'  variables vary over time and which don't, not appending wave information
+#'  to constants.
+#' 
+#' @examples 
+#' 
+#' wages <- panel_data(WageData, id = id, wave = t)
+#' wide_wages <- widen_panel(wages)
+#' 
+#' @seealso 
+#'  \code{\link[stats]{reshape}}
+#' @rdname widen_panel
+#' @export 
+#' @importFrom stats reshape
+
+widen_panel <- function(data, separator = "_") {
+  
+  # Automatically detect constants
+  constants <- c() # Empty vector; I know, inelegant
+  for (v in names(data)[names(data) %nin% c("id","wave")]) { 
+    # Pass to is_varying function
+    c <- is_varying(data, v)
+    # Add variable to constants list if TRUE
+    if (c) {constants <- c(constants, v)}
+  }
+  
+  # If not a constant, then varying
+  varying <- names(data)[names(data) %nin% c("id", "wave", constants)]
+  
+  # Reshape doesn't play nice with tibbles
+  data <- as.data.frame(data)
+  
+  data <- stats::reshape(data = data, v.names = varying, timevar = "wave",
+                         idvar = "id", direction = "wide", sep = separator)
+  
+  return(data)
+
+}
 
 
+#' @importFrom tibble deframe
+#' @import dplyr 
+is_varying <- function(data, variable) {
+  
+  # It appends a message every...single...time
+  suppressMessages({
+  data %>%
+    # For each group, does the variable vary?
+    transmute(length(unique(!!rlang::sym(variable))) == 1L) %>%
+    # Changing to a vector
+    deframe() %>%
+    # Asking if all groups had zero changes within the groups
+    all(na.rm = TRUE)
+  })
+  
+}
