@@ -83,7 +83,9 @@ panel_data <- function(data, id = "id", wave = "wave", ...) {
 
 complete_data <- function(data, formula = NULL, vars = NULL,
                           min.waves = "all") {
-
+  # OG data frame for reconstruct()
+  old <- data
+  
   if (!is.null(formula)) {
     d <- data[c("id", "wave", all.vars(formula))]
   } else if (!is.null(vars)) {
@@ -108,6 +110,8 @@ complete_data <- function(data, formula = NULL, vars = NULL,
   keeps <- names(t)[keeps]
 
   data <- data[data[["id"]] %in% keeps,]
+  
+  data <- reconstruct(data, old)
 
   return(data)
 
