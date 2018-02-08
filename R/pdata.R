@@ -1,3 +1,5 @@
+##### panel_data ############################################################
+
 #' @title Create panel data frames
 #' @description Format your data for use with \pkg{panelr}.
 #' @param data A data frame.
@@ -57,6 +59,8 @@ panel_data <- function(data, id = "id", wave = "wave", ...) {
   
   # Inherit from df, tibble, and grouped_df (last one is critical)
   data <- tibble::new_tibble(data, ..., 
+                             idvar = id,
+                             wavevar = wave,
                              subclass = c("panel_data", "grouped_df"))
 
   return(data)
