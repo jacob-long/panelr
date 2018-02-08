@@ -1,3 +1,17 @@
+# panelr 0.3.0
+
+New functions:
+
+* `widen_panel` converts your `panel_data` object to wide format, with one row 
+per entity. This can be useful for SEM analysis and some other things.
+* `long_panel` does a much more difficult thing, which is convert wide-formatted
+data to the more conventional long panel data format. It contains several 
+means for parsing the variable names of the wide formatted data to produce
+a sensible long data frame with all the time-variant variables accounted for
+properly. Unlike `reshape`, it can deal with unbalanced data.
+* `are_varying` is a function that can let you check whether variables in 
+long-formatted panel data vary over time or not.
+
 # panelr 0.2.0
 
 New feature:
