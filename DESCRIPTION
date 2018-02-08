@@ -11,15 +11,13 @@ Description: This package implements several methods for creating regression
   supported via the brms package.
 Depends: R (>= 3.4.0)
 Imports: dplyr,
-      tidyr,
       tibble,
       lme4,
       pbkrtest,
       jtools,
       magrittr,
       stringr,
-      rlang,
-      purrr
+      rlang
 Suggests: brms,
     testthat,
     covr
