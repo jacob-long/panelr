@@ -403,7 +403,8 @@ long_panel <- function(data, prefix = "_", suffix = NULL, begin, end,
   }
   
   # Call reshape
-  out <- reshape(data, timevar = "wave", idvar = id, times = periods,
+  out <- reshape(as.data.frame(data), timevar = "wave", idvar = id,
+                 times = periods,
                  sep = sep, direction = "long",
                  varying = unlist(varying_by_period))
   if (as_panel_data == TRUE) { # Return panel_data object if requested
