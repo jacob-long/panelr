@@ -1,3 +1,13 @@
+# panelr 0.3.2
+
+This small update adds an enhancement to `long_panel` and `widen_panel`. If
+you start with wide data, convert it to long format, and then want to convert
+back to wide, the `panel_data` object in long format will cache information
+about the variables to drastically speed up `widen_panel` when you run it again.
+
+Additionally, `are_varying` was sped up by about 50%, though it slows 
+`widen_panel` down for data with many variables.
+
 # panelr 0.3.1
 
 Tiny bugfixes:
