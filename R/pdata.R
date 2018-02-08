@@ -212,6 +212,13 @@ widen_panel <- function(data, separator = "_") {
   
   # Get the names of all non-focal variables
   allvars <- names(data)[names(data) %nin% reserved_names]
+  
+  # Expedite process if the data have been reshaped before
+  if (!is.null(attr(data, "reshaped")) && attr(data, "reshaped") == TRUE) {
+    allvars <- allvars[allvars %nin% c(attr(data, "varying"),
+                                       attr(data, "constants"))]
+  }
+  
   # They will be included as arguments to are_varying
   args <- syms(as.list(allvars))
   # As will the data
@@ -220,10 +227,15 @@ widen_panel <- function(data, separator = "_") {
   allvars <- do.call(are_varying, args)
   
   # If true, we want the variable name
-  varying <- names(allvars[allvars])
+  varying <- c(names(allvars[allvars]), attr(data, "varying"))
+  
+  # Drop redundant wave variable
+  if (attr(data, "wavevar") != "wave") {
+    data <- data[names(data) %nin% attr(data, "wavevar")]
+  }
   
   # Reshape doesn't play nice with tibbles
-  data <- as.data.frame(data[names(data) %nin% attr(data, "wavevar")])
+  data <- as.data.frame(data)
   
   data <- stats::reshape(data = data, v.names = varying, timevar = "wave",
                          idvar = "id", direction = "wide", sep = separator)
@@ -409,7 +421,9 @@ long_panel <- function(data, prefix = "_", suffix = NULL, begin, end,
                  varying = unlist(varying_by_period))
   if (as_panel_data == TRUE) { # Return panel_data object if requested
     out$id <- out[[id]]
-    out <- panel_data(out, id = "id", wave = "wave")
+    out <- panel_data(out, id = "id", wave = "wave", reshaped = TRUE,
+                      varying = names(stub_tab), 
+                      constants = names(out)[names(out) %nin% names(stub_tab)])
   }
   return(out)
   
