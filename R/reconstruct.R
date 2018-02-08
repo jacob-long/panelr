@@ -6,6 +6,7 @@ reconstruct <- function(new, old) {
   UseMethod("reconstruct", old)
 }
 
+#' @import dplyr
 #' @export
 reconstruct.panel_data <- function(new, old) {
   
@@ -25,12 +26,22 @@ reconstruct.panel_data <- function(new, old) {
     return(new)
   }
   
-  if ("panel_data" %nin% class(new) | "id" %nin% dplyr::group_vars(new)) {
-    return(panel_data(new))
+  if ("panel_data" %nin% class(new) | "id" %nin% group_vars(new)) {
+    atts <- attributes(old)
+    return(panel_data(new, reshaped = atts$reshaped, varying = atts$varying,
+           constants = atts$constants))
   } else {
-    return(new)
+    return(re_attribute(new, old))
   }
   
+}
+
+re_attribute <- function(new, old) {
+  o <- attributes(old)
+  attr(new, "reshaped") <- o$reshaped
+  attr(new, "varying") <- o$varying
+  attr(new, "constants") <- o$constants
+  return(new)
 }
 
 ##### dplyr ##################################################################
