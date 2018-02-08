@@ -63,29 +63,6 @@ panel_data <- function(data, id = "id", wave = "wave", ...) {
 
 }
 
-complete_cases <- function(data, min.waves = "all") {
-
-  # Keep only complete cases
-  data <- data[complete.cases(data),]
-
-  # Using the table to count up how many obs. of each person
-  t <- table(data["id"])
-
-
-  if (min.waves == "all") {
-    min.waves <- max(t) # Whoever has the most observations has all the waves
-  }
-
-  # Keep only people who were observed minimum number of times
-  keeps <- which(t >= min.waves)
-  keeps <- names(t)[keeps]
-
-  data <- data[data[["id"]] %in% keeps,]
-
-  return(data)
-
-}
-
 #' @title Filter out entities with too few observations
 #' @description This function allows you to define a minimum number of
 #'   waves/periods and exclude all individuals with fewer observations than
@@ -132,6 +109,68 @@ complete_data <- function(data, formula = NULL, vars = NULL,
 
 }
 
+#' @importFrom tibble deframe
+#' @import dplyr 
+#' @import rlang
+
+is_varying <- function(data, variable) {
+  
+  variable <- enquo(variable)
+  
+  # It appends a message every...single...time
+  suppressMessages({
+    out <- data %>%
+      # For each group, does the variable vary?
+      transmute(length(unique(!! variable)) == 1L) %>%
+      # Changing to a vector
+      deframe() %>%
+      # Asking if all groups had zero changes within the groups
+      all(na.rm = TRUE)
+  })
+  
+  # Because the above operation basically produces the answer to is_constant
+  # I now need to return the opposite of out
+  return(!out)
+  
+}
+
+#' @title Check if variables are constant or variable over time.
+#' @description This function is designed for use with [panel_data()] objects.
+#' @param data A data frame, typically of [panel_data()] class.
+#' @param ... Variable names. If none are given, all variables are checked.
+#' @return A named logical vector. If TRUE, the variable is varying.
+#' @examples 
+#' 
+#' wages <- panel_data(WageData, id = id, wave = t)
+#' wages %>% are_varying(occ, ind, fem, blk)
+#'
+#' @rdname are_varying
+#' @import rlang
+#' @export 
+
+are_varying <- function(data, ...) {
+  
+  dots <- quos(...)
+  if (length(dots) == 0) {
+    reserved_names <- c("id","wave", attr(data, "idvar"), attr(data, "wavevar"))
+    dnames <- names(data)[names(data) %nin% reserved_names]
+    dots <- syms(as.list(dnames))
+    the_names <- dnames
+  } else {
+    the_names <- as.character(exprs(...))
+  }
+  out <- c()
+  for (i in seq_along(dots)) {
+    out <- c(out, is_varying(data, !!dots[[i]]))
+  }
+  names(out) <- the_names
+  
+  return(out)
+    
+}
+
+##### reshaping ##############################################################
+
 #' @title Convert long panel data to wide format
 #' @description This function takes [panel_data()] objects as input as converts
 #'   them to wide format for use in SEM and other situations when such a format
@@ -160,23 +199,27 @@ complete_data <- function(data, formula = NULL, vars = NULL,
 #' @rdname widen_panel
 #' @export 
 #' @importFrom stats reshape
+#' @importFrom rlang syms
 
 widen_panel <- function(data, separator = "_") {
   
-  # Automatically detect constants
-  constants <- c() # Empty vector; I know, inelegant
-  for (v in names(data)[names(data) %nin% c("id","wave")]) { 
-    # Pass to is_varying function
-    c <- is_varying(data, v)
-    # Add variable to constants list if TRUE
-    if (c) {constants <- c(constants, v)}
-  }
+  # Get the var names that we never transform
+  reserved_names <- c("id","wave", attr(data, "idvar"), attr(data, "wavevar"))
   
-  # If not a constant, then varying
-  varying <- names(data)[names(data) %nin% c("id", "wave", constants)]
+  # Get the names of all non-focal variables
+  allvars <- names(data)[names(data) %nin% reserved_names]
+  # They will be included as arguments to are_varying
+  args <- syms(as.list(allvars))
+  # As will the data
+  args$data <- data
+  # Now we get a named vector of TRUE/FALSE values
+  allvars <- do.call(are_varying, args)
+  
+  # If true, we want the variable name
+  varying <- names(allvars[allvars])
   
   # Reshape doesn't play nice with tibbles
-  data <- as.data.frame(data)
+  data <- as.data.frame(data[names(data) %nin% attr(data, "wavevar")])
   
   data <- stats::reshape(data = data, v.names = varying, timevar = "wave",
                          idvar = "id", direction = "wide", sep = separator)
