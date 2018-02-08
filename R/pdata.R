@@ -129,7 +129,7 @@ is_varying <- function(data, variable) {
   suppressMessages({
     out <- data %>%
       # For each group, does the variable vary?
-      transmute(length(unique(!! variable)) == 1L) %>%
+      transmute(n_distinct(!! variable) == 1L) %>%
       # Changing to a vector
       deframe() %>%
       # Asking if all groups had zero changes within the groups
@@ -154,27 +154,23 @@ is_varying <- function(data, variable) {
 #'
 #' @rdname are_varying
 #' @import rlang
+#' @importFrom purrr map_lgl
 #' @export 
 
 are_varying <- function(data, ...) {
   
+  class(data) <- class(data)[class(data) %nin% "panel_data"]
   dots <- quos(...)
   if (length(dots) == 0) {
     reserved_names <- c("id","wave", attr(data, "idvar"), attr(data, "wavevar"))
     dnames <- names(data)[names(data) %nin% reserved_names]
     dots <- syms(as.list(dnames))
-    the_names <- dnames
   } else {
-    the_names <- as.character(exprs(...))
+    dnames <- as.character(exprs(...))
   }
-  out <- c()
-  for (i in seq_along(dots)) {
-    out <- c(out, is_varying(data, !!dots[[i]]))
-  }
-  names(out) <- the_names
-  
-  return(out)
-    
+  out <- map_lgl(dots, function(x, d) { is_varying(!! x, data = d) }, d = data)
+  names(out) <- dnames
+  out
 }
 
 ##### reshaping ##############################################################
