@@ -17,6 +17,8 @@ Imports: dplyr,
       jtools,
       magrittr,
       stringr,
+      tidyr,
+      purrr,
       rlang
 Suggests: brms,
     testthat,
