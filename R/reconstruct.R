@@ -2,16 +2,6 @@
 ### This file is a series of S3 methods for panel_data     ###
 ### Implement generic reconstruct() until sloop is on CRAN ###
 
-#' Reconstruct an S3 class from a template
-#'
-#' This is an implementation of `sloop::reconstruct()` that users can
-#' ignore. Once `sloop` is on CRAN, this function will be removed and that
-#' version will be used. It currently must be exported for use in `tidyquant`.
-#'
-#' @param new Freshly created object
-#' @param old Existing object to use as template
-#'
-#' @export
 reconstruct <- function(new, old) {
   UseMethod("reconstruct", old)
 }
@@ -189,29 +179,4 @@ summarize_.panel_data <- function(.data, ..., .dots = list()) {
 #'
 slice_.panel_data <- function(.data, ..., .dots = list()) {
   reconstruct(NextMethod(), .data)
-}
-
-
-##### tidyr #################################################################
-
-nest.panel_data <- function(data, ..., .key = "data") {
-  reconstruct(NextMethod(), data)
-}
-
-unnest.panel_data <- function(data, ..., .drop = NA, .id = NULL, .sep = NULL) {
-  # This is called after nesting but excluding the index in the nest
-  reconstruct(NextMethod(), data)
-}
-
-# gather() and spread() seem to be needed as well
-
-gather.panel_data <- function(data, key = "key", value = "value", ...,
-                              na.rm = FALSE, convert = FALSE,
-                              factor_key = FALSE)  {
-  reconstruct(NextMethod(), data)
-}
-
-spread.panel_data <- function(data, key, value, fill = NA, convert = FALSE,
-                              drop = TRUE, sep = NULL)  {
-  reconstruct(NextMethod(), data)
 }
