@@ -1,3 +1,12 @@
+# panelr 0.3.1
+
+Tiny bugfixes:
+
+* `long_panel` would error when supplied a `tibble` rather than a base 
+`data.frame`.
+* There were namespace issues related to the `magrittr` operators used 
+internally.
+
 # panelr 0.3.0
 
 New functions:

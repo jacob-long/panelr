@@ -1,6 +1,6 @@
 Package: panelr
 Title: Regression Models and Utilities for Repeated Measures and Panel Data
-Version: 0.3.0
+Version: 0.3.1
 Authors@R: person("Jacob A.", "Long", email = "long.1377@osu.edu", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-1582-6214"))
 Description: This package implements several methods for creating regression
   models that take advantage of the unique aspects of 
