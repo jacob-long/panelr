@@ -116,6 +116,8 @@ wb_formula_parser <- function(formula, dv) {
     }
   }
 
+  non_lag_vars <- meanvars
+  names(non_lag_vars) <- varying
   # Set all the mean var names to mean(var)
   meanvars <- paste0("imean(", meanvars, ")")
   # Use this for matching varying vars to their parents
@@ -124,12 +126,13 @@ wb_formula_parser <- function(formula, dv) {
   out <- list(conds = conds, allvars = allvars, varying = varying,
               varying_form = varying_form, constants = constants,
               constants_form = constants_form,
-              cross_ints_form = cross_ints_form, meanvars = meanvars)
+              cross_ints_form = cross_ints_form, meanvars = meanvars,
+              non_lag_vars = non_lag_vars)
   return(out)
 
 }
 
-wb_model <- function(model, pf, dv, data) {
+wb_model <- function(model, pf, dv, data, detrend) {
 
   # Create empty stab terms vector so I can pass it along even for other
   # models
@@ -139,7 +142,7 @@ wb_model <- function(model, pf, dv, data) {
   within_family <- c("w-b","within-between","within","stability","fixed")
 
   # De-mean varying vars if needed
-  if (model %in% within_family) { # within models
+  if (model %in% within_family && detrend == FALSE) { # within models
 
     # Iterate through the varying variables
     for (v in pf$varying) {
@@ -208,6 +211,78 @@ wb_model <- function(model, pf, dv, data) {
 
 }
 
+#' @importFrom stats resid lm coef
+
+detrend <- function(data, pf, dt_order, balance_correction, dt_random) {
+    
+  # If random slopes, nest the data
+  if (dt_random == TRUE) {
+    # Nest the data for efficient fitting of the lms
+    data <- tidyr::nest(data)
+  }
+    
+  # Define detrending function
+  dt_model <- function(data, var, order = dt_order) {
+      
+    the_formula <- 
+      as.formula(paste(var, "~ poly(wave,", order, ", raw = TRUE)"))
+    resid(lm(formula = the_formula, data = data))
+      
+  }
+      
+  # Define between-person function
+  b_model <- function(data, var, order = dt_order, bc = balance_correction) {
+      
+    if (bc == TRUE) {  
+      
+      the_formula <- 
+        as.formula(paste(var, "~ poly(wave,", order, ", raw = TRUE)"))
+      out <- coef(mod <- lm(formula = the_formula, data = data))["(Intercept)"]
+      rep(out, times = length(resid(mod)))
+      
+    } else {
+    
+      the_formula <- as.formula(paste(var, "~ 1"))
+      out <- coef(mod <- lm(formula = the_formula, data = data))["(Intercept)"]
+      rep(out, times = nrow(data))
+      
+    }
+    
+  }
+    
+  # Iterate through the varying variables
+  for (v in pf$varying) {
+        
+    # De-trend
+    # Note that b_model differs depending on balance_correction 
+    the_var <- pf$non_lag_vars[v]
+    mean_var <- pf$meanvars[v]
+    if (dt_random == TRUE) {
+      data <-  dplyr::mutate(data,
+                             !!mean_var :=
+                               purrr::map(data, b_model, var = the_var),
+                             !!the_var :=
+                               purrr::map(data, dt_model, var = the_var)
+                            )
+    } else {
+      
+      data <-  dplyr::mutate(data,
+                             !!mean_var := b_model(data, var = the_var),
+                             !!the_var := dt_model(data, var = the_var)
+      )
+      
+    }
+      
+  }
+  
+  if (dt_random == TRUE) {
+    # Unnest the data if it was nested
+    data <- tidyr::unnest(data)
+  }
+  return(panel_data(data, id = "id", wave = "wave"))
+  
+}
+
 formula_ticks <- function(formula, vars) {
 
   for (var in vars) {
@@ -245,6 +320,25 @@ formula_esc <- function(formula, vars) {
 
   return(formula)
 
+}
+
+bt <- function(x) {
+  
+  btv <- paste0("`", x, "`")
+  btv <- gsub("``", "`", btv, fixed = TRUE)
+  return(btv)
+  
+}
+
+`%nin%` <- function(x, table) {
+  is.na(match(x, table, nomatch = NA_integer_))
+}
+
+#### Regex helper ############################################################
+
+# Taken from Hmisc
+escapeRegex <- function(string) {
+  gsub('([.|()\\^{}+$*?]|\\[|\\])', '\\\\\\1', string)
 }
 
 

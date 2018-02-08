@@ -5,8 +5,9 @@
 \title{Panel regression models}
 \usage{
 wbm(formula, data, id = NULL, wave = NULL, model = "w-b",
-  use.wave = FALSE, wave.factor = FALSE, min.waves = 2,
-  family = gaussian, pR2 = FALSE, pvals = TRUE, weights = NULL, ...)
+  detrend = FALSE, use.wave = FALSE, wave.factor = FALSE, min.waves = 2,
+  family = gaussian, balance_correction = FALSE, dt_random = TRUE,
+  dt_order = 1, pR2 = FALSE, pvals = TRUE, weights = NULL, ...)
 }
 \arguments{
 \item{formula}{Model formula. See details for crucial
@@ -23,6 +24,10 @@ panel wave column. Otherwise, leave as NULL, the default.}
 \item{model}{One of \code{"w-b"}, \code{"within"}, \code{"between"},
 \code{"contextual"}, or \code{"stability"}. See details for more on these options.}
 
+\item{detrend}{Adjust within-subject effects for trends in the predictors?
+Default is FALSE, but some research suggests this is a better idea
+(see Curran and Bauer (2011) reference).}
+
 \item{use.wave}{Should the wave be included as a predictor? Default is
 FALSE.}
 
@@ -36,6 +41,18 @@ include only complete panelists.}
 
 \item{family}{Use this to specify GLM link families. Default is \code{gaussian},
 the linear model.}
+
+\item{balance_correction}{Correct between-subject effects for unbalanced
+panels following the procedure in Curran and Bauer (2011)? Default is
+FALSE.}
+
+\item{dt_random}{Should the detrending procedure be performed with a
+random slope for each entity? Default is TRUE but for short panels
+FALSE may be better, fitting a trend for all entities.}
+
+\item{dt_order}{If detrending using \code{detrend}, what order polynomial
+would you like to specify for the relationship between time and the
+predictors? Default is 1, a linear model.}
 
 \item{pR2}{Calculate a pseudo R-squared? Default is FALSE because it
 often adds a great deal of computation time if sample sizes are medium

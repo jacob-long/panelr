@@ -1,0 +1,5 @@
+#' @export
+magrittr::`%>%`
+
+#' @export
+magrittr::`%<>%`

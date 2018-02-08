@@ -10,6 +10,9 @@
 #'   panel wave column. Otherwise, leave as NULL, the default.
 #' @param model One of `"w-b"`, `"within"`, `"between"`,
 #'   `"contextual"`, or `"stability"`. See details for more on these options.
+#' @param detrend Adjust within-subject effects for trends in the predictors?
+#'   Default is FALSE, but some research suggests this is a better idea 
+#'   (see Curran and Bauer (2011) reference).
 #' @param use.wave Should the wave be included as a predictor? Default is
 #'   FALSE.
 #' @param wave.factor Should the wave variable be treated as an unordered
@@ -20,6 +23,15 @@
 #'   include only complete panelists.
 #' @param family Use this to specify GLM link families. Default is `gaussian`,
 #'   the linear model.
+#' @param balance_correction Correct between-subject effects for unbalanced 
+#'   panels following the procedure in Curran and Bauer (2011)? Default is 
+#'   FALSE.
+#' @param dt_random Should the detrending procedure be performed with a
+#'   random slope for each entity? Default is TRUE but for short panels
+#'   FALSE may be better, fitting a trend for all entities.
+#' @param dt_order If detrending using `detrend`, what order polynomial 
+#'   would you like to specify for the relationship between time and the
+#'   predictors? Default is 1, a linear model.
 #' @param pR2 Calculate a pseudo R-squared? Default is FALSE because it
 #'   often adds a great deal of computation time if sample sizes are medium
 #'   size or larger.
@@ -177,8 +189,9 @@
 #' @importFrom stats as.formula gaussian terms
 
 wbm <- function(formula, data, id = NULL, wave = NULL,
-                model = "w-b", use.wave = FALSE, wave.factor = FALSE,
-                min.waves = 2, family = gaussian,
+                model = "w-b", detrend = FALSE, use.wave = FALSE,
+                wave.factor = FALSE, min.waves = 2, family = gaussian,
+                balance_correction = FALSE, dt_random = TRUE, dt_order = 1,
                 pR2 = FALSE, pvals = TRUE, weights = NULL, ...) {
 
   # Get data prepped
@@ -219,11 +232,29 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
   # Pass to helper function
   pf <- wb_formula_parser(formula, dv)
 
-  # Create formula to pass to model_frame
-  mf_form <- paste(paste0(dv, " ~ "),
-                   paste(pf$allvars, collapse = " + "),
-                   " + ",
-                   paste(pf$meanvars, collapse = " + "))
+  # Need to do detrending before lags, etc.
+  if (detrend == TRUE) {
+    
+    data <- detrend(data, pf, dt_order, balance_correction, dt_random)
+    # Create formula to pass to model_frame
+    mf_form <- paste(paste0(dv, " ~ "), paste(pf$allvars, collapse = " + "))
+    
+    # Need to escape manually created meanvars
+    meanvars <- pf$meanvars
+    meanvars <- sapply(meanvars, bt)
+    
+    mf_form <- paste(mf_form, "+", paste(meanvars, collapse = " + "))
+                     
+  } else {
+  
+    # Create formula to pass to model_frame
+    mf_form <- paste(paste0(dv, " ~ "),
+                     paste(pf$allvars, collapse = " + "),
+                     " + ",
+                     paste(pf$meanvars, collapse = " + "))
+    
+  }
+  
   # Add weights to keep it in the DF
   if (!is.null(weights)) {
     mf_form <- paste(mf_form, "+", weights)
@@ -239,7 +270,7 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
     weights <- data[[weights]]
   }
 
-  e <- wb_model(model, pf, dv, data)
+  e <- wb_model(model, pf, dv, data, detrend)
 
   data <- e$data
 
