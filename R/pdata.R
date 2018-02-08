@@ -186,19 +186,208 @@ widen_panel <- function(data, separator = "_") {
 }
 
 
-#' @importFrom tibble deframe
-#' @import dplyr 
-is_varying <- function(data, variable) {
+#' @title Convert wide panels to long format
+#' @description This function takes wide format panels as input and 
+#'   converts them to long format. 
+#' @param data The wide data frame.
+#' @param prefix What character(s) go before the period indicator? If none,
+#'   set this argument to NULL.
+#' @param suffix What character(s) go after the period indicator? If none,
+#'   set this argument to NULL.
+#' @param begin What is the label for the first period? Could be `1`, `"A"`,
+#'   or anything that can be sequenced.
+#' @param end What is the label for the final period? Could be `2`, `"B"`,
+#'   or anything that can be sequenced and lies further along the sequence
+#'   than the `begin` argument.
+#' @param id The name of the ID variable as a string. If there is no ID 
+#'   variable, set to NULL and one will automatically be created. 
+#' @param periods If you period indicator does not lie in a sequence or is 
+#'   not understood by the function, then you can supply them as a vector
+#'   instead. For instance, you could give `c("one","three","five")` if
+#'   your variables are labeled `var_one`, `var_three`, and `var_five`.
+#' @param label_location Where does the period label go on the variable?
+#'   If the variables are labeled like `var_1`, `var_2`, etc., then it is
+#'   `"end"`. If the labels are more like `A_var`, `B_var`, and so on, then
+#'   it is `"beginning"`.
+#' @param as_panel_data Should the return object be a [panel_data()] object?
+#'   Default is TRUE.
+#' @return Either a `data.frame` or `panel_data` frame.
+#' @details 
+#' 
+#'   There is no easy way to convert panel data from wide to long format because
+#'   the both formats are basically non-standard for other applications. 
+#'   This function can handle the common case in which the wide data frame
+#'   has a regular labeling system for each period. The key thing is 
+#'   providing enough information for the function to understand the pattern.
+#'   
+#'   In the end, this function calls [stats::reshape()] but should be easier
+#'   to use and able to handle more situations, such as when the label occurs
+#'   at the beginning of the variable name. Also, just as important, this 
+#'   function has built-in utilities to handle unbalanced data --- when 
+#'   variables occur more than once but every single period, which breaks
+#'   [stats::reshape()]. 
+#'   
+#' 
+#' @seealso [widen_panel()]
+#' @examples 
+#' 
+#' ## We need a wide data frame, so we will make one from the long-format 
+#' ## data included in the package.
+#' 
+#' # Convert WageData to panel_data object
+#' wages <- panel_data(WageData, id = id, wave = t)
+#' # Convert wages to wide format
+#' wide_wages <- widen_panel(wages)
+#' 
+#' # Note: wide_wages has variables in the following format:
+#' # var1_1, var1_2, var1_3, var2_1, var2_2, var2_3, etc.
+#' long_wages <- long_panel(wide_wages, prefix = "_", begin = 1, end = 7,
+#'                          id = "id", label_location = "end")
+#' # Note that in this case, the prefix and label_location arguments are
+#' # the defaults but are included just for clarity.
+#' 
+#' 
+#' @rdname long_panel
+#' @importFrom stringr str_extract str_detect
+#' @export 
+
+long_panel <- function(data, prefix = "_", suffix = NULL, begin, end,
+                       id = NULL, periods = NULL,
+                       label_location = c("end","beginning"),
+                       as_panel_data = TRUE) {
   
-  # It appends a message every...single...time
-  suppressMessages({
-  data %>%
-    # For each group, does the variable vary?
-    transmute(length(unique(!!rlang::sym(variable))) == 1L) %>%
-    # Changing to a vector
-    deframe() %>%
-    # Asking if all groups had zero changes within the groups
-    all(na.rm = TRUE)
-  })
+  if (is.numeric(begin) & is.null(periods)) { # Handle numeric period labels
+    if (!is.numeric(end)) {stop("begin and end must be the same type.")}
+    
+    periods <- seq(from = begin, to = end)
+    
+  } else if (is.character(begin) & is.null(periods)) { # Handle letter labels
+    if (!is.character(end)) {stop("begin and end must be the same type.")}
+    
+    if (is.finite(as.numeric(begin))) { # in case it was "1" or some such
+      periods <- seq(from = as.numeric(begin), to = as.numeric(end))
+    }
+    
+    if (begin %in% letters) { # is it a lowercase letter?
+      alpha_start <- which(letters == begin)
+      alpha_end <- which(letters == end)
+      periods <- letters[alpha_start:alpha_end]
+    } else if (begin %in% LETTERS) { # or an uppercase letter?
+      alpha_start <- which(LETTERS == begin)
+      alpha_end <- which(LETTERS == end)
+      periods <- LETTERS[alpha_start:alpha_end]
+    } else {stop("begin is a non-letter character.")}
+    
+  }
+  
+  # Make sure there is an ID column
+  if (is.null(id)) {
+    data$id <- 1:nrow(data)
+    id <- "id"
+  }
+  # Now is time to find the varying variables
+  wvars <- names(data)[names(data) %nin% id]
+  
+  # Escaping the prefix and suffix
+  if (!is.null(prefix)) {
+    pre_reg <- escapeRegex(paste0(prefix))
+  } else {pre_reg <- NULL} 
+  if (!is.null(suffix)) {
+    post_reg <- escapeRegex(paste0(suffix))
+  } else {post_reg <- NULL}
+  
+  # Programmatically building vector of regex patterns for each period
+  patterns <- c()
+  if (label_location[1] == "beginning") {
+    for (i in periods) {
+      pattern <- paste0("(?<=", pre_reg, escapeRegex(i), post_reg, ").*")
+      patterns <- c(patterns, pattern)
+    }
+    sep <- suffix
+  } else if (label_location[1] == "end") {
+    for (i in periods) {
+      pattern <- paste0(".*(?=", pre_reg, escapeRegex(i), post_reg, ")")
+      patterns <- c(patterns, pattern)
+    }
+    sep <- prefix
+  } else {stop("label_location must be 'beginning' or 'end'.")}
+  
+  # Using regex patterns to build up a list of variable names for 
+  # reshape's "varying" argument
+  varying_by_period <- as.list(rep(NA, times = length(periods)))
+  names(varying_by_period) <- periods
+  stubs_by_period <- as.list(rep(NA, times = length(periods)))
+  names(stubs_by_period) <- periods
+  for (p in patterns) {
+    stubs <- str_extract(wvars, p) 
+    matches <- str_detect(wvars, p)
+    stubs_by_period[[periods[which(patterns == p)]]] <- stubs[matches]
+    varying_by_period[[periods[which(patterns == p)]]] <-  wvars[matches]
+  }
+  
+  # Count up how many instances of each stub there are
+  stub_tab <- table(unlist(stubs_by_period))
+  if (any(stub_tab != length(periods))) {
+    
+    which_miss <- names(stub_tab)[which(stub_tab != length(periods))]
+    
+    for (var in which_miss) { # Iterate through stubs with missing periods
+      
+      for (period in periods) { # Iterate through periods
+        
+        if (var %nin% stubs_by_period[[period]]) { # If stub missing in period
+          # Build variable name
+          if (label_location[1] == "beginning") {
+            vname <- paste0(prefix, period, suffix, var)
+          } else {
+            vname <- paste0(var, prefix, period, suffix)
+          }
+          # Create column in data with empty values
+          data[vname] <- rep(NA, times = nrow(data))
+          # Add to var list (has to be done this way to preserve time order)
+          varying_by_period[[period]] <- c(varying_by_period[[period]], vname)
+          
+        }
+        
+      }
+      
+    }
+    
+  }
+  
+  # Call reshape
+  out <- reshape(data, timevar = "wave", idvar = id, times = periods,
+                 sep = sep, direction = "long",
+                 varying = unlist(varying_by_period))
+  if (as_panel_data == TRUE) { # Return panel_data object if requested
+    out$id <- out[[id]]
+    out <- panel_data(out, id = "id", wave = "wave")
+  }
+  return(out)
+  
+}
+
+##### internal panel_data tools #############################################
+
+complete_cases <- function(data, min.waves = "all") {
+  
+  # Keep only complete cases
+  data <- data[complete.cases(data),]
+  
+  # Using the table to count up how many obs. of each person
+  t <- table(data["id"])
+  
+  
+  if (min.waves == "all") {
+    min.waves <- max(t) # Whoever has the most observations has all the waves
+  }
+  
+  # Keep only people who were observed minimum number of times
+  keeps <- which(t >= min.waves)
+  keeps <- names(t)[keeps]
+  
+  data <- data[data[["id"]] %in% keeps,]
+  
+  return(data)
   
 }
