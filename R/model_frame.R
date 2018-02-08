@@ -8,7 +8,6 @@
 #' @param data A [panel_data()] frame.
 #' @return A [panel_data()] frame with only the columns needed to fit
 #'   a model as described by the formula.
-#' @import magrittr
 #' @import dplyr
 #' @rdname model_frame
 #' @export
