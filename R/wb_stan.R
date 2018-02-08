@@ -51,7 +51,8 @@
 wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
                    detrend = FALSE, use.wave = FALSE, wave.factor = FALSE,
                    min.waves = 2, model.cor = FALSE, family = gaussian,
-                   fit_model = TRUE, balance_correction = FALSE, dt_order = 1,
+                   fit_model = TRUE, balance_correction = FALSE,
+                   dt_random = TRUE, dt_order = 1,
                    chains = 3, iter = 2000, scale = FALSE, save_ranef = FALSE,
                    weights = NULL, ...) {
 
@@ -96,7 +97,7 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
   # Need to do detrending before lags, etc.
   if (detrend == TRUE) {
     
-    data <- detrend(data, pf, dt_order, balance_correction)
+    data <- detrend(data, pf, dt_order, balance_correction, dt_random)
     # Create formula to pass to model_frame
     mf_form <- paste(paste0(dv, " ~ "), paste(pf$allvars, collapse = " + "))
     

@@ -26,6 +26,9 @@
 #' @param balance_correction Correct between-subject effects for unbalanced 
 #'   panels following the procedure in Curran and Bauer (2011)? Default is 
 #'   FALSE.
+#' @param dt_random Should the detrending procedure be performed with a
+#'   random slope for each entity? Default is TRUE but for short panels
+#'   FALSE may be better, fitting a trend for all entities.
 #' @param dt_order If detrending using `detrend`, what order polynomial 
 #'   would you like to specify for the relationship between time and the
 #'   predictors? Default is 1, a linear model.
@@ -188,7 +191,7 @@
 wbm <- function(formula, data, id = NULL, wave = NULL,
                 model = "w-b", detrend = FALSE, use.wave = FALSE,
                 wave.factor = FALSE, min.waves = 2, family = gaussian,
-                balance_correction = FALSE, dt_order = 1,
+                balance_correction = FALSE, dt_random = TRUE, dt_order = 1,
                 pR2 = FALSE, pvals = TRUE, weights = NULL, ...) {
 
   # Get data prepped
@@ -232,7 +235,7 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
   # Need to do detrending before lags, etc.
   if (detrend == TRUE) {
     
-    data <- detrend(data, pf, dt_order, balance_correction)
+    data <- detrend(data, pf, dt_order, balance_correction, dt_random)
     # Create formula to pass to model_frame
     mf_form <- paste(paste0(dv, " ~ "), paste(pf$allvars, collapse = " + "))
     

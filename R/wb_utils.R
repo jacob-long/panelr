@@ -213,10 +213,13 @@ wb_model <- function(model, pf, dv, data, detrend) {
 
 #' @importFrom stats resid lm coef
 
-detrend <- function(data, pf, dt_order, balance_correction) {
+detrend <- function(data, pf, dt_order, balance_correction, dt_random) {
     
-  # Nest the data for efficient fitting of the lms
-  data <- tidyr::nest(data)
+  # If random slopes, nest the data
+  if (dt_random == TRUE) {
+    # Nest the data for efficient fitting of the lms
+    data <- tidyr::nest(data)
+  }
     
   # Define detrending function
   dt_model <- function(data, var, order = dt_order) {
@@ -254,16 +257,28 @@ detrend <- function(data, pf, dt_order, balance_correction) {
     # Note that b_model differs depending on balance_correction 
     the_var <- pf$non_lag_vars[v]
     mean_var <- pf$meanvars[v]
-    data <-  dplyr::mutate(data,
-                           !!mean_var :=
-                             purrr::map(data, b_model, var = the_var),
-                           !!the_var :=
-                             purrr::map(data, dt_model, var = the_var)
-                           )
+    if (dt_random == TRUE) {
+      data <-  dplyr::mutate(data,
+                             !!mean_var :=
+                               purrr::map(data, b_model, var = the_var),
+                             !!the_var :=
+                               purrr::map(data, dt_model, var = the_var)
+                            )
+    } else {
+      
+      data <-  dplyr::mutate(data,
+                             !!mean_var := b_model(data, var = the_var),
+                             !!the_var := dt_model(data, var = the_var)
+      )
+      
+    }
       
   }
   
-  data <- tidyr::unnest(data)
+  if (dt_random == TRUE) {
+    # Unnest the data if it was nested
+    data <- tidyr::unnest(data)
+  }
   return(panel_data(data, id = "id", wave = "wave"))
   
 }

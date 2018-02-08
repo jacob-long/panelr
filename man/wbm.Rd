@@ -6,8 +6,8 @@
 \usage{
 wbm(formula, data, id = NULL, wave = NULL, model = "w-b",
   detrend = FALSE, use.wave = FALSE, wave.factor = FALSE, min.waves = 2,
-  family = gaussian, balance_correction = FALSE, dt_order = 1,
-  pR2 = FALSE, pvals = TRUE, weights = NULL, ...)
+  family = gaussian, balance_correction = FALSE, dt_random = TRUE,
+  dt_order = 1, pR2 = FALSE, pvals = TRUE, weights = NULL, ...)
 }
 \arguments{
 \item{formula}{Model formula. See details for crucial
@@ -45,6 +45,10 @@ the linear model.}
 \item{balance_correction}{Correct between-subject effects for unbalanced
 panels following the procedure in Curran and Bauer (2011)? Default is
 FALSE.}
+
+\item{dt_random}{Should the detrending procedure be performed with a
+random slope for each entity? Default is TRUE but for short panels
+FALSE may be better, fitting a trend for all entities.}
 
 \item{dt_order}{If detrending using \code{detrend}, what order polynomial
 would you like to specify for the relationship between time and the
