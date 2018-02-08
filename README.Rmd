@@ -50,7 +50,7 @@ like `rstan`) to do Bayesian estimation.
 While not strictly required, the best way to start is to declare your data
 as panel data. I'll load the example data `WageData` to demonstrate.
 
-```{r}
+```{r, message = FALSE}
 library(panelr)
 data("WageData")
 colnames(WageData)
@@ -124,6 +124,23 @@ such that the occasion level predictors do not have the mean subtracted, use
 the `model = "contextual"` argument. The "contextual" label refers to the way 
 these terms are normally interpreted when it is specified that way.
 
+### `widen_panel` and `long_panel`
+
+Two functions that should cover your bases for the tricky business of 
+**reshaping** panel data are included. Sometimes, like for doing SEM-based
+analyses, you need your data in wide format --- i.e., one row per entity.
+`widen_panel` makes that easy and should require minimal trial and error or 
+thinking.
+
+Perhaps more often, your raw data are already in wide format and you need
+to get it into long format to do cool stuff like use `wbm`. That can be very
+tricky, but `long_panel` (I didn't think `lengthen_panel` or `longen_panel`
+quite worked as names) should cover most situations. You tell it what the
+labels for periods are (e.g., does it range from `1` to `5`, `"A"` to `"E"`,
+or something else?), where they are located (before or after the variable's
+name?), and what kinds of formatting go before/after it. Unbalanced data are
+perfectly fine, unlike when trying to use the already confusing `reshape`
+function.
 
 ## Contributing
 
