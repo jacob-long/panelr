@@ -129,7 +129,7 @@ is_varying <- function(data, variable) {
   suppressMessages({
     out <- data %>%
       # For each group, does the variable vary?
-      transmute(n_distinct(!! variable) == 1L) %>%
+      transmute(n_distinct(!! variable, na.rm = TRUE) %in% c(0L,1L)) %>%
       # Changing to a vector
       deframe() %>%
       # Asking if all groups had zero changes within the groups
