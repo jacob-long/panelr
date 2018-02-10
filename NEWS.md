@@ -1,3 +1,13 @@
+# panelr 0.3.3
+
+More tweaks to `widen_panel`, giving users the option to opt out of the 
+feature introduced in `0.3.2` that stores data about varying and constant
+variables from `long_panel`. Since poor data labeling in the original wide
+data can cause those stored attributes to be wrong, users can use 
+`ignore.attributes = TRUE` with `widen_panel` to force checking for varying
+variables with `are_varying`. Users can now also supply a vector of varying
+variables, similar to `reshape` in base R.
+
 # panelr 0.3.2
 
 This small update adds an enhancement to `long_panel` and `widen_panel`. If

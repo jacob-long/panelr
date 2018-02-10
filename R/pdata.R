@@ -184,6 +184,15 @@ are_varying <- function(data, ...) {
 #'   what should separate the variable name and wave number? By default,
 #'   it is "_". In other words, a variable named `var` will be 
 #'   `var_1`, `var_2`, and so on in the wide data frame.
+#' @param ignore.attributes If the `data` was created by [long_panel()],
+#'   it stores information about which variables vary over time and which
+#'   are constants. Sometimes, though, this information is not accurate (
+#'   it is only based on the wide data's variable names) and you may want to
+#'   force this function to check again based on the actual values of the
+#'   variables.
+#' @param varying If you want to skip the checks for whether variables are 
+#'   varying and specify yourself, as is done with [stats::reshape()], you
+#'   can supply them as a vector here. 
 #' @return A data.frame with 1 row per respondent.
 #'
 #' @details 
@@ -205,40 +214,59 @@ are_varying <- function(data, ...) {
 #' @importFrom stats reshape
 #' @importFrom rlang syms
 
-widen_panel <- function(data, separator = "_") {
+widen_panel <- function(data, separator = "_", ignore.attributes = FALSE,
+                        varying = NULL) {
   
   # Get the var names that we never transform
   reserved_names <- c("id","wave", attr(data, "idvar"), attr(data, "wavevar"))
+  
+  if (ignore.attributes == TRUE) {
+    attr(data, "reshaped") <- FALSE
+    attr(data, "varying") <- NULL
+    attr(data, "constants") <- NULL
+  }
   
   # Get the names of all non-focal variables
   allvars <- names(data)[names(data) %nin% reserved_names]
   
   # Expedite process if the data have been reshaped before
-  if (!is.null(attr(data, "reshaped")) && attr(data, "reshaped") == TRUE) {
+  if (!is.null(attr(data, "reshaped")) && attr(data, "reshaped")) {
     allvars <- allvars[allvars %nin% c(attr(data, "varying"),
                                        attr(data, "constants"))]
   }
   
-  # They will be included as arguments to are_varying
-  args <- syms(as.list(allvars))
-  # As will the data
-  args$data <- data
-  # Now we get a named vector of TRUE/FALSE values
-  allvars <- do.call(are_varying, args)
+  # If varying vars specified, use those instead
+  if (is.null(varying)) {
   
-  # If true, we want the variable name
-  varying <- c(names(allvars[allvars]), attr(data, "varying"))
+    # They will be included as arguments to are_varying
+    args <- syms(as.list(allvars))
+    # As will the data
+    args$data <- data
+    # Now we get a named vector of TRUE/FALSE values
+    allvars <- do.call(are_varying, args)
+    
+    # If true, we want the variable name
+    varying <- c(names(allvars[allvars]), attr(data, "varying"))
+    
+  }
   
   # Drop redundant wave variable
-  if (attr(data, "wavevar") != "wave") {
+  if (!is.null(attr(data, "wavevar")) && attr(data, "wavevar") != "wave") {
     data <- data[names(data) %nin% attr(data, "wavevar")]
   }
   
   # Reshape doesn't play nice with tibbles
   data <- as.data.frame(data)
   
-  data <- stats::reshape(data = data, v.names = varying, timevar = "wave",
-                         idvar = "id", direction = "wide", sep = separator)
+  if (ignore.attributes == FALSE) {
+    data <- stats::reshape(data = data, v.names = varying, timevar = "wave",
+                           idvar = "id", direction = "wide", sep = separator)
+  } else { # This usually involves treating some "varying" vars as constants
+    suppressWarnings({
+    data <- stats::reshape(data = data, v.names = varying, timevar = "wave",
+                           idvar = "id", direction = "wide", sep = separator)
+    })
+  }
   
   return(data)
 

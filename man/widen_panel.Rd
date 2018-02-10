@@ -4,7 +4,8 @@
 \alias{widen_panel}
 \title{Convert long panel data to wide format}
 \usage{
-widen_panel(data, separator = "_")
+widen_panel(data, separator = "_", ignore.attributes = FALSE,
+  varying = NULL)
 }
 \arguments{
 \item{data}{The \code{panel_data} frame.}
@@ -13,6 +14,17 @@ widen_panel(data, separator = "_")
 what should separate the variable name and wave number? By default,
 it is "_". In other words, a variable named \code{var} will be
 \code{var_1}, \code{var_2}, and so on in the wide data frame.}
+
+\item{ignore.attributes}{If the \code{data} was created by \code{\link[=long_panel]{long_panel()}},
+it stores information about which variables vary over time and which
+are constants. Sometimes, though, this information is not accurate (
+it is only based on the wide data's variable names) and you may want to
+force this function to check again based on the actual values of the
+variables.}
+
+\item{varying}{If you want to skip the checks for whether variables are
+varying and specify yourself, as is done with \code{\link[stats:reshape]{stats::reshape()}}, you
+can supply them as a vector here.}
 }
 \value{
 A data.frame with 1 row per respondent.
