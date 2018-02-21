@@ -55,7 +55,20 @@ predict.wbm <- function(object, newdata = NULL, raw = FALSE, newparams = NULL,
   
   if (!is.null(newdata) & raw == FALSE) {
     mf_form <- attr(object, "mf_form")
+    pf <- attr(object, "pf")
     newdata <- model_frame(mf_form, newdata)
+    dv <- attr(object, "dv")
+    
+    if (attr(object, "detrend") == TRUE) {
+      dto <- detrend(newdata, pf, attr(object, "dt_order"),
+                     attr(object, "balance_correction"),
+                     attr(object, "dt_random"))
+      newdata <- dto
+    }
+    
+    newdata <- wb_model(attr(object, "model"), pf, dv, newdata,
+                        attr(object, "detrend"))$data
+    
   }
   
   if (is.null(attr(attr(object$model@frame, "terms"), "varnames.fixed"))) {
@@ -75,13 +88,26 @@ predict.wbm <- function(object, newdata = NULL, raw = FALSE, newparams = NULL,
 
 simulate.wbm <- function(object, nsim = 1, seed = NULL, use.u = FALSE,
                          newdata = NULL, raw = FALSE,
-                         newparams = NULL, re.form = NULL, terms = NULL,
+                         newparams = NULL, re.form = NA, terms = NULL,
                          type = c("link", "response"),
                          allow.new.levels = FALSE, na.action = na.pass, ...) {
   
   if (!is.null(newdata) & raw == FALSE) {
     mf_form <- attr(object, "mf_form")
+    pf <- attr(object, "pf")
     newdata <- model_frame(mf_form, newdata)
+    dv <- attr(object, "dv")
+    
+    if (attr(object, "detrend") == TRUE) {
+      dto <- detrend(newdata, pf, attr(object, "dt_order"),
+                     attr(object, "balance_correction"),
+                     attr(object, "dt_random"))
+      newdata <- dto
+    }
+    
+    newdata <- wb_model(attr(object, "model"), pf, dv, newdata,
+                        attr(object, "detrend"))$data
+    
   }
   
   if (is.null(attr(attr(object$model@frame, "terms"), "varnames.fixed"))) {
@@ -90,10 +116,18 @@ simulate.wbm <- function(object, nsim = 1, seed = NULL, use.u = FALSE,
         attr(object, "meanvars"))
   }
   
-  simulate(object$model, nsim = nsim, seed = seed, use.u = use.u,
-           newdata = newdata, newparams = newparams, re.form = re.form,
-           terms = terms, type = type, allow.new.levels = allow.new.levels,
-           na.action = na.action, ...)
+  
+  if (!is.na(re.form)) {
+    simulate(object$model, nsim = nsim, seed = seed,
+             newdata = newdata, newparams = newparams, re.form = re.form,
+             terms = terms, type = type, allow.new.levels = allow.new.levels,
+             na.action = na.action, ...)
+  } else {
+    simulate(object$model, nsim = nsim, seed = seed,
+             newdata = newdata, newparams = newparams, use.u = use.u,
+             terms = terms, type = type, allow.new.levels = allow.new.levels,
+             na.action = na.action, ...)
+  }
   
 }
 

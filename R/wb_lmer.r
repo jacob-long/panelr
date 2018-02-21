@@ -362,7 +362,9 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
               max_wave = maxwave, min_wave = minwave, ints = ints,
               pvals = pvals, pR2 = pR2, jsumm = j, jatts = j2,
               call = the_call, env = the_env, mf_form = mf_form,
-              use.wave = use.wave)
+              use.wave = use.wave, detrend = detrend, dt_order = dt_order,
+              dt_random = dt_random, balance_correction = balance_correction,
+              pf = pf)
 
   class(out) <- "wbm"
 
