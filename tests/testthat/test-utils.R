@@ -56,6 +56,7 @@ test_that("long_panel handles unbalanced data", {
 
 context("extractors")
 
+library(lme4)
 mod <- wbm(lwage ~ union, data = w)
 
 test_that("extractors work", {
