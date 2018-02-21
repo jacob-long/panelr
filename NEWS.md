@@ -1,3 +1,12 @@
+# panelr 0.3.4
+
+A series of helper functions have been added to make `wbm` objects behave
+more like regular model objects. Now `update`, `formula`, `terms`, 
+`model.frame`, `coef`, `predict`, and several more are defined for `wbm`.
+
+The `summary` function for `wbm` has been refined and had some minor bugs 
+squished.
+
 # panelr 0.3.3
 
 More tweaks to `widen_panel`, giving users the option to opt out of the 
