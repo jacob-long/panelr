@@ -32,17 +32,19 @@ model_frame <- function(formula, data) {
   cols <- lapply(vars, FUN = get_var, data = data)
 
   the_groups <- group_vars(data)
-  index <- length(the_groups) + 1
-
-  # This is the output model frame, starting with the first column plus
-  # grouping vars
-  mf <- cols[[1]]
-
-  # Need to combine cols without duplicating group column
-  for (i in seq(from = 2, to = length(vars))) {
-
-    mf %<>% bind_cols(cols[[i]][index])
-
+  if (!is.null(the_groups)) {
+    index <- length(the_groups) + 1
+  
+    # This is the output model frame, starting with the first column plus
+    # grouping vars
+    mf <- cols[[1]]
+  
+    # Need to combine cols without duplicating group column
+    for (i in seq(from = 2, to = length(vars))) {
+  
+      mf %<>% bind_cols(cols[[i]][index])
+  
+    }
   }
 
   # Add wave variable back if it was there before
