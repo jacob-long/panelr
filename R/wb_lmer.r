@@ -408,6 +408,7 @@ summary.wbm <- function(object, ...) {
   est_name <- x2$model
   if (x2$model == "w-b") {est_name <- "within-between"}
   if (est_name == "random") {est_name <- "between"}
+  if (est_name == "fixed") {est_name <- "within"}
 
   est_info <- paste("Specification: ", est_name, "\n\n", sep = "")
 
@@ -426,7 +427,7 @@ summary.wbm <- function(object, ...) {
   if (x2$pvals == TRUE) {
     ps <- j$coeftable[,"p"]
   }
-  coefs <- round(j$coeftable, digits)
+  coefs <- j$coeftable
   rownames(coefs) <- gsub("`", "", rownames(coefs), fixed = TRUE)
   if (!is.null(x2$ints)) {
     x2$ints <- gsub("`", "", x2$ints, fixed = TRUE)
@@ -434,7 +435,9 @@ summary.wbm <- function(object, ...) {
 
   varying <- x2$varying
   if (est_name == "within") {
-    varying <- c("(Intercept)", varying)
+    varying <- c("(Intercept)", varying, x2$ints)
+    if (x2$use.wave == TRUE) {varying <- c(varying, "wave")}
+    x2$ints <- NULL
   }
 
   if (x2$pvals == TRUE) {
@@ -474,7 +477,13 @@ summary.wbm <- function(object, ...) {
     if (length(varying) == 1) {
 
       # Can't have single row table
-      vec <- coefs[rownames(coefs) %in% varying,]
+      if (is.table(coefs)) {
+        vec <- coefs[rownames(coefs) %in% varying,]
+        coefs <- coefs[!(rownames(coefs) %in% varying),]
+      } else {
+        vec <- coefs
+        coefs <- NULL
+      }
       vec <- t(as.matrix(vec))
       rownames(vec) <- varying
 
@@ -483,10 +492,10 @@ summary.wbm <- function(object, ...) {
     } else {
 
       within_table <- coefs[rownames(coefs) %in% varying,]
-
+      coefs <- coefs[!(rownames(coefs) %in% varying),]
     }
 
-    coefs <- coefs[!(rownames(coefs) %in% varying),]
+    
     rows <- rows[!(rows %in% varying)]
 
     if (length(x2$stab_terms) > 0) {
@@ -507,7 +516,13 @@ summary.wbm <- function(object, ...) {
 
     if (length(x2$ints) == 1) {# Can't have single row table
 
-      vec <- coefs[rownames(coefs) %in% x2$ints,]
+      if (is.table(coefs)) {
+        vec <- coefs[rownames(coefs) %in% x2$ints,]
+        coefs <- coefs[!(rownames(coefs) %in% x2$ints),]
+      } else {
+        vec <- coefs
+        coefs <- NULL
+      }
       vec <- t(as.matrix(vec))
       rownames(vec) <- x2$ints
 
@@ -516,10 +531,10 @@ summary.wbm <- function(object, ...) {
     } else {
 
       ints_table <- coefs[rownames(coefs) %in% x2$ints,]
+      coefs <- coefs[!(rownames(coefs) %in% x2$ints),]
 
     }
 
-    coefs <- coefs[!(rownames(coefs) %in% x2$ints),]
     rows <- rows[!(rows %in% x2$ints)]
 
   } else {
@@ -530,7 +545,7 @@ summary.wbm <- function(object, ...) {
 
   if (is.null(nrow(coefs)) && est_name != "within") { # Can't have single row
 
-    if (dim(coefs)[1] > 0) {
+    if (!is.null(coefs)) {
       vec <- coefs
       vec <- t(as.matrix(vec))
       rownames(vec) <- rows
@@ -602,7 +617,8 @@ summary.wbm <- function(object, ...) {
               within_table = within_table, between_table = between_table,
               entity_icc = entity_icc, mod_info = mod_info, mod_fit = mod_fit,
               model = x2$model, est_name = est_name,
-              est_info = est_info, ints_table = ints_table, df_msg = df_msg)
+              est_info = est_info, ints_table = ints_table, df_msg = df_msg,
+              digits = digits)
   class(out) <- "summary.wbm"
   return(out)
 
@@ -620,8 +636,10 @@ print.summary.wbm <- function(x, ...) {
 
   if (x$est_name != "between" & !is.null(x$within_table)) {
 
-    cat("WITHIN EFFECTS:\n")
-    print(x$within_table)
+    if (x$est_name != "within") {
+      cat("WITHIN EFFECTS:\n")
+    }
+    print(round_df_char(x$within_table, digits = x$digits))
     cat("\n")
 
     cat("Within-entity ICC =", x$entity_icc, "\n\n")
@@ -631,13 +649,13 @@ print.summary.wbm <- function(x, ...) {
   if (x$est_name != "contextual" & !is.null(x$between_table)) {
 
     cat("BETWEEN EFFECTS:\n")
-    print(x$between_table)
+    print(round_df_char(x$between_table, digits = x$digits))
     cat("\n")
 
   } else if (x$est_name == "contextual" & !is.null(x$between_table)) {
 
     cat("CONTEXTUAL EFFECTS:\n")
-    print(x$between_table)
+    print(round_df_char(x$between_table, digits = x$digits))
     cat("\n")
 
   }
@@ -645,14 +663,14 @@ print.summary.wbm <- function(x, ...) {
   if (x$model == "stability") {
 
     cat("BETWEEN-ENTITY TIME TRENDS:\n")
-    print(x$time_trends)
+    print(round_df_char(x$time_trends, digits = x$digits))
     cat("\n")
   }
 
   if (!is.null(x$ints_table)) {
 
     cat("INTERACTIONS:\n")
-    print(x$ints_table)
+    print(round_df_char(x$ints_table, digits = x$digits))
     cat("\n")
 
   }
@@ -668,6 +686,14 @@ print.summary.wbm <- function(x, ...) {
 
 }
 
+
+#' @export 
+
+print.wbm <- function(x, ...) {
+  
+  print(summary(x))
+  
+}
 
 # wlm <- function(formula, data, id = NULL, wave = NULL,
 #                 use.wave = FALSE, wave.factor = FALSE,
