@@ -53,3 +53,25 @@ wide <- wide[names(wide) %nin% c("occ_3", "lwage_5")]
 test_that("long_panel handles unbalanced data", {
   expect_s3_class(long_panel(wide, begin = 1, end = 7), "panel_data")
 })
+
+context("extractors")
+
+mod <- wbm(lwage ~ union, data = w)
+
+test_that("extractors work", {
+  expect_silent(getCall(mod))
+  expect_silent(predict(mod))
+  expect_silent(simulate(mod))
+  expect_silent(fixef(mod))
+  expect_silent(ranef(mod))
+  expect_silent(vcov(mod))
+  expect_silent(model.frame(mod))
+  expect_silent(nobs(mod))
+  expect_silent(formula(mod))
+  expect_silent(terms(mod))
+  expect_silent(coef(mod))
+  expect_silent(anova(mod))
+  expect_silent(isGLMM(mod))
+  expect_silent(isLMM(mod))
+  expect_silent(isNLMM(mod))
+})
