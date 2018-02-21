@@ -283,7 +283,7 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
   }
 
   if (wave.factor == TRUE) {
-    data[,wave] <- as.factor(data[,wave])
+    data[["wave"]] <- as.factor(data[["wave"]])
   }
 
   if (pf$conds > 2) {
@@ -356,10 +356,13 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
 
   out <- structure(out, dv = dv, id = id, wave = wave,
               num_distinct = num_distinct,
-              varying = pf$varying, model = model,
+              varying = pf$varying, constants = pf$constants,
+              meanvars = pf$meanvars, model = model,
               stab_terms = e$stab_terms,
               max_wave = maxwave, min_wave = minwave, ints = ints,
-              pvals = pvals, pR2 = pR2, jsumm = j, jatts = j2)
+              pvals = pvals, pR2 = pR2, jsumm = j, jatts = j2,
+              call = the_call, env = the_env, mf_form = mf_form,
+              use.wave = use.wave)
 
   class(out) <- "wbm"
 
