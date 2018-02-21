@@ -8,9 +8,9 @@
 \alias{isNLMM.wbm}
 \title{Helpers functions for interfacing with wbm objects}
 \usage{
-fixef.wbm(object, add.dropped = FALSE, ...)
+\method{fixef}{wbm}(object, add.dropped = FALSE, ...)
 
-ranef.wbm(object, condVar = FALSE, drop = FALSE, whichel = NULL,
+\method{ranef}{wbm}(object, condVar = FALSE, drop = FALSE, whichel = NULL,
   postVar = FALSE, ...)
 
 isGLMM.wbm(x, ...)
