@@ -160,13 +160,18 @@ fixef.wbm <- function(object, add.dropped = FALSE, ...) {
 }
 
 #' @rdname helpers
+#' @importFrom lme4 ranef
 #' @export
 
 ranef.wbm <- function(object, condVar = FALSE, drop = FALSE,
-                      whichel = names(ans), postVar = FALSE, ...) {
-  ans <- NULL
-  lme4::ranef(object$model, condVar = condVar, drop = drop, whichel = whichel,
-              postVar = postVar, ...)
+                      whichel = NULL, postVar = FALSE, ...) {
+  if (is.null(whichel)) {
+    lme4::ranef(object$model, condVar = condVar, drop = drop,
+                postVar = postVar, ...)
+  } else {
+    lme4::ranef(object$model, condVar = condVar, drop = drop, whichel = whichel,
+                postVar = postVar, ...)
+  }
   
 }
 
