@@ -203,6 +203,10 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
   wave <- as.character(substitute(wave))
 
   id <- as.character(substitute(id))
+  
+  the_call <- match.call()
+  the_call[[1]] <- substitute(wbm)
+  the_env <- parent.frame()
 
   if (!("data.frame" %in% class(data))) {
     stop("data argument must be a data frame.")
