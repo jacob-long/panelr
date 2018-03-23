@@ -96,26 +96,14 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
 
   # Need to do detrending before lags, etc.
   if (detrend == TRUE) {
-    
     data <- detrend(data, pf, dt_order, balance_correction, dt_random)
-    # Create formula to pass to model_frame
-    mf_form <- paste(paste0(dv, " ~ "), paste(pf$allvars, collapse = " + "))
-    
-    # Need to escape manually created meanvars
-    meanvars <- pf$meanvars
-    meanvars <- sapply(meanvars, bt)
-    
-    mf_form <- paste(mf_form, "+", paste(meanvars, collapse = " + "))
-    
-  } else {
-    
-    # Create formula to pass to model_frame
-    mf_form <- paste(paste0(dv, " ~ "),
-                     paste(pf$allvars, collapse = " + "),
-                     " + ",
-                     paste(pf$meanvars, collapse = " + "))
-    
-  }
+  } 
+  # Create formula to pass to model_frame
+  mf_form <- paste(paste0(dv, " ~ "),
+                   paste(pf$allvars, collapse = " + "),
+                   " + ",
+                   paste(pf$meanvars, collapse = " + "))
+
   
   # Add weights to keep it in the DF
   if (!is.null(weights)) {
