@@ -151,6 +151,7 @@ simulate.wbm <- function(object, nsim = 1, seed = NULL, use.u = FALSE,
 #'  arguments
 #' @importFrom lme4 fixef
 #' @rdname helpers
+#' @importFrom lme4 fixef
 #' @export
 
 fixef.wbm <- function(object, add.dropped = FALSE, ...) {
