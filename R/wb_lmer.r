@@ -32,9 +32,8 @@
 #' @param dt_order If detrending using `detrend`, what order polynomial 
 #'   would you like to specify for the relationship between time and the
 #'   predictors? Default is 1, a linear model.
-#' @param pR2 Calculate a pseudo R-squared? Default is FALSE because it
-#'   often adds a great deal of computation time if sample sizes are medium
-#'   size or larger.
+#' @param pR2 Calculate a pseudo R-squared? Default is TRUE, but in some cases
+#'   may cause errors or add computation time.
 #' @param pvals Calculate p values? Default is TRUE but for some complex
 #'   linear models, this may take a long time to compute using the `pbkrtest`
 #'   package.
@@ -192,7 +191,8 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
                 model = "w-b", detrend = FALSE, use.wave = FALSE,
                 wave.factor = FALSE, min.waves = 2, family = gaussian,
                 balance_correction = FALSE, dt_random = TRUE, dt_order = 1,
-                pR2 = FALSE, pvals = TRUE, weights = NULL, ...) {
+                pR2 = TRUE, pvals = TRUE, weights = NULL,
+                scale = FALSE, scale.response = FALSE, n.sd = 1, ...) {
 
   # Get data prepped
   if (class(data)[1] == "panel_data") {
@@ -238,26 +238,13 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
 
   # Need to do detrending before lags, etc.
   if (detrend == TRUE) {
-    
     data <- detrend(data, pf, dt_order, balance_correction, dt_random)
-    # Create formula to pass to model_frame
-    mf_form <- paste(paste0(dv, " ~ "), paste(pf$allvars, collapse = " + "))
-    
-    # Need to escape manually created meanvars
-    meanvars <- pf$meanvars
-    meanvars <- sapply(meanvars, bt)
-    
-    mf_form <- paste(mf_form, "+", paste(meanvars, collapse = " + "))
-                     
-  } else {
-  
-    # Create formula to pass to model_frame
-    mf_form <- paste(paste0(dv, " ~ "),
-                     paste(pf$allvars, collapse = " + "),
-                     " + ",
-                     paste(pf$meanvars, collapse = " + "))
-    
   }
+  # Create formula to pass to model_frame
+  mf_form <- paste(paste0(dv, " ~ "),
+                   paste(pf$allvars, collapse = " + "),
+                   " + ",
+                   paste(pf$meanvars, collapse = " + "))
   
   # Add weights to keep it in the DF
   if (!is.null(weights)) {
@@ -277,6 +264,14 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
   e <- wb_model(model, pf, dv, data, detrend)
 
   data <- e$data
+  if (scale == TRUE) {
+    
+    vars <- names(data)[names(data) %nin% c("wave","id")]
+    if (scale.response == FALSE) {vars <- vars[vars != dv]} 
+    data <-
+      jtools::gscale(data, vars = vars, n.sd = n.sd, binary.inputs = "0/1")
+    
+  }
 
   if (use.wave == TRUE) {
     e$fin_formula <- paste(e$fin_formula, "+", "wave")
@@ -347,7 +342,7 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
   t1 <- Sys.time()
   if (t1 - t0 > 5) {
     message("If wbm is taking too long to run, you can try setting ",
-            "pvals = FALSE or pR2 = FALSE.")
+            "pvals = FALSE.")
   }
 
   j2 <- attributes(j)
@@ -418,17 +413,17 @@ summary.wbm <- function(object, ...) {
       "\n", "AIC = ", round(j2$aic, j2$digits),
       ", BIC = ", round(j2$bic, j2$digits), "\n", sep = "")
   if (x2$pR2 == TRUE) {
-    mod_fit <- paste0(mod_fit, "Pseudo R-squared (fixed effects) = ",
-          round(j2$rsq[1], j2$digits),
-        "\n", "Pseudo R-squared (total) = ",
-        round(j2$rsq[2], j2$digits), "\n\n")
+    mod_fit <- paste0(mod_fit, "Pseudo-R² (fixed effects) = ",
+          round(j2$rsqs$Marginal, j2$digits),
+        "\n", "Pseudo-R² (total) = ",
+        round(j2$rsqs$Conditional, j2$digits), "\n\n")
   } else {
     mod_fit <- paste(mod_fit, "\n")
   }
 
-  if (x2$pvals == TRUE) {
-    ps <- j$coeftable[,"p"]
-  }
+  # if (x2$pvals == TRUE) {
+  #   ps <- j$coeftable[,"p"]
+  # }
   coefs <- j$coeftable
   rownames(coefs) <- gsub("`", "", rownames(coefs), fixed = TRUE)
   if (!is.null(x2$ints)) {
@@ -442,36 +437,37 @@ summary.wbm <- function(object, ...) {
     x2$ints <- NULL
   }
 
-  if (x2$pvals == TRUE) {
+  # if (x2$pvals == TRUE) {
 
-    cnames <- colnames(coefs)
-    coefs <- cbind(coefs, rep(0, nrow(coefs)))
-    colnames(coefs) <- c(cnames, "")
+  #   cnames <- colnames(coefs)
+  #   coefs <- cbind(coefs, rep(0, nrow(coefs)))
+  #   colnames(coefs) <- c(cnames, "")
 
-    sigstars <- c()
-    for (y in 1:nrow(coefs)) {
-      if (ps[y] > 0.1) {
-        sigstars[y] <- ""
-      } else if (ps[y] <= 0.1 & ps[y] > 0.05) {
-        sigstars[y] <- "."
-      } else if (ps[y] > 0.01 & ps[y] <= 0.05) {
-        sigstars[y] <- "*"
-      } else if (ps[y] > 0.001 & ps[y] <= 0.01) {
-        sigstars[y] <- "**"
-      } else if (ps[y] <= 0.001) {
-        sigstars[y] <- "***"
-      }
-    }
+  #   sigstars <- c()
+  #   for (y in 1:nrow(coefs)) {
+  #     if (ps[y] > 0.1) {
+  #       sigstars[y] <- ""
+  #     } else if (ps[y] <= 0.1 & ps[y] > 0.05) {
+  #       sigstars[y] <- "."
+  #     } else if (ps[y] > 0.01 & ps[y] <= 0.05) {
+  #       sigstars[y] <- "*"
+  #     } else if (ps[y] > 0.001 & ps[y] <= 0.01) {
+  #       sigstars[y] <- "**"
+  #     } else if (ps[y] <= 0.001) {
+  #       sigstars[y] <- "***"
+  #     }
+  #   }
 
-    coefs[,5] <- sigstars
-    coefs <- as.table(coefs)
+  #   coefs[,5] <- sigstars
+  #   coefs <- as.table(coefs)
 
-  } else {
+  # } else {
 
-    coefs <- as.table(coefs)
+  #   coefs <- as.table(coefs)
 
-  }
+  # }
 
+  coefs <- as.table(coefs)
   rows <- rownames(coefs)
 
   if (length(varying) > 0 & est_name != "between") {
@@ -609,11 +605,12 @@ summary.wbm <- function(object, ...) {
 
   }
 
-  j$rcoeftable[,"Std.Dev."] <-
-    as.character(round(as.numeric(j$rcoeftable[,"Std.Dev."]), digits))
-  the_table <- as.table(j$rcoeftable)
-  rownames(the_table) <- rep("", nrow(the_table))
-  ranef_table <- the_table
+  # j$rcoeftable[,attr(j$rcoeftable, "variance")] <-
+  #   as.character(round(as.numeric(j$rcoeftable[,"Std.Dev."]), digits))
+  # the_table <- as.table(j$rcoeftable)
+  # rownames(the_table) <- rep("", nrow(the_table))
+  # ranef_table <- the_table
+  ranef_table <- j$rcoeftable
 
   out <- list(ranef_table = ranef_table, time_trends = time_trends,
               within_table = within_table, between_table = between_table,
@@ -641,7 +638,8 @@ print.summary.wbm <- function(x, ...) {
     if (x$est_name != "within") {
       cat("WITHIN EFFECTS:\n")
     }
-    print(round_df_char(x$within_table, digits = x$digits))
+    pvals <- "p" %in% colnames(x$within_table)
+    print(add_stars(x$within_table, p_vals = pvals, digits = x$digits))
     cat("\n")
 
     cat("Within-entity ICC =", x$entity_icc, "\n\n")
@@ -650,14 +648,16 @@ print.summary.wbm <- function(x, ...) {
 
   if (x$est_name != "contextual" & !is.null(x$between_table)) {
 
+    pvals <- "p" %in% colnames(x$between_table)
     cat("BETWEEN EFFECTS:\n")
-    print(round_df_char(x$between_table, digits = x$digits))
+    print(add_stars(x$between_table, p_vals = pvals, digits = x$digits))
     cat("\n")
 
   } else if (x$est_name == "contextual" & !is.null(x$between_table)) {
-
+    
+    pvals <- "p" %in% colnames(x$between_table)
     cat("CONTEXTUAL EFFECTS:\n")
-    print(round_df_char(x$between_table, digits = x$digits))
+    print(add_stars(x$between_table, p_vals = pvals, digits = x$digits))
     cat("\n")
 
   }
@@ -665,14 +665,14 @@ print.summary.wbm <- function(x, ...) {
   if (x$model == "stability") {
 
     cat("BETWEEN-ENTITY TIME TRENDS:\n")
-    print(round_df_char(x$time_trends, digits = x$digits))
+    print(add_stars(x$time_trends, p_vals = pvals, digits = x$digits))
     cat("\n")
   }
 
   if (!is.null(x$ints_table)) {
 
     cat("INTERACTIONS:\n")
-    print(round_df_char(x$ints_table, digits = x$digits))
+    print(add_stars(x$ints_table, p_vals = pvals, digits = x$digits))
     cat("\n")
 
   }
@@ -684,7 +684,8 @@ print.summary.wbm <- function(x, ...) {
   }
 
   cat("RANDOM EFFECTS:\n")
-  print(x$ranef_table)
+  print(round_df_char(x$ranef_table, na_vals = "", digits = x$digits),
+        row.names = FALSE)
 
 }
 
