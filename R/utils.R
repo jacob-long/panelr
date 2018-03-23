@@ -149,7 +149,7 @@ simulate.wbm <- function(object, nsim = 1, seed = NULL, use.u = FALSE,
 #' @param postVar a (deprecated) synonym for condVar
 #' @param ... some methods for these generic functions require additional
 #'  arguments
-#' 
+#' @importFrom lme4 fixef
 #' @rdname helpers
 #' @export
 
