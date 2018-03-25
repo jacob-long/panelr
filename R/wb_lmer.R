@@ -213,6 +213,7 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
   }
 
   data <- panel_data(data, id = id, wave = wave)
+  orig_data <- data
 
   # Make sure lme4 is installed
   if (requireNamespace("lme4", quietly = TRUE) == FALSE) {
@@ -347,21 +348,51 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
 
   j2 <- attributes(j)
 
-  out <- list(model = fit, data = data, fin_formula = fin_formula)
+  merMod_call <- getCall(fit)
+  terms <- attr(fit@frame, "terms")
 
-  out <- structure(out, dv = dv, id = id, wave = wave,
+  if (lme4::isLMM(fit)) {
+    out <- as(object = fit, Class = "wblm")
+  } else {
+    out <- as(object = fit, Class = "wbglm")
+  }
+
+  out@orig_data <- orig_data
+  out@frame <- data
+  attr(out@frame, "terms") <- terms 
+  attr(out@frame, "formula") <- formula(fit)  
+
+  out@call_info <- list(dv = dv, id = id, wave = wave,
               num_distinct = num_distinct,
               varying = pf$varying, constants = pf$constants,
               meanvars = pf$meanvars, model = model,
               stab_terms = e$stab_terms,
               max_wave = maxwave, min_wave = minwave, ints = ints,
-              pvals = pvals, pR2 = pR2, jsumm = j, jatts = j2,
-              call = the_call, env = the_env, mf_form = mf_form,
+              pvals = pvals, pR2 = pR2, env = the_env, mf_form = mf_form,
               use.wave = use.wave, detrend = detrend, dt_order = dt_order,
               dt_random = dt_random, balance_correction = balance_correction,
-              pf = pf)
+              pf = pf, merMod_call = merMod_call)
 
-  class(out) <- "wbm"
+  out@call <- the_call
+
+  out@summ <- j
+  out@summ_atts <- j2
+
+  # out <- list(model = fit, data = data, fin_formula = fin_formula)
+
+  # out <- structure(out, dv = dv, id = id, wave = wave,
+  #             num_distinct = num_distinct,
+  #             varying = pf$varying, constants = pf$constants,
+  #             meanvars = pf$meanvars, model = model,
+  #             stab_terms = e$stab_terms,
+  #             max_wave = maxwave, min_wave = minwave, ints = ints,
+  #             pvals = pvals, pR2 = pR2, jsumm = j, jatts = j2,
+  #             call = the_call, env = the_env, mf_form = mf_form,
+  #             use.wave = use.wave, detrend = detrend, dt_order = dt_order,
+  #             dt_random = dt_random, balance_correction = balance_correction,
+  #             pf = pf)
+
+  # class(out) <- "wbm"
 
   return(out)
 
@@ -381,24 +412,24 @@ summary.wbm <- function(object, ...) {
 
   x <- object
 
-  x2 <- attributes(x)
-  j <- x2$jsumm
-  j2 <- x2$jatts
+  x2 <- x@call_info
+  j <- x@summ
+  j2 <- x@summ_atts
 
   entity_icc <- j$gvars[j$gvars[,"Group"] == "id",]
   entity_icc <- as.numeric(entity_icc["ICC"])
   entity_icc <- round(entity_icc, digits)
 
   mod_info <- paste0("MODEL INFO:\n",
-                    "Entities: ", lme4::ngrps(x$model), "\n",
+                    "Entities: ", lme4::ngrps(x), "\n",
                     "Time periods: ", paste0(x2$min_wave, "-",
                                             x2$max_wave), "\n",
                     "Dependent variable: ", x2$dv, "\n")
-  if (family(x$model)$family == "gaussian") {
+  if (family(x)$family == "gaussian") {
     mod_info <- paste0(mod_info, "Model type: Linear mixed effects\n")
   } else {
-    mod_info <- paste(mod_info, "Model family: ", family(x$model)$family,
-        ", Link: ", family(x$model)$link, "\n", sep = "")
+    mod_info <- paste(mod_info, "Model family: ", family(x)$family,
+        ", Link: ", family(x)$link, "\n", sep = "")
   }
 
   # Name the model
@@ -493,7 +524,6 @@ summary.wbm <- function(object, ...) {
       coefs <- coefs[!(rownames(coefs) %in% varying),]
     }
 
-    
     rows <- rows[!(rows %in% varying)]
 
     if (length(x2$stab_terms) > 0) {
@@ -585,7 +615,7 @@ summary.wbm <- function(object, ...) {
 
   }
 
-  if (lme4::isLMM(x$model) == TRUE && j2$pvals == TRUE) {
+  if (lme4::isLMM(x) == TRUE & j2$pvals == TRUE) {
 
     if (j2$pbkr == TRUE) {
 
