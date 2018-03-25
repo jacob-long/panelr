@@ -319,20 +319,42 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
   unbt_ints <- gsub("`", "", ints, fixed = TRUE)
   ints <- ints[!(unbt_ints %in% e$stab_terms)]
 
-  if (as.character(substitute(family)) == "gaussian") {
+  if (as.character(substitute(family))[1] == "gaussian") {
 
-    fit <- lme4::lmer(fin_formula, data = data,
-                        weights = weights, ...)
+    # Get extra arguments
+    dots <- list(...)
+    if ("control" %nin% names(dots)) {
+      control <- lme4::lmerControl(optimizer = "nloptwrap_alt")
+      fit <- lme4::lmer(fin_formula, data = data, weights = weights,
+                        control = control, ...)
+    } else {
+      fit <- lme4::lmer(fin_formula, data = data, weights = weights, ...)
+    }
 
-  } else if (as.character(substitute(family)) == "negbinomial") {
+  } else if (as.character(substitute(family))[1] == "negbinomial") {
 
-    fit <- lme4::glmer.nb(fin_formula, data = data,
-                            weights = weights, ...)
+    # Get extra arguments
+    dots <- list(...)
+    if ("control" %nin% names(dots)) {
+      control <- lme4::glmerControl(optimizer = "nloptwrap_alt")
+      fit <- lme4::glmer.nb(fin_formula, data = data, weights = weights,
+                            nb.control = control, ...)
+    } else {
+      fit <- lme4::glmer.nb(fin_formula, data = data, weights = weights, ...)
+    }
 
   } else {
 
-    fit <- lme4::glmer(fin_formula, data = data, family = family,
-                         weights = weights, ...)
+    # Get extra arguments
+    dots <- list(...)
+    if ("control" %nin% names(dots)) {
+      control <- lme4::glmerControl(optimizer = "nloptwrap_alt")
+      fit <- lme4::glmer(fin_formula, data = data, family = family,
+                         weights = weights, control = control, ...)
+    } else {
+      fit <- lme4::glmer(fin_formula, data = data, family = family,
+                          weights = weights, ...)
+    }
 
   }
 
