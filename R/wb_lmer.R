@@ -41,7 +41,11 @@
 #'   that contains the weights or a vector of the weights.
 #' @param ... Additional arguments provided to [lme4::lmer()],
 #'   [lme4::glmer()], or [lme4::glmer.nb()].
-#' @return A `wbm` object.
+#'
+#' @inheritParams jtools::scale_mod
+#' @inheritParams jtools::summ.merMod
+#' 
+#' @return A `wbm` object, which inherits from `merMod`.
 #' @author Jacob A. Long
 #' @details
 #'
@@ -369,6 +373,8 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
   }
 
   j2 <- attributes(j)
+  # Drop redundant model from the summ object
+  j$model <- NULL
 
   merMod_call <- getCall(fit)
   terms <- attr(fit@frame, "terms")
@@ -380,6 +386,9 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
   }
 
   out@orig_data <- orig_data
+  if ("wave" %nin% all.vars(fin_formula)) {
+    data <- data[names(data) %nin% "wave"]
+  } 
   out@frame <- data
   attr(out@frame, "terms") <- terms 
   attr(out@frame, "formula") <- formula(fit)  
@@ -466,9 +475,9 @@ summary.wbm <- function(object, ...) {
       "\n", "AIC = ", round(j2$aic, j2$digits),
       ", BIC = ", round(j2$bic, j2$digits), "\n", sep = "")
   if (x2$pR2 == TRUE) {
-    mod_fit <- paste0(mod_fit, "Pseudo-R² (fixed effects) = ",
+    mod_fit <- paste0(mod_fit, "Pseudo-R\u00B2 (fixed effects) = ",
           round(j2$rsqs$Marginal, j2$digits),
-        "\n", "Pseudo-R² (total) = ",
+        "\n", "Pseudo-R\u00B2 (total) = ",
         round(j2$rsqs$Conditional, j2$digits), "\n\n")
   } else {
     mod_fit <- paste(mod_fit, "\n")

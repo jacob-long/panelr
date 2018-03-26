@@ -16,7 +16,7 @@ context("wbm defaults")
 wb <- wbm(wks ~ union + lwage | blk, data = wages)
 
 test_that("wbm defaults work", {
-  expect_s3_class(wb, "wbm")
+  expect_s4_class(wb, "wbm")
 })
 
 test_that("wbm summary works (defaults)", {
@@ -30,7 +30,7 @@ context("wbm with lags")
 wb <- wbm(wks ~ lag(union) + lag(lwage) | blk, data = wages)
 
 test_that("wbm with lags works", {
-  expect_s3_class(wb, "wbm")
+  expect_s4_class(wb, "wbm")
 })
 
 test_that("wbm summary works (with lags)", {
@@ -43,7 +43,7 @@ wb <- wbm(wks ~ union + lag(union) + lag(lwage) | blk,
        data = wages)
 
 test_that("wbm with multiple lags works", {
-  expect_s3_class(wb, "wbm")
+  expect_s4_class(wb, "wbm")
 })
 
 test_that("wbm summary works (with multiple lags)", {
@@ -56,7 +56,7 @@ wb <- wbm(wks ~ union + lag(union, 2) + lag(lwage) | blk,
           data = wages)
 
 test_that("wbm with non-standard lags works", {
-  expect_s3_class(wb, "wbm")
+  expect_s4_class(wb, "wbm")
 })
 test_that("wbm summary works (with non-standard lags)", {
   expect_s3_class(swb <- summary(wb), "summary.wbm")
@@ -69,7 +69,7 @@ wb <- wbm(wks ~ union + lag(lwage) | blk, data = wages,
           model = "contextual")
 
 test_that("wbm with contextual model works", {
-  expect_s3_class(wb, "wbm")
+  expect_s4_class(wb, "wbm")
 })
 test_that("wbm summary works (with contextual model)", {
   expect_s3_class(swb <- summary(wb), "summary.wbm")
@@ -81,7 +81,7 @@ wb <- wbm(wks ~ union + lag(lwage) | blk, data = wages,
           model = "within")
 
 test_that("wbm with within model works", {
-  expect_s3_class(wb, "wbm")
+  expect_s4_class(wb, "wbm")
 })
 test_that("wbm summary works (with within model)", {
   expect_s3_class(swb <- summary(wb), "summary.wbm")
@@ -93,7 +93,7 @@ wb <- wbm(wks ~ union + lag(lwage) | blk, data = wages,
           model = "stability")
 
 test_that("wbm with stability model works", {
-  expect_s3_class(wb, "wbm")
+  expect_s4_class(wb, "wbm")
 })
 test_that("wbm summary works (with stability model)", {
   expect_s3_class(swb <- summary(wb), "summary.wbm")
@@ -105,7 +105,7 @@ wb <- wbm(wks ~ union + lag(lwage) | blk, data = wages,
        model = "between")
 
 test_that("wbm with between model works", {
-  expect_s3_class(wb, "wbm")
+  expect_s4_class(wb, "wbm")
 })
 test_that("wbm summary works (with between model)", {
   expect_s3_class(swb <- summary(wb), "summary.wbm")
@@ -119,7 +119,7 @@ wb <- wbm(wks ~ union + lag(lwage) | fem, data = wages,
           family = poisson)
 
 test_that("wbm with poisson family works", {
-  expect_s3_class(wb, "wbm")
+  expect_s4_class(wb, "wbm")
 })
 test_that("wbm summary works (as poisson glm)", {
   expect_s3_class(swb <- summary(wb), "summary.wbm")
@@ -132,7 +132,7 @@ wb <- suppressWarnings(wbm(wks ~ union + lag(lwage) | blk, data = wages,
           family = negbinomial))
 
 test_that("wbm with negbinomial family works", {
-  expect_s3_class(wb, "wbm")
+  expect_s4_class(wb, "wbm")
 })
 test_that("wbm summary works (as negbinomial glm)", {
   expect_s3_class(swb <- summary(wb), "summary.wbm")
@@ -146,7 +146,7 @@ wb <- wbm(wks ~ union + lag(lwage) | blk, data = wages,
           use.wave = TRUE)
 
 test_that("wbm with use.wave works", {
-  expect_s3_class(wb, "wbm")
+  expect_s4_class(wb, "wbm")
 })
 test_that("wbm summary works (with use.wave)", {
   expect_s3_class(swb <- summary(wb), "summary.wbm")
@@ -157,7 +157,7 @@ context("wbm pseudo-R2")
 wb <- wbm(wks ~ union + lag(lwage) | blk, data = wages, pR2 = TRUE)
 
 test_that("wbm works", {
-  expect_s3_class(wb, "wbm")
+  expect_s4_class(wb, "wbm")
 })
 test_that("wbm summary works", {
   expect_s3_class(swb <- summary(wb), "summary.wbm")
@@ -169,8 +169,8 @@ wb <- wbm(wks ~ union + lag(lwage) | blk, data = wages, pvals = TRUE)
 wb2 <- wbm(wks ~ union + lag(lwage) | blk, data = wages, pvals = FALSE)
 
 test_that("wbm works", {
-  expect_s3_class(wb, "wbm")
-  expect_s3_class(wb2, "wbm")
+  expect_s4_class(wb, "wbm")
+  expect_s4_class(wb2, "wbm")
 })
 test_that("wbm summary works", {
   expect_s3_class(swb <- summary(wb), "summary.wbm")
@@ -183,7 +183,7 @@ context("wbm with weights")
 wb <- wbm(wks ~ union + lag(lwage) | blk, data = wages, weights = wts)
 
 test_that("wbm works", {
-  expect_s3_class(wb, "wbm")
+  expect_s4_class(wb, "wbm")
 })
 test_that("wbm summary works", {
   expect_s3_class(swb <- summary(wb), "summary.wbm")
@@ -201,7 +201,7 @@ wagesm <- wagesm[!(1:length(wagesm$id) %in% inds),]
 wb <- wbm(wks ~ lag(union) + lag(lwage) | blk, data = wagesm)
 
 test_that("wbm with defaults works", {
-  expect_s3_class(wb, "wbm")
+  expect_s4_class(wb, "wbm")
 })
 test_that("wbm summary works (as negbinomial glm)", {
   expect_s3_class(swb <- summary(wb), "summary.wbm")
@@ -216,7 +216,7 @@ wb <- wbm(wks ~ union + lag(lwage) | blk | (union | id),
           data = wages, pvals = TRUE)
 
 test_that("wbm works", {
-  expect_s3_class(wb, "wbm")
+  expect_s4_class(wb, "wbm")
 })
 test_that("wbm summary works", {
   expect_s3_class(swb <- summary(wb), "summary.wbm")
@@ -233,10 +233,10 @@ wb2 <- wbm(wks ~ union + lag(lwage) | blk | (union | id),
            balance_correction = TRUE)
 
 test_that("wbm works (detrend only)", {
-  expect_s3_class(wb1, "wbm")
+  expect_s4_class(wb1, "wbm")
 })
 test_that("wbm works (w/ balance_correction)", {
-  expect_s3_class(wb2, "wbm")
+  expect_s4_class(wb2, "wbm")
 })
 test_that("wbm summary works (detrend only)", {
   expect_s3_class(swb1 <- summary(wb1), "summary.wbm")
