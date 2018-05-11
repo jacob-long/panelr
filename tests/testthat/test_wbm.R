@@ -89,8 +89,7 @@ test_that("wbm summary works (with within model)", {
 })
 
 context("wbm with stability model")
-wb <- wbm(wks ~ union + lag(lwage) | blk, data = wages,
-          model = "stability")
+wb <- wbm(wks ~ union + lag(lwage) | blk, data = wages, model = "stability")
 
 test_that("wbm with stability model works", {
   expect_s4_class(wb, "wbm")
@@ -196,7 +195,7 @@ context("Missing data")
 # Create some missing data
 wagesm <- wages
 missings <- sample(unique(wagesm$id),5)
-inds <- which(wagesm$id %in% missings & wagesm$wave == 7)
+inds <- which(wagesm$id %in% missings & wagesm$t == 7)
 wagesm <- wagesm[!(1:length(wagesm$id) %in% inds),]
 wb <- wbm(wks ~ lag(union) + lag(lwage) | blk, data = wagesm)
 
