@@ -10,26 +10,31 @@ reconstruct <- function(new, old) {
 #' @export
 reconstruct.panel_data <- function(new, old) {
   
+  id <- get_id(old)
+  wave <- get_wave(old)
+  
   if (is.data.frame(new) == FALSE) {
     # warning("The panel_data object is no longer a data frame.")
     return(new)
   }
   
-  if ("id" %nin% names(new)) {
+  if (id %nin% names(new)) {
     # warning("The panel_data object no longer has the id variable. ",
     #         "Returning as a ", class(new)[1], " object instead.")
     return(new)
   }
-  if ("wave" %nin% names(new)) {
+  if (wave %nin% names(new)) {
     # warning("The panel_data object no longer has the wave variable. ",
     #         "Returning as a ", class(new)[1], " object instead.")
     return(new)
   }
   
-  if ("panel_data" %nin% class(new) | "id" %nin% group_vars(new)) {
+  if ("panel_data" %nin% class(new) | id %nin% group_vars(new)) {
     atts <- attributes(old)
-    return(panel_data(new, reshaped = atts$reshaped, varying = atts$varying,
-           constants = atts$constants))
+    return(panel_data(new, id = !! sym(id), wave = !! sym(wave),
+                      reshaped = atts$reshaped, varying = atts$varying, 
+                      constants = atts$constants)
+           )
   } else {
     return(re_attribute(new, old))
   }
@@ -41,6 +46,8 @@ re_attribute <- function(new, old) {
   attr(new, "reshaped") <- o$reshaped
   attr(new, "varying") <- o$varying
   attr(new, "constants") <- o$constants
+  attr(new, "wave") <- get_wave(old)
+  attr(new, "id") <- get_id(old)
   return(new)
 }
 
