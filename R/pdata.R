@@ -525,6 +525,18 @@ long_panel <- function(data, prefix = "_", suffix = NULL, begin = NULL,
   
 }
 
+#' @export
+
+get_wave <- function(data) {
+  attr(data, "wave")
+}
+
+#' @export
+
+get_id <- function(data) {
+  attr(data, "id")
+}
+
 ##### internal panel_data tools #############################################
 
 complete_cases <- function(data, min.waves = "all") {
