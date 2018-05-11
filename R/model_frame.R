@@ -12,53 +12,7 @@
 #' @rdname model_frame
 #' @export
 
-# model_frame <- function(formula, data) {
-# 
-#   # model.frame does this, not sure why it would be needed...
-#   formula <- as.formula(formula)
-# 
-#   # we need terms from the formula
-#   if (!inherits(formula, "terms")) {
-#     formula <- terms(formula, data = data)
-#   }
-# 
-#   vars <- attr(formula, "variables")
-#   predvars <- attr(formula, "predvars")
-#   if (is.null(predvars)) {
-#     predvars <- vars
-#   }
-# 
-#   vars <- as.list(vars)[-1] # probably more elegant way to do this
-#   cols <- lapply(vars, FUN = get_var, data = data)
-# 
-#   the_groups <- group_vars(data)
-#   if (!is.null(the_groups)) {
-#     index <- length(the_groups) + 1
-#   
-#     # This is the output model frame, starting with the first column plus
-#     # grouping vars
-#     mf <- cols[[1]]
-#   
-#     # Need to combine cols without duplicating group column
-#     for (i in seq(from = 2, to = length(vars))) {
-#   
-#       mf %<>% bind_cols(cols[[i]][index])
-#   
-#     }
-#   }
-# 
-#   # Add wave variable back if it was there before
-#   if ("wave" %in% names(data)) {
-#     mf$wave <- data$wave
-#   }
-# 
-#   return(mf)
-#   # variables <- eval(predvars, data, env) # replace me!
-# 
-#   # resp <- attr(formula, "response")
-# 
-# }
-
+# TODO: consider making into S3 method
 model_frame <- function(formula, data) {
   
   # model.frame does this, not sure why it would be needed...
@@ -74,11 +28,11 @@ model_frame <- function(formula, data) {
   # Get all the original variables (sans functions) so they aren't dropped
   ovars <- all.vars(formula)
   
-  if ("wave" %in% names(data)) {wave <- "wave"} else {wave <- NULL}
+  wave <- get_wave(data)
+  id <- get_id(data)
   
   # These are the names with transformations
-  vars <- attr(formula, "variables")
-  vars <- as.list(vars)[-1] # probably more elegant way to do this
+  vars <- attr(terms(formula), "term.labels")[attr(terms(formula), "order") == 1]
   
   # Only do the mutations for vars with transformations
   inds <- which(as.character(vars) %nin% names(data) &
@@ -90,7 +44,7 @@ model_frame <- function(formula, data) {
   # Keeping only needed vars to save memory
   mf <- data[c(ovars, as.character(vars)[existing_vars], the_groups, wave)]
   
-  # Add new columns for transformed variabels
+  # Add new columns for transformed variables
   for (var in vars[inds]) {
     mf <- get_var(data = mf, var = var)
   }
@@ -108,21 +62,12 @@ model_frame <- function(formula, data) {
 #' @import dplyr
 #' @importFrom rlang :=
 
-# get_var <- function(data, var) {
-# 
-#   varname <- quo_name(var)
-# 
-#   # It barks about preserving grouping variables (and labelled vectors)
-#   suppressWarnings(suppressMessages(transmute(data, !!varname := !!var)))
-# 
-# }
-
 get_var <- function(data, var) {
   
-  varname <- quo_name(var)
+  var_expr <- parse_expr(var) 
   
   # It barks about preserving grouping variables (and labelled vectors)
-  mutate(data, !!varname := !!var)
+  mutate(data, !!var := !!var_expr)
   
 }
 
