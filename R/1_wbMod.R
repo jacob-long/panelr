@@ -1,7 +1,7 @@
 #### wbMod class ##################################
 ## S4 declaration of wbMod superclass 
 #' @title Within-Between Model (`wbm`) class
-#' @details Models fit using [wbm()] return values of this class, which
+#' @description Models fit using [wbm()] return values of this class, which
 #'  inherits from \code{\link[lme4]{merMod-class}}. 
 #' @slot call_info A list of metadata about the arguments used.
 #' @slot call The actual function call.

@@ -64,5 +64,6 @@ created by \code{wbm}.}
     of the random effects).)}
 }
 \description{
-Predictions and simulations from within-between models
+These methods facilitate fairly straightforward predictions
+and simulations from \code{wbm} models.
 }

@@ -5,9 +5,6 @@
 \alias{wbm-class}
 \title{Within-Between Model (\code{wbm}) class}
 \description{
-Within-Between Model (\code{wbm}) class
-}
-\details{
 Models fit using \code{\link[=wbm]{wbm()}} return values of this class, which
 inherits from \code{\link[lme4]{merMod-class}}.
 }

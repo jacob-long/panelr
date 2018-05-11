@@ -4,7 +4,7 @@
 \alias{panel_data}
 \title{Create panel data frames}
 \usage{
-panel_data(data, id = "id", wave = "wave", ...)
+panel_data(data, id = id, wave = wave, ...)
 }
 \arguments{
 \item{data}{A data frame.}

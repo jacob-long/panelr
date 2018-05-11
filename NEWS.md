@@ -1,3 +1,18 @@
+# panelr 0.4.0 
+
+This version includes some major under-the-hood changes, converting from an 
+S3 object representation to S4. This allows the `wbm` objects to formally be
+extensions `merMod` objects, meaning any method that could apply to `wbm` but
+isn't formally implemented will fall back to the `merMod` implementation.
+
+The `panel_data` class no longer hardcodes the id and wave variables as "id"
+and "wave". Instead, they remain whatever they are named and the `panelr`
+functions will simply know which variables are these special ones.
+
+A new function, `make_wb_data`, allows users to do the data prepping that
+`wbm` does internally without having to use all the modeling choices made by
+`wbm`.
+
 # panelr 0.3.4
 
 A series of helper functions have been added to make `wbm` objects behave

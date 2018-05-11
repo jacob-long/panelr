@@ -55,9 +55,11 @@ getCall.wbm <- function(x, ...) {
 }
 
 #' @title Predictions and simulations from within-between models
+#' @description These methods facilitate fairly straightforward predictions
+#'  and simulations from `wbm` models.
 #' @param raw Is `newdata` a `merMod` model frame or `panel_data`? TRUE
 #'  indicates a `merMod`-style newdata, with all of the extra columns 
-#'  created by `wbm`.
+#'  created by `wbm`. 
 #' @importFrom stats predict na.pass
 #' @inheritParams lme4::predict.merMod
 #' @inheritParams lme4::simulate.merMod
@@ -154,6 +156,8 @@ simulate.wbm <- function(object, nsim = 1, seed = NULL, use.u = FALSE,
 }
 
 #' @title Number of observations used in `wbm` models
+#' @description This S3 method allows you to retrieve either the number of
+#'  observations or number of entities in the data used to fit `wbm` objects.
 #' @inheritParams stats::nobs
 #' @param entities Should `nobs` return the number of entities in the panel
 #'  or the number of rows in the `panel_data` frame? Default is TRUE, returning
@@ -170,6 +174,8 @@ nobs.wbm <- function(object, entities = TRUE, ...) {
 }
 
 #' @title Retrieve model formulas from `wbm` objects
+#' @description This S3 method allows you to retrieve the formula used to 
+#'  fit `wbm` objects.
 #' @inheritParams stats::formula
 #' @param raw Return the formula used in the call to `lmerMod`/`glmerMod`?
 #'  Default is FALSE.
@@ -193,7 +199,7 @@ terms.wbm <- function(x, fixed.only = TRUE, random.only = FALSE, ...) {
 }
 
 #' @title Alternate optimizer for `wbm` and other models
-#' @details This optimizer is exported for use in [wbm()] to improve
+#' @description This optimizer is exported for use in [wbm()] to improve
 #'  speed and reliability of optimization.
 #' @param fn A function to be minimized (or maximized), with first
 #'        argument the vector of parameters over which minimization is

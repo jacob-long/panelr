@@ -525,6 +525,13 @@ long_panel <- function(data, prefix = "_", suffix = NULL, begin = NULL,
   
 }
 
+#' @title Retrieve panel_data metadata
+#' @description `get_id` and `get_wave` are extractor functions that can be
+#'   used to retrieve the names of the id and wave variables of a `panel_data`
+#'   frame.
+#' @param data A `panel_data` frame
+#' @return A `panel_data` frame
+#' @rdname get_wave
 #' @export
 
 get_wave <- function(data) {
@@ -532,6 +539,7 @@ get_wave <- function(data) {
 }
 
 #' @export
+#' @rdname get_wave
 
 get_id <- function(data) {
   attr(data, "id")

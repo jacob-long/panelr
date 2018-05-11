@@ -213,7 +213,7 @@ wb_model <- function(model, pf, dv, data, detrend) {
 
 }
 
-#' @importFrom stats resid lm coef
+#' @importFrom stats resid lm coef na.exclude update
 
 detrend <- function(data, pf, dt_order, balance_correction, dt_random) {
     

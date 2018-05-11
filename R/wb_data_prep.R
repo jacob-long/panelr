@@ -118,6 +118,12 @@ wb_prepare_data <- function(formula, data, id = NULL, wave = NULL,
   
 }
 
+#' @title Prepare data for within-between modeling
+#' @description This function allows users to make the changes to their data
+#'  that occur in [wbm()] without having to fit the model.
+#'  
+#' @inheritParams wbm
+#' @return A `panel_data` object with the requested specification.
 #' @export
 
 make_wb_data <- function(formula, data, id = NULL, wave = NULL,

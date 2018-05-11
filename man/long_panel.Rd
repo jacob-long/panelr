@@ -4,8 +4,8 @@
 \alias{long_panel}
 \title{Convert wide panels to long format}
 \usage{
-long_panel(data, prefix = "_", suffix = NULL, begin, end, id = NULL,
-  periods = NULL, label_location = c("end", "beginning"),
+long_panel(data, prefix = "_", suffix = NULL, begin = NULL, end = NULL,
+  id = NULL, periods = NULL, label_location = c("end", "beginning"),
   as_panel_data = TRUE)
 }
 \arguments{

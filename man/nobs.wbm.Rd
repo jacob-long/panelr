@@ -16,5 +16,6 @@ the number of entities.}
 \item{...}{Further arguments to be passed to methods.}
 }
 \description{
-Number of observations used in \code{wbm} models
+This S3 method allows you to retrieve either the number of
+observations or number of entities in the data used to fit \code{wbm} objects.
 }

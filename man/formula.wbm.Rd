@@ -15,5 +15,6 @@ Default is FALSE.}
 \item{...}{further arguments passed to or from other methods.}
 }
 \description{
-Retrieve model formulas from \code{wbm} objects
+This S3 method allows you to retrieve the formula used to
+fit \code{wbm} objects.
 }

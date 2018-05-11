@@ -8,7 +8,7 @@ wbm(formula, data, id = NULL, wave = NULL, model = "w-b",
   detrend = FALSE, use.wave = FALSE, wave.factor = FALSE, min.waves = 2,
   family = gaussian, balance_correction = FALSE, dt_random = TRUE,
   dt_order = 1, pR2 = TRUE, pvals = TRUE, weights = NULL,
-  scale = FALSE, scale.response = FALSE, n.sd = 1, ...)
+  offset = NULL, scale = FALSE, scale.response = FALSE, n.sd = 1, ...)
 }
 \arguments{
 \item{formula}{Model formula. See details for crucial
@@ -17,10 +17,10 @@ info on \code{panelr}'s formula syntax.}
 \item{data}{The data, either a \code{panel_data} object or \code{data.frame}.}
 
 \item{id}{If \code{data} is not a \code{panel_data} object, then the name of the
-individual id column. Otherwise, leave as NULL, the default.}
+individual id column as a string. Otherwise, leave as NULL, the default.}
 
 \item{wave}{If \code{data} is not a \code{panel_data} object, then the name of the
-panel wave column. Otherwise, leave as NULL, the default.}
+panel wave column as a string. Otherwise, leave as NULL, the default.}
 
 \item{model}{One of \code{"w-b"}, \code{"within"}, \code{"between"},
 \code{"contextual"}, or \code{"stability"}. See details for more on these options.}
@@ -64,6 +64,13 @@ package.}
 
 \item{weights}{If using weights, either the name of the column in the data
 that contains the weights or a vector of the weights.}
+
+\item{offset}{this can be used to specify an \emph{a priori} known
+    component to be included in the linear predictor during
+    fitting. This should be \code{NULL} or a numeric vector of length
+    equal to the number of cases.  One or more \code{\link{offset}}
+    terms can be included in the formula instead or as well, and if more
+    than one is specified their sum is used.  See \code{\link{model.offset}}.}
 
 \item{scale}{If \code{TRUE}, reports standardized regression
 coefficients. Default is \code{FALSE}.}

@@ -26,9 +26,6 @@ that can handle box (or bounds) constraints.}
 \item{...}{Further arguments passed to \code{\link[nloptr:nloptr]{nloptr::nloptr()}}}
 }
 \description{
-Alternate optimizer for \code{wbm} and other models
-}
-\details{
 This optimizer is exported for use in \code{\link[=wbm]{wbm()}} to improve
 speed and reliability of optimization.
 }
