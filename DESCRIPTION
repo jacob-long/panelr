@@ -1,6 +1,6 @@
 Package: panelr
 Title: Regression Models and Utilities for Repeated Measures and Panel Data
-Version: 0.3.4
+Version: 0.4.0
 Authors@R: person("Jacob A.", "Long", email = "long.1377@osu.edu", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-1582-6214"))
 Description: This package implements several methods for creating regression
   models that take advantage of the unique aspects of 
@@ -9,13 +9,15 @@ Description: This package implements several methods for creating regression
   desirable aspects of both fixed effects and random effects econometric models
   and fits them in the lme4 package. Bayesian estimation of these models is 
   supported via the brms package.
-Depends: R (>= 3.4.0)
+Depends: R (>= 3.4.0),
+      lme4
 Imports: dplyr,
       tibble,
-      lme4,
       pbkrtest,
       jtools,
+      nloptr,
       magrittr,
+      methods,
       stringr,
       tidyr,
       purrr,
@@ -26,5 +28,5 @@ Suggests: brms,
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.0.1.9000
+RoxygenNote: 6.0.1
 Roxygen: list(markdown = TRUE)

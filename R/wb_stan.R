@@ -54,72 +54,30 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
                    fit_model = TRUE, balance_correction = FALSE,
                    dt_random = TRUE, dt_order = 1,
                    chains = 3, iter = 2000, scale = FALSE, save_ranef = FALSE,
-                   weights = NULL, ...) {
+                   weights = NULL, offset = NULL, ...) {
 
-  # Get data prepped
-  if (class(data)[1] == "panel_data") {
-    id <- "id"
-    wave <- "wave"
-  }
-
-  wave <- as.character(substitute(wave))
-
-  id <- as.character(substitute(id))
-
-  weights <- as.character(substitute(weights))
-  if (length(weights) == 0) {
-    weights <- NULL
-  }
-
-  if (!("data.frame" %in% class(data))) {
-    stop("data argument must be a data frame.")
-  }
-
-  data <- panel_data(data, id = id, wave = wave)
-
-  # Make sure lme4 is installed
-  if (requireNamespace("lme4", quietly = TRUE) == FALSE) {
-    stop("You must have the nlme package installed to use this function.")
-  }
-
-  ## Dealing with formula
-  formula <- as.formula(substitute(quote(formula)))
-  if (as.character(formula[[1]]) != "~") {
-    stop("Invalid formula. Include the outcome variable on the left side
-         followed by `~` and then the predictors.")
-  }
-
-  dv <- as.character(formula[[2]])
-  formula <- as.character(formula)[[3]]
-  # Pass to helper function
-  pf <- wb_formula_parser(formula, dv)
-
-  # Need to do detrending before lags, etc.
-  if (detrend == TRUE) {
-    data <- detrend(data, pf, dt_order, balance_correction, dt_random)
-  } 
-  # Create formula to pass to model_frame
-  mf_form <- paste(paste0(dv, " ~ "),
-                   paste(pf$allvars, collapse = " + "),
-                   " + ",
-                   paste(pf$meanvars, collapse = " + "))
-
+  the_call <- match.call()
+  the_call[[1]] <- substitute(wbm)
+  the_env <- parent.frame()
   
-  # Add weights to keep it in the DF
-  if (!is.null(weights)) {
-    mf_form <- paste(mf_form, "+", weights)
-  }
-  # Pass to special model_frame function that respects tibble groupings
-  data <- model_frame(as.formula(mf_form), data = data)
-
-  data <- complete_cases(data, min.waves = min.waves)
-  num_distinct <- length(unique(data$id))
-  maxwave <- max(data["wave"])
-  minwave <- min(data["wave"])
-
-  e <- wb_model(model, pf, dv, data, detrend)
-
+  # Send to helper function for data prep
+  prepped <- wb_prepare_data(formula = formula, data = data, id = id,
+                             wave = wave, model = model, detrend = detrend,
+                             use.wave = use.wave, wave.factor = wave.factor,
+                             min.waves = min.waves,
+                             balance_correction = balance_correction,
+                             dt_random = dt_random, dt_order = dt_order,
+                             weights = UQ(enquo(weights)),
+                             offset = UQ(enquo(offset)))
+  
+  e <- prepped$e
+  pf <- prepped$pf
   data <- e$data
+  wave <- prepped$wave
+  id <- prepped$id
+  dv <- prepped$dv
+  weights <- prepped$weights
+  offset <- prepped$offset
 
   if (use.wave == TRUE) {
     e$fin_formula <- paste(e$fin_formula, "+", "wave")
@@ -140,9 +98,9 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
     res <- lme4::findbars(as.formula(paste("~", pf$cross_ints_form)))
     refs <- lme4::mkReTrms(res, data)$cnms
 
-    if (any(names(refs) == "id")) {
+    if (any(names(refs) == id)) {
 
-      inds <- which(names(refs) == "id")
+      inds <- which(names(refs) == id)
 
       if (any(unlist(refs[inds]) == "(Intercept)")) {
         no_add <- TRUE
@@ -159,9 +117,10 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
   }
 
   if (no_add == FALSE) {
-    fin_formula <- paste0(fin_formula, " + (1 | id)")
+    fin_formula <- paste0(fin_formula, " + (1 | ", id, ")")
   }
 
+  # TODO: test this
   # Give brms the weights in the desired formula syntax
   if (!is.null(weights)) {
     weights <- make.names(weights) # Also give syntactically valid name for wts
@@ -183,7 +142,7 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
   if (scale == TRUE) {
 
     scale_names <- names(data)
-    scale_names <- scale_names[!(names(data) %in% c("id","wave",dv,weights))]
+    scale_names <- scale_names[!(names(data) %in% c(id, wave, dv, weights))]
     data <- jtools::gscale(x = scale_names, data = data, n.sd = 1,
                            binary.inputs = "0/1")
 
@@ -207,11 +166,11 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
 
     out <- list(model = model, data = data, fin_formula = fin_formula,
                 dv = dv, id = id, wave = wave,
-                num_distinct = num_distinct,
+                num_distinct = prepped$num_distinct,
                 varying = pf$varying, model = model,
                 stab_terms = e$stab_terms,
-                max_wave = maxwave, min_wave = minwave, ints = ints,
-                model_cor = model.cor)
+                max_wave = prepped$maxwave, min_wave = prepped$minwave,
+                ints = ints, model_cor = model.cor)
 
     class(out) <- "wbm_stan"
 

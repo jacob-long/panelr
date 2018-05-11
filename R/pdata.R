@@ -20,47 +20,52 @@
 #' @import dplyr
 #' @export
 
-panel_data <- function(data, id = "id", wave = "wave", ...) {
+panel_data <- function(data, id = id, wave = wave, ...) {
 
-  id <- as.character(substitute(id))
-  wave <- as.character(substitute(wave))
+  id <- expr_text(enexpr(id))
+  wave <- expr_text(enexpr(wave))
 
-  # Append case ID column if not already named ID
-  if (id != "id") {
-    data$id <- data[[id]]
-  }
+  # # Append case ID column if not already named ID
+  # if (id != "id") {
+  #   data$id <- data[[id]]
+  # }
 
   # Let's make sure ID var doesn't get confused for numeric
-  if (!is.factor(data$id)) {data$id <- factor(data$id)}
+  if (!is.factor(data[[id]])) {data[[id]] <- factor(data[[id]])}
 
   # Group by case ID
-  if ("id" %nin% group_vars(data)) {data <- group_by(data, id, add = TRUE)}
+  if (id %nin% group_vars(data)) {data <- group_by(data, !!sym(id), add = TRUE)}
   # Warn about multi-grouped DFs
   if (length(group_vars(data)) > 1) {
-    message(paste("Detected additional grouping variables. Be aware this may",
-                  "\ncause unexpected behavior or incorrect results."))
+    msg_wrap("Detected additional grouping variables. Be aware this may
+             cause unexpected behavior or incorrect results.")
   } 
 
-  # Append wave column if wave isn't already called wave
-  if (wave != "wave") {
-    data[["wave"]] <- data[[wave]]
-  }
+  # # Append wave column if wave isn't already called wave
+  # if (wave != "wave") {
+  #   data[["wave"]] <- data[[wave]]
+  # }
 
   # Make sure wave variable is in format I can understand
-  if (is.factor(data$wave)) {
-    data$wave <- as.numeric(data$wave)
+  if (is.factor(data[[wave]])) {
+    data[[wave]] <- as.numeric(data[[wave]])
     message("Factor wave variable was converted to numeric.")
-  } else if (!is.numeric(data$wave)) {
+  } else if (!is.numeric(data[[wave]])) {
     stop("The wave variable must be numeric.")
+  }
+  
+  if (0 %in% data[[wave]]) {
+    message("There cannot be a wave 0. Adding 1 to each wave.\n")
+    data[[wave]] <- data[[wave]] + 1
   }
 
   # Ordering by wave and then group ensures lag functions work right
-  data <- arrange(data, wave, .by_group = TRUE)
+  data <- arrange(data, !!sym(wave), .by_group = TRUE)
   
   # Inherit from df, tibble, and grouped_df (last one is critical)
   data <- tibble::new_tibble(data, ..., 
-                             idvar = id,
-                             wavevar = wave,
+                             id = id,
+                             wave = wave,
                              subclass = c("panel_data", "grouped_df"))
 
   return(data)
@@ -173,6 +178,68 @@ are_varying <- function(data, ...) {
   out
 }
 
+## Using these to get around limitations with constants that are measured
+## after Wave 1 in labeled wide data. e.g., the wide data has var_W2, but only
+## measured in W2. 
+
+set_constants <- function(data, vars) {
+  
+  constants <- lapply(syms(vars), set_constant, data = data)
+  data[vars] <- constants
+  return(data)
+  
+}
+
+
+set_constant <- function(data, var) {
+  
+  var <- enquo(var)
+  var_name <- quo_name(var)
+  suppressMessages({
+    transmute(data, !! var_name := uniq_nomiss(!! var)) %>%
+      deframe()
+  })
+  
+}
+
+## This is my way of grabbing the lone non-NA value from the group
+## ...unless, of course, they are all NA in which case I need to give back NA
+
+uniq_nomiss <- function(x) {
+  un <- unique(x)
+  if (!all(is.na(un))) {
+    un <- un[!is.na(un)]
+  }
+  return(un)
+}
+
+#' @export
+#' @importFrom tibble trunc_mat
+#'
+print.panel_data <- function(x, ...) {
+  
+  # Original trunc_mat
+  print_tbl <- tibble::trunc_mat(x, ...)
+  
+  # Overwrite "A tibble" with "Panel data"
+  names(print_tbl$summary)[[1]] <- "Panel data"
+  
+  # Panel metadata
+  panel_meta <- c("entities" =
+                    paste0(get_id(x), " [", n_distinct(x[[get_id(x)]]), "]"),
+                    "wave variable" = get_wave(x)
+                 )
+  # Add panel metadata
+  print_tbl$summary <- append(print_tbl$summary, panel_meta, after = 1)
+  # Drop groups 
+  print_tbl$summary <- 
+    print_tbl$summary[names(print_tbl$summary) %nin% "Groups"]
+  
+  # Print
+  # cat("# ", names(summary), ": ", summary, "\n", sep = "")
+  print(print_tbl)
+}
+
 ##### reshaping ##############################################################
 
 #' @title Convert long panel data to wide format
@@ -218,7 +285,9 @@ widen_panel <- function(data, separator = "_", ignore.attributes = FALSE,
                         varying = NULL) {
   
   # Get the var names that we never transform
-  reserved_names <- c("id","wave", attr(data, "idvar"), attr(data, "wavevar"))
+  wave <- get_wave(data)
+  id <- get_id(data)
+  reserved_names <- c(id, wave)
   
   if (ignore.attributes == TRUE) {
     attr(data, "reshaped") <- FALSE
@@ -250,21 +319,19 @@ widen_panel <- function(data, separator = "_", ignore.attributes = FALSE,
     
   }
   
-  # Drop redundant wave variable
-  if (!is.null(attr(data, "wavevar")) && attr(data, "wavevar") != "wave") {
-    data <- data[names(data) %nin% attr(data, "wavevar")]
-  }
+  # Set the constants such that reshape treats them that way
+  data <- set_constants(data, names(allvars)[!allvars])
   
   # Reshape doesn't play nice with tibbles
   data <- as.data.frame(data)
   
   if (ignore.attributes == FALSE) {
-    data <- stats::reshape(data = data, v.names = varying, timevar = "wave",
-                           idvar = "id", direction = "wide", sep = separator)
+    data <- stats::reshape(data = data, v.names = varying, timevar = wave,
+                           idvar = id, direction = "wide", sep = separator)
   } else { # This usually involves treating some "varying" vars as constants
     suppressWarnings({
-    data <- stats::reshape(data = data, v.names = varying, timevar = "wave",
-                           idvar = "id", direction = "wide", sep = separator)
+    data <- stats::reshape(data = data, v.names = varying, timevar = wave,
+                           idvar = id, direction = "wide", sep = separator)
     })
   }
   
@@ -338,8 +405,8 @@ widen_panel <- function(data, separator = "_", ignore.attributes = FALSE,
 #' @importFrom stringr str_extract str_detect
 #' @export 
 
-long_panel <- function(data, prefix = "_", suffix = NULL, begin, end,
-                       id = NULL, periods = NULL,
+long_panel <- function(data, prefix = "_", suffix = NULL, begin = NULL,
+                       end = NULL, id = NULL, periods = NULL,
                        label_location = c("end","beginning"),
                        as_panel_data = TRUE) {
   
@@ -369,7 +436,7 @@ long_panel <- function(data, prefix = "_", suffix = NULL, begin, end,
   
   # Make sure there is an ID column
   if (is.null(id)) {
-    data$id <- 1:nrow(data)
+    data["id"] <- 1:nrow(data)
     id <- "id"
   }
   # Now is time to find the varying variables
@@ -408,8 +475,9 @@ long_panel <- function(data, prefix = "_", suffix = NULL, begin, end,
   for (p in patterns) {
     stubs <- str_extract(wvars, p) 
     matches <- str_detect(wvars, p)
-    stubs_by_period[[periods[which(patterns == p)]]] <- stubs[matches]
-    varying_by_period[[periods[which(patterns == p)]]] <-  wvars[matches]
+    which_period <- as.character(periods[which(patterns == p)])
+    stubs_by_period[[which_period]] <- stubs[matches]
+    varying_by_period[[which_period]] <-  wvars[matches]
   }
   
   # Count up how many instances of each stub there are
@@ -448,13 +516,33 @@ long_panel <- function(data, prefix = "_", suffix = NULL, begin, end,
                  sep = sep, direction = "long",
                  varying = unlist(varying_by_period))
   if (as_panel_data == TRUE) { # Return panel_data object if requested
-    out$id <- out[[id]]
-    out <- panel_data(out, id = "id", wave = "wave", reshaped = TRUE,
-                      varying = names(stub_tab), 
+    out["id"] <- out[[id]]
+    out <- panel_data(out, id = !! sym(id), wave = !! sym("wave"),
+                      reshaped = TRUE, varying = names(stub_tab), 
                       constants = names(out)[names(out) %nin% names(stub_tab)])
   }
   return(out)
   
+}
+
+#' @title Retrieve panel_data metadata
+#' @description `get_id` and `get_wave` are extractor functions that can be
+#'   used to retrieve the names of the id and wave variables of a `panel_data`
+#'   frame.
+#' @param data A `panel_data` frame
+#' @return A `panel_data` frame
+#' @rdname get_wave
+#' @export
+
+get_wave <- function(data) {
+  attr(data, "wave")
+}
+
+#' @export
+#' @rdname get_wave
+
+get_id <- function(data) {
+  attr(data, "id")
 }
 
 ##### internal panel_data tools #############################################

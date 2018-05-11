@@ -6,84 +6,108 @@ magrittr::`%>%`
 #' @export
 magrittr::`%<>%`
 
+# Automate the addition of newline characters for long strings
+wrap_str <- function(..., sep = "") {
+  paste0(strwrap(paste(..., sep = sep), width = 0.95 * getOption("width", 80)),
+         collapse = "\n")
+}
+
+# Go ahead and wrap the cat function too
+cat_wrap <- function(..., brk = "") {
+  cat(wrap_str(...), brk, sep = "")
+}
+
+# Like cat_wrap but for warnings
+warn_wrap <- function(..., call. = FALSE, brk = "\n") {
+  warning(wrap_str(...), brk, call. = call.)
+}
+
+# Like cat_wrap but for errors
+stop_wrap <- function(..., call. = FALSE, brk = "\n") {
+  stop(wrap_str(...), brk, call. = call.)
+}
+
+# Like cat_wrap but for messages
+msg_wrap <- function(..., brk = "\n") {
+  message(wrap_str(...), brk)
+}
+
+#' @importFrom lme4 isLMM
+#' @importFrom methods as
+
+to_merMod <- function(x) {
+  if (isLMM(x)) {
+    x <- as(x, "lmerMod")
+  } else {
+    x <- as(x, "glmerMod")
+  }
+  x@frame <- as.data.frame(x@frame)
+  return(x)
+}
+
 #' @importFrom stats getCall
 #' @export
 
 getCall.wbm <- function(x, ...) {
   
-  return(attr(x, "call"))
+  return(x@call)
   
 }
 
-#' 
-
-# update.wbm <- function(object, call.env = parent.frame(), ...) {
-#   
-#   call <- getCall(object)
-#   
-#   # Now get the argument names for that version of object
-#   object_formals <- formals(getFromNamespace("wbm", "panelr"))
-#   
-#   extras <- as.list(match.call())
-#   indices <- match(names(extras), names(object_formals))
-#   extras <- extras[indices]
-#   
-#   for (i in 1:length(extras)) {
-#     if (is.name(extras[[i]])) {
-#       extras[[i]] <- eval(extras[[i]], envir = call.env)
-#     }
-#   }
-#   existing <- !is.na(match(names(extras), names(call)))
-#   for (a in names(extras)[existing]) call[[a]] <- extras[[a]]
-#   if (any(!existing)) {
-#     call <- c(as.list(call), extras[!existing])
-#     call <- as.call(call)
-#   }
-#   
-#   env <- attr(object, "env")
-#   
-#   eval(call, env, parent.frame())
-#   
-# }
-
+#' @title Predictions and simulations from within-between models
+#' @description These methods facilitate fairly straightforward predictions
+#'  and simulations from `wbm` models.
+#' @param raw Is `newdata` a `merMod` model frame or `panel_data`? TRUE
+#'  indicates a `merMod`-style newdata, with all of the extra columns 
+#'  created by `wbm`. 
 #' @importFrom stats predict na.pass
+#' @inheritParams lme4::predict.merMod
+#' @inheritParams lme4::simulate.merMod
 #' @export
+#' @rdname predict.wbm 
 
 predict.wbm <- function(object, newdata = NULL, raw = FALSE, newparams = NULL,
         re.form = NULL, terms = NULL, type = c("link", "response"),
         allow.new.levels = FALSE, na.action = na.pass, ...) {
   
   if (!is.null(newdata) & raw == FALSE) {
-    mf_form <- attr(object, "mf_form")
-    pf <- attr(object, "pf")
+    mf_form <- object@call_info$mf_form
+    pf <- object@call_info$pf
     newdata <- model_frame(mf_form, newdata)
-    dv <- attr(object, "dv")
+    dv <- object@call_info$dv
     
-    if (attr(object, "detrend") == TRUE) {
-      dto <- detrend(newdata, pf, attr(object, "dt_order"),
-                     attr(object, "balance_correction"),
-                     attr(object, "dt_random"))
+    if (object@call_info$detrend == TRUE) {
+      dto <- detrend(newdata, pf, object@call_info$dt_order,
+                     object@call_info$balance_correction,
+                     object@call_info$dt_random)
       newdata <- dto
     }
     
-    newdata <- wb_model(attr(object, "model"), pf, dv, newdata,
-                        attr(object, "detrend"))$data
+    newdata <- wb_model(object@call_info$model, pf, dv, newdata,
+                        object@call_info$detrend)$data
     
   }
   
-  if (is.null(attr(attr(object$model@frame, "terms"), "varnames.fixed"))) {
-    attr(attr(object$model@frame, "terms"), "varnames.fixed") <-
-      c(attr(object, "varying"), attr(object, "constants"),
-        attr(object, "meanvars"))
+  if (is.null(attr(attr(object@frame, "terms"), "varnames.fixed"))) {
+    attr(attr(object@frame, "terms"), "varnames.fixed") <-
+      c(object@call_info$varying, object@call_info$constants,
+        object@call_info$meanvars)
+  }
+
+  if (isLMM(object)) {
+    object <- as(object, "lmerMod")
+  } else {
+    object <- as(object, "glmerMod")
   }
   
-  predict(object$model, newdata = newdata, newparams = newparams,
+  predict(object, newdata = newdata, newparams = newparams,
           re.form = re.form, terms = terms, type = type,
           allow.new.levels = allow.new.levels, na.action = na.action, ...)
   
 }
 
 #' @importFrom stats simulate na.pass 
+#' @rdname predict.wbm 
 #' @export
 
 simulate.wbm <- function(object, nsim = 1, seed = NULL, use.u = FALSE,
@@ -93,37 +117,37 @@ simulate.wbm <- function(object, nsim = 1, seed = NULL, use.u = FALSE,
                          allow.new.levels = FALSE, na.action = na.pass, ...) {
   
   if (!is.null(newdata) & raw == FALSE) {
-    mf_form <- attr(object, "mf_form")
-    pf <- attr(object, "pf")
+    mf_form <- object@call_info$mf_form
+    pf <- object@call_info$pf
     newdata <- model_frame(mf_form, newdata)
-    dv <- attr(object, "dv")
+    dv <- object@call_info$dv
     
-    if (attr(object, "detrend") == TRUE) {
-      dto <- detrend(newdata, pf, attr(object, "dt_order"),
-                     attr(object, "balance_correction"),
-                     attr(object, "dt_random"))
+    if (object@call_info$detrend == TRUE) {
+      dto <- detrend(newdata, pf, object@call_info$dt_order,
+                     object@call_info$balance_correction,
+                     object@call_info$dt_random)
       newdata <- dto
     }
-    
-    newdata <- wb_model(attr(object, "model"), pf, dv, newdata,
-                        attr(object, "detrend"))$data
-    
+
+    newdata <- wb_model(object@call_info$model, pf, dv, newdata,
+                        object@call_info$detrend)$data
   }
   
-  if (is.null(attr(attr(object$model@frame, "terms"), "varnames.fixed"))) {
-    attr(attr(object$model@frame, "terms"), "varnames.fixed") <-
-      c(attr(object, "varying"), attr(object, "constants"),
-        attr(object, "meanvars"))
+  if (is.null(attr(attr(object@frame, "terms"), "varnames.fixed"))) {
+    attr(attr(object@frame, "terms"), "varnames.fixed") <-
+      c(object@call_info$varying, object@call_info$constants,
+        object@call_info$meanvars)
   }
-  
+
+  object <- to_merMod(object)
   
   if (!is.na(re.form)) {
-    simulate(object$model, nsim = nsim, seed = seed,
+    simulate(object, nsim = nsim, seed = seed,
              newdata = newdata, newparams = newparams, re.form = re.form,
              terms = terms, type = type, allow.new.levels = allow.new.levels,
              na.action = na.action, ...)
   } else {
-    simulate(object$model, nsim = nsim, seed = seed,
+    simulate(object, nsim = nsim, seed = seed,
              newdata = newdata, newparams = newparams, use.u = use.u,
              terms = terms, type = type, allow.new.levels = allow.new.levels,
              na.action = na.action, ...)
@@ -131,176 +155,91 @@ simulate.wbm <- function(object, nsim = 1, seed = NULL, use.u = FALSE,
   
 }
 
-#' @title Helpers functions for interfacing with wbm objects
-#' 
-#' @param object A `wbm` model object
-#' @param x A `wbm` model object
-#' @param add.dropped for models with rank-deficient design matrix,
-#'  reconstitute the full-length parameter vector by adding NA values in
-#'  appropriate locations?
-#' @param condVar an optional logical argument indicating if the conditional
-#'  variance-covariance matrices of the random effects should be added as an
-#'  attribute.
-#' @param drop should components of the return value that would be data frames
-#'  with a single column, usually a column called `(Intercept)`, be returned as
-#'  named vectors instead?
-#' @param whichel character vector of names of grouping factors for which the
-#'  random effects should be returned.
-#' @param postVar a (deprecated) synonym for condVar
-#' @param ... some methods for these generic functions require additional
-#'  arguments
-#' @importFrom lme4 fixef
-#' @rdname helpers
-#' @importFrom lme4 fixef
-#' @export
-
-fixef.wbm <- function(object, add.dropped = FALSE, ...) {
-  
-  lme4::fixef(object$model, add.dropped = add.dropped, ...)
-  
-}
-
-#' @rdname helpers
-#' @importFrom lme4 ranef
-#' @export
-
-ranef.wbm <- function(object, condVar = FALSE, drop = FALSE,
-                      whichel = NULL, postVar = FALSE, ...) {
-  if (is.null(whichel)) {
-    lme4::ranef(object$model, condVar = condVar, drop = drop,
-                postVar = postVar, ...)
-  } else {
-    lme4::ranef(object$model, condVar = condVar, drop = drop, whichel = whichel,
-                postVar = postVar, ...)
-  }
-  
-}
-
-#' @importFrom stats vcov sigma
-#' @export
-
-vcov.wbm <- function(object, correlation = TRUE, sigm = sigma(object$model),
-                     use.hessian = NULL, ...) {
-  
-  vcov(object$model, correlation = correlation, sigm = sigm,
-       use.hessian = use.hessian, ...)
-  
-}
-
-#' @importFrom stats model.frame
-#' @export
-
-model.frame.wbm <- function(formula, ...) {
-  
-  formula$data
-  
-}
-
+#' @title Number of observations used in `wbm` models
+#' @description This S3 method allows you to retrieve either the number of
+#'  observations or number of entities in the data used to fit `wbm` objects.
+#' @inheritParams stats::nobs
+#' @param entities Should `nobs` return the number of entities in the panel
+#'  or the number of rows in the `panel_data` frame? Default is TRUE, returning
+#'  the number of entities.
 #' @importFrom stats nobs
 #' @export
 
 nobs.wbm <- function(object, entities = TRUE, ...) {
-  
   if (entities == TRUE) {
-    dplyr::n_groups(object$data)
+    dplyr::n_groups(object@frame)
   } else {
-    nrow(object$data)
+    nrow(object@frame)
   }
-  
 }
 
+#' @title Retrieve model formulas from `wbm` objects
+#' @description This S3 method allows you to retrieve the formula used to 
+#'  fit `wbm` objects.
+#' @inheritParams stats::formula
+#' @param raw Return the formula used in the call to `lmerMod`/`glmerMod`?
+#'  Default is FALSE.
 #' @importFrom stats formula
 #' @export
 
 formula.wbm <- function(x, raw = FALSE, ...) {
-  
   if (raw == TRUE) {
-    return(x$fin_formula)
+    return(x@call_info$merMod_call$formula)
   } else {
     return(getCall(x)$formula)
   }
-  
 }
 
-#' @importFrom stats formula
 #' @export
+#' @importFrom stats terms
 
 terms.wbm <- function(x, fixed.only = TRUE, random.only = FALSE, ...) {
-  
-  terms(x$model, fixed.only = fixed.only, random.only = random.only, ...)
-  
+    x <- to_merMod(x)
+    terms(x, fixed.only = fixed.only, random.only = random.only, ...)
 }
 
-#' @importFrom stats coef
-#' @export 
+#' @title Alternate optimizer for `wbm` and other models
+#' @description This optimizer is exported for use in [wbm()] to improve
+#'  speed and reliability of optimization.
+#' @param fn A function to be minimized (or maximized), with first
+#'        argument the vector of parameters over which minimization is
+#'        to take place.  It should return a scalar result.
+#' @param par a vector of initial values for the parameters for which
+#'        optimal values are to be found. Names on the elements of this
+#'        vector are preserved and used in the results data frame.
+#' @param lower Bounds on the variables for methods such as ‘"L-BFGS-B"’
+#'        that can handle box (or bounds) constraints.
+#' @param upper Bounds on the variables for methods such as ‘"L-BFGS-B"’
+#'        that can handle box (or bounds) constraints.
+#' @param control A list of control parameters.
+#' @param ... Further arguments passed to [nloptr::nloptr()]
+#' @export
+## original idea at https://stats.stackexchange.com/questions/132841/default-
+## lme4-optimizer-requires-lots-of-iterations-for-high-dimensional-data
+nloptwrap_alt <- function(fn, par, lower, upper, control = list(), ...) {
 
-coef.wbm <- function(object, ...) {
-  
-  coef(object$model, ...)
-  
+  defaultControl <- list(algorithm = "NLOPT_LN_BOBYQA", xtol_rel = 1e-6,
+   maxeval = 1e5)
+
+    for (n in names(defaultControl)) {
+      if (is.null(control[[n]])) {
+        control[[n]] <- defaultControl[[n]]
+      }
+    }
+
+    res <- nloptr::nloptr(x0 = par, eval_f = fn, lb = lower, ub = upper, 
+      opts = control, ...)
+    with(res, list(par = solution,
+                   fval = objective,
+                   feval = iterations,
+                   conv = if (status > 0) 0 else status,
+                   message = message))
 }
 
-#' @importFrom stats anova
+#' @importFrom jtools make_predictions
 #' @export
 
-anova.wbm <- function(object, ..., refit = TRUE, model.names = NULL) {
-  
-  args <- list(object = object$model)
-  nms <- c(deparse(substitute(object)))
-  
-  dots <- list(...)
-  if (length(dots) > 0) {
-    mods <- lapply(dots, function(x) {x$model})
-    nms <- c(nms, sapply(substitute(...()), as.character))
-    args <- append(args, unlist(mods))
-  }
-  
-  args$refit <- refit
-  if (!is.null(model.names)) {
-    args$model.names <- model.names
-  } else {
-    args$model.names <- nms
-  }
-  
-  
-  do.call("anova", args)
-  
-  
+make_predictions.wbm <- function(model, ...) {
+  model <- to_merMod(model)
+  NextMethod("make_predictions", model)
 }
-
-#' @rdname helpers
-#' @export
-
-isGLMM.wbm <- function(x, ...) {
-  
-  if (family(x$model)$family == "gaussian") {
-    return(FALSE)
-  } else {
-    return(TRUE)
-  }
-  
-}
-
-#' @rdname helpers
-#' @export
-
-isLMM.wbm <- function(x, ...) {
-  
-  if (family(x$model)$family == "gaussian") {
-    return(TRUE)
-  } else {
-    return(FALSE)
-  }
-  
-}
-
-#' @rdname helpers
-#' @export
-
-isNLMM.wbm <- function(x, ...) {
-  
-  return(FALSE)
-  
-}
-
-

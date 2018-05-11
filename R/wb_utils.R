@@ -137,9 +137,13 @@ wb_model <- function(model, pf, dv, data, detrend) {
   # Create empty stab terms vector so I can pass it along even for other
   # models
   stab_terms <- c()
+  
+  # Extract wave and id
+  wave <- get_wave(data)
+  id <- get_id(data)
 
   # models that require de-meaning
-  within_family <- c("w-b","within-between","within","stability","fixed")
+  within_family <- c("w-b", "within-between", "within", "stability", "fixed")
 
   # De-mean varying vars if needed
   if (model %in% within_family && detrend == FALSE) { # within models
@@ -154,7 +158,7 @@ wb_model <- function(model, pf, dv, data, detrend) {
   }
 
   # Create extra piece of formula based on model
-  if (model %in% c("w-b","within-between","contextual")) {
+  if (model %in% c("w-b", "within-between", "contextual")) {
     # Contextual model is same as within-between, just no de-meaning
 
     # Make formula add-on
@@ -184,8 +188,8 @@ wb_model <- function(model, pf, dv, data, detrend) {
 
     # Add the stability terms
     for (v in pf$varying) {
-      add_form <- paste(add_form, "+", pf$meanvars[v], "* wave")
-      stab_terms <- c(stab_terms, paste(pf$meanvars[v], ":wave", sep = ""))
+      add_form <- paste(add_form, "+", pf$meanvars[v], "*", wave)
+      stab_terms <- c(stab_terms, paste(pf$meanvars[v], ":", wave, sep = ""))
     }
 
 
@@ -198,9 +202,7 @@ wb_model <- function(model, pf, dv, data, detrend) {
 
   # Put the pieces together
   fin_formula <- paste(dv, "~", add_form, "+", pf$varying_form)
-  if (pf$conds == 1) {
-    fin_formula <- paste(fin_formula, "+", pf$constants_form)
-  } else if (pf$conds >= 2) {
+  if (pf$conds >= 1) {
     fin_formula <- paste(fin_formula, "+", pf$constants_form, "+",
                          pf$cross_ints_form)
   }
@@ -211,10 +213,14 @@ wb_model <- function(model, pf, dv, data, detrend) {
 
 }
 
-#' @importFrom stats resid lm coef
+#' @importFrom stats resid lm coef na.exclude update
 
 detrend <- function(data, pf, dt_order, balance_correction, dt_random) {
     
+  # save id and wave 
+  id <- get_id(data)
+  wave <- get_wave(data)
+  
   # If random slopes, nest the data
   if (dt_random == TRUE) {
     # Nest the data for efficient fitting of the lms
@@ -223,10 +229,12 @@ detrend <- function(data, pf, dt_order, balance_correction, dt_random) {
     
   # Define detrending function
   dt_model <- function(data, var, order = dt_order) {
-      
-    the_formula <- 
-      as.formula(paste(var, "~ poly(wave,", order, ", raw = TRUE)"))
-    resid(lm(formula = the_formula, data = data))
+    
+    the_formula <- as.formula(paste(var, "~ poly(", wave, ",", order,
+                                    ", raw = TRUE)"))
+    tryCatch({
+      resid(lm(formula = the_formula, data = data, na.action = na.exclude))
+    }, error = function(x) {rep(NA, times = nrow(data))})
       
   }
       
@@ -235,15 +243,20 @@ detrend <- function(data, pf, dt_order, balance_correction, dt_random) {
       
     if (bc == TRUE) {  
       
-      the_formula <- 
-        as.formula(paste(var, "~ poly(wave,", order, ", raw = TRUE)"))
-      out <- coef(mod <- lm(formula = the_formula, data = data))["(Intercept)"]
+      the_formula <- as.formula(paste(var, "~ poly(", wave, ",",
+                                      order, ", raw = TRUE)"))
+      out <- tryCatch({
+        coef(mod <- lm(formula = the_formula, data = data,
+                       na.action = na.exclude))["(Intercept)"]
+      }, error = function(x) {NA})
       rep(out, times = length(resid(mod)))
       
     } else {
     
       the_formula <- as.formula(paste(var, "~ 1"))
-      out <- coef(mod <- lm(formula = the_formula, data = data))["(Intercept)"]
+      out <- tryCatch({
+        coef(mod <- lm(formula = the_formula, data = data))["(Intercept)"]
+      }, error = function(x) {NA})
       rep(out, times = nrow(data))
       
     }
@@ -279,7 +292,7 @@ detrend <- function(data, pf, dt_order, balance_correction, dt_random) {
     # Unnest the data if it was nested
     data <- tidyr::unnest(data)
   }
-  return(panel_data(data, id = "id", wave = "wave"))
+  return(panel_data(data, id = !! sym(id), wave = !! sym(wave)))
   
 }
 
