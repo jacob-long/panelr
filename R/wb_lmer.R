@@ -5,9 +5,9 @@
 #'   info on `panelr`'s formula syntax.
 #' @param data The data, either a `panel_data` object or `data.frame`.
 #' @param id If `data` is not a `panel_data` object, then the name of the
-#'   individual id column. Otherwise, leave as NULL, the default.
+#'   individual id column as a string. Otherwise, leave as NULL, the default.
 #' @param wave If `data` is not a `panel_data` object, then the name of the
-#'   panel wave column. Otherwise, leave as NULL, the default.
+#'   panel wave column as a string. Otherwise, leave as NULL, the default.
 #' @param model One of `"w-b"`, `"within"`, `"between"`,
 #'   `"contextual"`, or `"stability"`. See details for more on these options.
 #' @param detrend Adjust within-subject effects for trends in the predictors?
@@ -39,6 +39,7 @@
 #'   package.
 #' @param weights If using weights, either the name of the column in the data
 #'   that contains the weights or a vector of the weights.
+#' @inheritParams lme4::glmer
 #' @param ... Additional arguments provided to [lme4::lmer()],
 #'   [lme4::glmer()], or [lme4::glmer.nb()].
 #'
@@ -195,83 +196,36 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
                 model = "w-b", detrend = FALSE, use.wave = FALSE,
                 wave.factor = FALSE, min.waves = 2, family = gaussian,
                 balance_correction = FALSE, dt_random = TRUE, dt_order = 1,
-                pR2 = TRUE, pvals = TRUE, weights = NULL,
+                pR2 = TRUE, pvals = TRUE, weights = NULL, offset = NULL,
                 scale = FALSE, scale.response = FALSE, n.sd = 1, ...) {
-
-  # Get data prepped
-  if (class(data)[1] == "panel_data") {
-    id <- "id"
-    wave <- "wave"
-  }
-
-  wave <- as.character(substitute(wave))
-
-  id <- as.character(substitute(id))
   
   the_call <- match.call()
   the_call[[1]] <- substitute(wbm)
   the_env <- parent.frame()
-
-  if (!("data.frame" %in% class(data))) {
-    stop("data argument must be a data frame.")
-  }
-
-  data <- panel_data(data, id = id, wave = wave)
-  orig_data <- data
-
-  # Make sure lme4 is installed
-  if (requireNamespace("lme4", quietly = TRUE) == FALSE) {
-    stop("You must have the lme4 package installed to use this function.")
-  }
-
-  ## Dealing with formula
-  formula <- as.formula(substitute(quote(formula)))
-  if (as.character(formula[[1]]) != "~") {
-    stop("Invalid formula. Include the outcome variable on the left side
-         followed by `~` and then the predictors.")
-  }
-
-  weights <- as.character(substitute(weights))
-  if (length(weights) == 0) {
-    weights <- NULL
-  }
-
-  dv <- as.character(formula[[2]])
-  formula <- as.character(formula)[[3]]
-  # Pass to helper function
-  pf <- wb_formula_parser(formula, dv)
-
-  # Need to do detrending before lags, etc.
-  if (detrend == TRUE) {
-    data <- detrend(data, pf, dt_order, balance_correction, dt_random)
-  }
-  # Create formula to pass to model_frame
-  mf_form <- paste(paste0(dv, " ~ "),
-                   paste(pf$allvars, collapse = " + "),
-                   " + ",
-                   paste(pf$meanvars, collapse = " + "))
   
-  # Add weights to keep it in the DF
-  if (!is.null(weights)) {
-    mf_form <- paste(mf_form, "+", weights)
-  }
-  # Pass to special model_frame function that respects tibble groupings
-  data <- model_frame(as.formula(mf_form), data = data)
-
-  data <- complete_cases(data, min.waves = min.waves)
-  num_distinct <- length(unique(data$id))
-  maxwave <- max(data["wave"])
-  minwave <- min(data["wave"])
-  if (!is.null(weights)) {
-    weights <- data[[weights]]
-  }
-
-  e <- wb_model(model, pf, dv, data, detrend)
-
+  # Send to helper function for data prep
+  prepped <- wb_prepare_data(formula = formula, data = data, id = id,
+                             wave = wave, model = model, detrend = detrend,
+                             use.wave = use.wave, wave.factor = wave.factor,
+                             min.waves = min.waves,
+                             balance_correction = balance_correction,
+                             dt_random = dt_random, dt_order = dt_order,
+                             weights = UQ(enquo(weights)),
+                             offset = UQ(enquo(offset)))
+  
+  e <- prepped$e
+  pf <- prepped$pf
   data <- e$data
+  wave <- prepped$wave
+  id <- prepped$id
+  dv <- prepped$dv
+  weights <- prepped$weights
+  offset <- prepped$offset
+  
+  
   if (scale == TRUE) {
     
-    vars <- names(data)[names(data) %nin% c("wave","id")]
+    vars <- names(data)[names(data) %nin% c(wave, id)]
     if (scale.response == FALSE) {vars <- vars[vars != dv]} 
     data <-
       jtools::gscale(data, vars = vars, n.sd = n.sd, binary.inputs = "0/1")
@@ -279,20 +233,20 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
   }
 
   if (use.wave == TRUE) {
-    e$fin_formula <- paste(e$fin_formula, "+", "wave")
+    e$fin_formula <- paste(e$fin_formula, "+", wave)
   }
 
   if (wave.factor == TRUE) {
-    data[["wave"]] <- as.factor(data[["wave"]])
+    data[wave] <- as.factor(data[wave])
   }
 
   if (pf$conds > 2) {
     res <- lme4::findbars(as.formula(paste("~", pf$cross_ints_form)))
     refs <- lme4::mkReTrms(res, data)$cnms
 
-    if (any(names(refs) == "id")) {
+    if (any(names(refs) == id)) {
 
-      inds <- which(names(refs) == "id")
+      inds <- which(names(refs) == id)
 
       if (any(unlist(refs[inds]) == "(Intercept)")) {
         no_add <- TRUE
@@ -309,7 +263,7 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
   }
 
   if (no_add == FALSE) {
-    e$fin_formula <- paste0(e$fin_formula, " + (1 | id)")
+    e$fin_formula <- paste0(e$fin_formula, " + (1 | ", id, ")")
   }
 
   fin_formula <- formula_ticks(e$fin_formula, c(pf$varying, pf$meanvars,
@@ -318,10 +272,10 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
   fin_formula <- as.formula(fin_formula)
 
   int_indices <- which(attr(terms(fin_formula), "order") >= 2)
-  ints <- attr(terms(fin_formula),"term.labels")[int_indices]
-  ints <- ints[!(ints %in% e$stab_terms)]
-  unbt_ints <- gsub("`", "", ints, fixed = TRUE)
-  ints <- ints[!(unbt_ints %in% e$stab_terms)]
+  
+  if (!is.null(offset)) {
+    offset[!is.finite(offset)] <- NA
+  }
 
   if (as.character(substitute(family))[1] == "gaussian") {
 
@@ -330,9 +284,10 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
     if ("control" %nin% names(dots)) {
       control <- lme4::lmerControl(optimizer = "nloptwrap_alt")
       fit <- lme4::lmer(fin_formula, data = data, weights = weights,
-                        control = control, ...)
+                        offset = offset, control = control, ...)
     } else {
-      fit <- lme4::lmer(fin_formula, data = data, weights = weights, ...)
+      fit <- lme4::lmer(fin_formula, data = data, weights = weights,
+                        offset = offset, ...)
     }
 
   } else if (as.character(substitute(family))[1] == "negbinomial") {
@@ -342,9 +297,10 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
     if ("control" %nin% names(dots)) {
       control <- lme4::glmerControl(optimizer = "nloptwrap_alt")
       fit <- lme4::glmer.nb(fin_formula, data = data, weights = weights,
-                            nb.control = control, ...)
+                            offset = offset, nb.control = control, ...)
     } else {
-      fit <- lme4::glmer.nb(fin_formula, data = data, weights = weights, ...)
+      fit <- lme4::glmer.nb(fin_formula, data = data, weights = weights,
+                            offset = offset, ...)
     }
 
   } else {
@@ -354,10 +310,11 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
     if ("control" %nin% names(dots)) {
       control <- lme4::glmerControl(optimizer = "nloptwrap_alt")
       fit <- lme4::glmer(fin_formula, data = data, family = family,
-                         weights = weights, control = control, ...)
+                         weights = weights, offset = offset, control = control,
+                         ...)
     } else {
       fit <- lme4::glmer(fin_formula, data = data, family = family,
-                          weights = weights, ...)
+                          weights = weights, offset = offset, ...)
     }
 
   }
@@ -368,9 +325,14 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
   j <- suppressMessages(jtools::j_summ(fit, pvals = pvals, r.squared = pR2))
   t1 <- Sys.time()
   if (t1 - t0 > 5) {
-    message("If wbm is taking too long to run, you can try setting ",
-            "pvals = FALSE.")
+    msg_wrap("If wbm is taking too long to run, you can try setting 
+             pvals = FALSE.")
   }
+  
+  ints <- names(lme4::fixef(fit))[int_indices]
+  ints <- ints[!(ints %in% e$stab_terms)]
+  unbt_ints <- gsub("`", "", ints, fixed = TRUE)
+  ints <- ints[!(unbt_ints %in% e$stab_terms)]
 
   j2 <- attributes(j)
   # Drop redundant model from the summ object
@@ -385,21 +347,22 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
     out <- as(object = fit, Class = "wbglm")
   }
 
-  out@orig_data <- orig_data
-  if ("wave" %nin% all.vars(fin_formula)) {
-    data <- data[names(data) %nin% "wave"]
+  out@orig_data <- prepped$orig_data
+  if (wave %nin% all.vars(fin_formula)) {
+    data <- data[names(data) %nin% wave]
   } 
-  out@frame <- data
+  out@frame <- as.data.frame(data)
   attr(out@frame, "terms") <- terms 
   attr(out@frame, "formula") <- formula(fit)  
 
   out@call_info <- list(dv = dv, id = id, wave = wave,
-              num_distinct = num_distinct,
+              num_distinct = prepped$num_distinct,
               varying = pf$varying, constants = pf$constants,
               meanvars = pf$meanvars, model = model,
               stab_terms = e$stab_terms,
-              max_wave = maxwave, min_wave = minwave, ints = ints,
-              pvals = pvals, pR2 = pR2, env = the_env, mf_form = mf_form,
+              max_wave = prepped$maxwave, min_wave = prepped$minwave, ints = ints,
+              pvals = pvals, pR2 = pR2, env = the_env,
+              mf_form = prepped$mf_form,
               use.wave = use.wave, detrend = detrend, dt_order = dt_order,
               dt_random = dt_random, balance_correction = balance_correction,
               pf = pf, merMod_call = merMod_call)
@@ -447,7 +410,7 @@ summary.wbm <- function(object, ...) {
   j <- x@summ
   j2 <- x@summ_atts
 
-  entity_icc <- j$gvars[j$gvars[,"Group"] == "id",]
+  entity_icc <- j$gvars[j$gvars[,"Group"] == x2$id,]
   entity_icc <- as.numeric(entity_icc["ICC"])
   entity_icc <- round(entity_icc, digits)
 
@@ -495,7 +458,7 @@ summary.wbm <- function(object, ...) {
   varying <- x2$varying
   if (est_name == "within") {
     varying <- c("(Intercept)", varying, x2$ints)
-    if (x2$use.wave == TRUE) {varying <- c(varying, "wave")}
+    if (x2$use.wave == TRUE) {varying <- c(varying, x2$wave)}
     x2$ints <- NULL
   }
 
