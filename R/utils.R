@@ -6,6 +6,32 @@ magrittr::`%>%`
 #' @export
 magrittr::`%<>%`
 
+# Automate the addition of newline characters for long strings
+wrap_str <- function(..., sep = "") {
+  paste0(strwrap(paste(..., sep = sep), width = 0.95 * getOption("width", 80)),
+         collapse = "\n")
+}
+
+# Go ahead and wrap the cat function too
+cat_wrap <- function(..., brk = "") {
+  cat(wrap_str(...), brk, sep = "")
+}
+
+# Like cat_wrap but for warnings
+warn_wrap <- function(..., call. = FALSE, brk = "\n") {
+  warning(wrap_str(...), brk, call. = call.)
+}
+
+# Like cat_wrap but for errors
+stop_wrap <- function(..., call. = FALSE, brk = "\n") {
+  stop(wrap_str(...), brk, call. = call.)
+}
+
+# Like cat_wrap but for messages
+msg_wrap <- function(..., brk = "\n") {
+  message(wrap_str(...), brk)
+}
+
 #' @importFrom lme4 isLMM
 #' @importFrom methods as
 
