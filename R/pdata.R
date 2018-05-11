@@ -20,47 +20,52 @@
 #' @import dplyr
 #' @export
 
-panel_data <- function(data, id = "id", wave = "wave", ...) {
+panel_data <- function(data, id = id, wave = wave, ...) {
 
-  id <- as.character(substitute(id))
-  wave <- as.character(substitute(wave))
+  id <- expr_text(enexpr(id))
+  wave <- expr_text(enexpr(wave))
 
-  # Append case ID column if not already named ID
-  if (id != "id") {
-    data$id <- data[[id]]
-  }
+  # # Append case ID column if not already named ID
+  # if (id != "id") {
+  #   data$id <- data[[id]]
+  # }
 
   # Let's make sure ID var doesn't get confused for numeric
-  if (!is.factor(data$id)) {data$id <- factor(data$id)}
+  if (!is.factor(data[[id]])) {data[[id]] <- factor(data[[id]])}
 
   # Group by case ID
-  if ("id" %nin% group_vars(data)) {data <- group_by(data, id, add = TRUE)}
+  if (id %nin% group_vars(data)) {data <- group_by(data, !!sym(id), add = TRUE)}
   # Warn about multi-grouped DFs
   if (length(group_vars(data)) > 1) {
-    message(paste("Detected additional grouping variables. Be aware this may",
-                  "\ncause unexpected behavior or incorrect results."))
+    msg_wrap("Detected additional grouping variables. Be aware this may
+             cause unexpected behavior or incorrect results.")
   } 
 
-  # Append wave column if wave isn't already called wave
-  if (wave != "wave") {
-    data[["wave"]] <- data[[wave]]
-  }
+  # # Append wave column if wave isn't already called wave
+  # if (wave != "wave") {
+  #   data[["wave"]] <- data[[wave]]
+  # }
 
   # Make sure wave variable is in format I can understand
-  if (is.factor(data$wave)) {
-    data$wave <- as.numeric(data$wave)
+  if (is.factor(data[[wave]])) {
+    data[[wave]] <- as.numeric(data[[wave]])
     message("Factor wave variable was converted to numeric.")
-  } else if (!is.numeric(data$wave)) {
+  } else if (!is.numeric(data[[wave]])) {
     stop("The wave variable must be numeric.")
+  }
+  
+  if (0 %in% data[[wave]]) {
+    message("There cannot be a wave 0. Adding 1 to each wave.\n")
+    data[[wave]] <- data[[wave]] + 1
   }
 
   # Ordering by wave and then group ensures lag functions work right
-  data <- arrange(data, wave, .by_group = TRUE)
+  data <- arrange(data, !!sym(wave), .by_group = TRUE)
   
   # Inherit from df, tibble, and grouped_df (last one is critical)
   data <- tibble::new_tibble(data, ..., 
-                             idvar = id,
-                             wavevar = wave,
+                             id = id,
+                             wave = wave,
                              subclass = c("panel_data", "grouped_df"))
 
   return(data)
