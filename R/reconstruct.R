@@ -51,6 +51,13 @@ re_attribute <- function(new, old) {
   return(new)
 }
 
+##### tibble #################################################################
+
+#' @export
+`[.panel_data` <- function(x, i, j, drop = FALSE) {
+  reconstruct(NextMethod(), x)
+}
+
 ##### dplyr ##################################################################
 
 #' @export
