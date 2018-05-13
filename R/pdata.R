@@ -47,14 +47,15 @@ panel_data <- function(data, id = id, wave = wave, ...) {
   # }
 
   # Make sure wave variable is in format I can understand
-  if (is.factor(data[[wave]])) {
-    data[[wave]] <- as.numeric(data[[wave]])
-    message("Factor wave variable was converted to numeric.")
-  } else if (!is.numeric(data[[wave]])) {
-    stop("The wave variable must be numeric.")
+  if (is.factor(data[[wave]]) && !is.ordered(data[[wave]])) {
+    data[[wave]] <- factor(data[[wave]], ordered = TRUE)
+    msg_wrap("Unordered factor wave variable was converted to ordered.
+             You may wish to check that the order is correct.")
+  } else if (!is.ordered(data[[wave]]) && !is.numeric(data[[wave]])) {
+    stop("The wave variable must be numeric or an ordered factor.")
   }
   
-  if (0 %in% data[[wave]]) {
+  if (!is.ordered(wave) && 0 %in% data[[wave]]) {
     message("There cannot be a wave 0. Adding 1 to each wave.\n")
     data[[wave]] <- data[[wave]] + 1
   }
@@ -549,11 +550,14 @@ get_id <- function(data) {
 
 complete_cases <- function(data, min.waves = "all") {
   
+  id <- get_id(data)
+  wave <- get_wave(data)
+  
   # Keep only complete cases
   data <- data[complete.cases(data),]
   
   # Using the table to count up how many obs. of each person
-  t <- table(data["id"])
+  t <- table(data[id])
   
   
   if (min.waves == "all") {
@@ -564,7 +568,7 @@ complete_cases <- function(data, min.waves = "all") {
   keeps <- which(t >= min.waves)
   keeps <- names(t)[keeps]
   
-  data <- data[data[["id"]] %in% keeps,]
+  data <- data[data[[id]] %in% keeps,]
   
   return(data)
   
