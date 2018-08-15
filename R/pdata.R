@@ -182,6 +182,7 @@ is_varying <- function(data, variable) {
 #' @rdname are_varying
 #' @import rlang
 #' @importFrom purrr map_lgl
+#' @importFrom string str_detect
 #' @export 
 
 are_varying <- function(data, ...) {
@@ -189,11 +190,14 @@ are_varying <- function(data, ...) {
   class(data) <- class(data)[class(data) %nin% "panel_data"]
   dots <- quos(...)
   if (length(dots) == 0) {
-    reserved_names <- c("id","wave", attr(data, "idvar"), attr(data, "wavevar"))
+    reserved_names <- c(get_id(data), get_wave(data))
     dnames <- names(data)[names(data) %nin% reserved_names]
     dots <- syms(as.list(dnames))
   } else {
     dnames <- as.character(exprs(...))
+  }
+  if (any(str_detect(dnames, "`"))) {
+    dnames <- stringr::str_replace_all(dnames, "^`|`$", "")
   }
   out <- map_lgl(dots, function(x, d) { is_varying(!! x, data = d) }, d = data)
   names(out) <- dnames
