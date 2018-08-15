@@ -5,10 +5,11 @@
 \title{Panel regression models}
 \usage{
 wbm(formula, data, id = NULL, wave = NULL, model = "w-b",
-  detrend = FALSE, use.wave = FALSE, wave.factor = FALSE, min.waves = 2,
-  family = gaussian, balance_correction = FALSE, dt_random = TRUE,
-  dt_order = 1, pR2 = TRUE, pvals = TRUE, weights = NULL,
-  offset = NULL, scale = FALSE, scale.response = FALSE, n.sd = 1, ...)
+  detrend = FALSE, use.wave = FALSE, wave.factor = FALSE,
+  min.waves = 2, family = gaussian, balance_correction = FALSE,
+  dt_random = TRUE, dt_order = 1, pR2 = TRUE, pvals = TRUE,
+  t.df = "Satterthwaite", weights = NULL, offset = NULL,
+  scale = FALSE, scale.response = FALSE, n.sd = 1, ...)
 }
 \arguments{
 \item{formula}{Model formula. See details for crucial
@@ -60,6 +61,12 @@ may cause errors or add computation time.}
 
 \item{pvals}{Calculate p values? Default is TRUE but for some complex
 linear models, this may take a long time to compute using the \code{pbkrtest}
+package.}
+
+\item{t.df}{For linear models only. User may choose the method for
+calculating the degrees of freedom in t-tests. Default is
+\code{"Satterthwaite"}, but you may also choose \code{"Kenward-Roger"}.
+Kenward-Roger standard errors/degrees of freedom requires the \code{pbkrtest}
 package.}
 
 \item{weights}{If using weights, either the name of the column in the data

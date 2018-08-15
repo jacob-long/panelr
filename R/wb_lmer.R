@@ -37,6 +37,11 @@
 #' @param pvals Calculate p values? Default is TRUE but for some complex
 #'   linear models, this may take a long time to compute using the `pbkrtest`
 #'   package.
+#' @param t.df For linear models only. User may choose the method for 
+#'   calculating the degrees of freedom in t-tests. Default is 
+#'   `"Satterthwaite"`, but you may also choose `"Kenward-Roger"`. 
+#'   Kenward-Roger standard errors/degrees of freedom requires the `pbkrtest`
+#'   package. 
 #' @param weights If using weights, either the name of the column in the data
 #'   that contains the weights or a vector of the weights.
 #' @inheritParams lme4::glmer
@@ -196,7 +201,8 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
                 model = "w-b", detrend = FALSE, use.wave = FALSE,
                 wave.factor = FALSE, min.waves = 2, family = gaussian,
                 balance_correction = FALSE, dt_random = TRUE, dt_order = 1,
-                pR2 = TRUE, pvals = TRUE, weights = NULL, offset = NULL,
+                pR2 = TRUE, pvals = TRUE, t.df = "Satterthwaite", 
+                weights = NULL, offset = NULL,
                 scale = FALSE, scale.response = FALSE, n.sd = 1, ...) {
   
   the_call <- match.call()
@@ -611,11 +617,15 @@ summary.wbm <- function(object, ...) {
 
   if (lme4::isLMM(x) == TRUE & j2$pvals == TRUE) {
 
-    if (j2$pbkr == TRUE) {
+    if (j2$p_calc == "k-r") {
 
-      df_msg <- paste("p values calculated using Kenward-Roger df =",
-                      round(j2$df, digits), "\n")
+      df_msg <- paste("p values calculated using Kenward-Roger standard errors",
+                      "and d.f.", "\n")
 
+    } else if (j2$p_calc == "s") {
+      
+      df_msg <- "p values calculated using Satterthwaite d.f.\n"
+      
     } else {
 
       df_msg <- paste("p values calculated using df =",
