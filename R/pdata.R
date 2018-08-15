@@ -79,6 +79,21 @@ panel_data <- function(data, id = id, wave = wave, ...) {
 
 }
 
+#' @title Check if object is panel_data
+#' @description This is a convenience function that checks whether an object
+#'  is a `panel_data` object.
+#' @param x Any object.
+#' @examples 
+#'  data("WageData")
+#'  is_panel(WageData) # FALSE
+#'  wages <- panel_data(WageData, id = id, wave = t)
+#'  is_panel(wages) # TRUE
+#' @export 
+
+is_panel <- function(x) {
+  "panel_data" %in% class(x)
+}
+
 #' @title Filter out entities with too few observations
 #' @description This function allows you to define a minimum number of
 #'   waves/periods and exclude all individuals with fewer observations than
