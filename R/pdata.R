@@ -182,7 +182,7 @@ is_varying <- function(data, variable) {
 #' @rdname are_varying
 #' @import rlang
 #' @importFrom purrr map_lgl
-#' @importFrom string str_detect
+#' @importFrom stringr str_detect
 #' @export 
 
 are_varying <- function(data, ...) {
