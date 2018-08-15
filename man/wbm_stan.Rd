@@ -5,11 +5,11 @@
 \title{Bayesian estimation of within-between models}
 \usage{
 wbm_stan(formula, data, id = NULL, wave = NULL, model = "w-b",
-  detrend = FALSE, use.wave = FALSE, wave.factor = FALSE, min.waves = 2,
-  model.cor = FALSE, family = gaussian, fit_model = TRUE,
-  balance_correction = FALSE, dt_random = TRUE, dt_order = 1,
-  chains = 3, iter = 2000, scale = FALSE, save_ranef = FALSE,
-  weights = NULL, offset = NULL, ...)
+  detrend = FALSE, use.wave = FALSE, wave.factor = FALSE,
+  min.waves = 2, model.cor = FALSE, family = gaussian,
+  fit_model = TRUE, balance_correction = FALSE, dt_random = TRUE,
+  dt_order = 1, chains = 3, iter = 2000, scale = FALSE,
+  save_ranef = FALSE, weights = NULL, offset = NULL, ...)
 }
 \arguments{
 \item{formula}{Model formula. See details for crucial

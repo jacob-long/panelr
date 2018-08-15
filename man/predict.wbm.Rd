@@ -11,8 +11,8 @@
 
 \method{simulate}{wbm}(object, nsim = 1, seed = NULL, use.u = FALSE,
   newdata = NULL, raw = FALSE, newparams = NULL, re.form = NA,
-  terms = NULL, type = c("link", "response"), allow.new.levels = FALSE,
-  na.action = na.pass, ...)
+  terms = NULL, type = c("link", "response"),
+  allow.new.levels = FALSE, na.action = na.pass, ...)
 }
 \arguments{
 \item{object}{a fitted model object}

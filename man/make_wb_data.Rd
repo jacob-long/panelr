@@ -5,9 +5,9 @@
 \title{Prepare data for within-between modeling}
 \usage{
 make_wb_data(formula, data, id = NULL, wave = NULL, model = "w-b",
-  detrend = FALSE, use.wave = FALSE, wave.factor = FALSE, min.waves = 2,
-  balance_correction = FALSE, dt_random = TRUE, dt_order = 1,
-  weights = NULL, offset = NULL, ...)
+  detrend = FALSE, use.wave = FALSE, wave.factor = FALSE,
+  min.waves = 2, balance_correction = FALSE, dt_random = TRUE,
+  dt_order = 1, weights = NULL, offset = NULL, ...)
 }
 \arguments{
 \item{formula}{Model formula. See details for crucial
