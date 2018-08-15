@@ -343,15 +343,15 @@ widen_panel <- function(data, separator = "_", ignore.attributes = FALSE,
     # If true, we want the variable name
     varying <- c(names(allvars[allvars]), attr(data, "varying"))
     
+    # Set the constants such that reshape treats them that way
+    data <- set_constants(data, names(allvars)[!allvars])
+    
   }
-  
-  # Set the constants such that reshape treats them that way
-  data <- set_constants(data, names(allvars)[!allvars])
   
   # Reshape doesn't play nice with tibbles
   data <- as.data.frame(data)
   
-  if (ignore.attributes == FALSE) {
+  if (ignore.attributes == FALSE & is.null(varying)) {
     data <- stats::reshape(data = data, v.names = varying, timevar = wave,
                            idvar = id, direction = "wide", sep = separator)
   } else { # This usually involves treating some "varying" vars as constants
