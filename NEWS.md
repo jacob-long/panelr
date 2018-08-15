@@ -1,8 +1,16 @@
+# panelr 0.4.1
+
+This version has switched the default degrees of freedom calculation for
+linear `wbm` models to Satterthwaite, which are more computationally efficient
+and less prone to breaking R. They are also calculated on a per-variable basis. 
+Kenward-Roger standard errors and degrees of freedom can be requested with
+the `t.df = "Kenward-Roger"` argument.
+
 # panelr 0.4.0 
 
 This version includes some major under-the-hood changes, converting from an 
 S3 object representation to S4. This allows the `wbm` objects to formally be
-extensions `merMod` objects, meaning any method that could apply to `wbm` but
+extensions of `merMod` objects, meaning any method that could apply to `wbm` but
 isn't formally implemented will fall back to the `merMod` implementation.
 
 The `panel_data` class no longer hardcodes the id and wave variables as "id"
