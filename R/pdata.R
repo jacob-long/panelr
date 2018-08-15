@@ -29,6 +29,12 @@ panel_data <- function(data, id = id, wave = wave, ...) {
   # if (id != "id") {
   #   data$id <- data[[id]]
   # }
+  
+  if (id %nin% names(data)) {
+    stop(id, "was not found in the data.")
+  } else if (wave %nin% names(data)) {
+    stop(wave, "was not found in the data.")
+  }
 
   # Let's make sure ID var doesn't get confused for numeric
   if (!is.factor(data[[id]])) {data[[id]] <- factor(data[[id]])}
