@@ -487,6 +487,10 @@ add_stars <- function(table, digits, p_vals) {
     # Makes the name for the stars column empty
     colnames(table) <- c(tnames, "")
   }
+  
+  if ("d.f." %in% colnames(table)) {
+    table[,"d.f."] <- as.integer(table[,"d.f."])
+  }
 
   #table <- as.table(table)
 
