@@ -147,13 +147,6 @@ semi_join.panel_data <- function(x, y, by = NULL, copy = FALSE, ...) {
 }
 
 #' @export
-#' @importFrom dplyr select
-#'
-select.panel_data <- function(.data, ...) {
-  reconstruct(NextMethod(), .data)
-}
-
-#' @export
 #' @importFrom dplyr slice
 #'
 slice.panel_data <- function(.data, ...) {

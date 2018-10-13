@@ -266,6 +266,37 @@ print.panel_data <- function(x, ...) {
   print(print_tbl)
 }
 
+#' @export
+#' @importFrom dplyr select
+#'
+# Used to be a simple reconstruct but now I want to be more opinionated and
+# force the key variables to ride along.
+select.panel_data <- function(.data, ...) {
+  # Get args
+  dots <- as.character(enexprs(...))
+  
+  # Get name of wave variable
+  wave <- get_wave(.data)
+  if (wave %nin% dots) { # Check if it wasn't selected
+    # Add id to the args
+    dots <- c(wave, dots)
+    msg_wrap("Adding missing wave variable: ", wave, brk = "")
+  }
+  
+  # Get name of id variable
+  id <- get_id(.data)
+  if (id %nin% dots) { # Check if it wasn't selected
+    # Add id to the args
+    dots <- c(id, dots)
+    msg_wrap("Adding missing id variable: ", id, brk = "")
+  }
+
+  # Switch back from character to names
+  dots <- lapply(dots, parse_expr)
+  # Go ahead and select
+  NextMethod(generic = "select", .data, UQS(dots))
+}
+
 ##### reshaping ##############################################################
 
 #' @title Convert long panel data to wide format
