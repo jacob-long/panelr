@@ -4,10 +4,15 @@
 \alias{complete_data}
 \title{Filter out entities with too few observations}
 \usage{
-complete_data(data, formula = NULL, vars = NULL, min.waves = "all")
+complete_data(data, ..., formula = NULL, vars = NULL,
+  min.waves = "all")
 }
 \arguments{
 \item{data}{A \code{\link[=panel_data]{panel_data()}} frame.}
+
+\item{...}{Optionally, unquoted variable names/expressions separated by
+commas to be passed to \code{\link[dplyr:select]{dplyr::select()}}. Otherwise, all columns are
+included if \code{formula} and \code{vars} are also NULL.}
 
 \item{formula}{A formula, like the one you'll be using to specify your model.}
 
@@ -23,4 +28,13 @@ A \code{panel_data} frame.
 This function allows you to define a minimum number of
 waves/periods and exclude all individuals with fewer observations than
 that.
+}
+\details{
+If \code{...} (that is, unquoted variable name(s)) are included, then \code{formula}
+and \code{vars} are ignored. Likewise, \code{formula} takes precedence over \code{vars}.
+These are just different methods for selecting variables and you can choose
+whichever you prefer/are comfortable with. \code{...} corresponds with the
+"tidyverse" way, \code{formula} is useful for programming or working with
+model formulas, and \code{vars} is a "standard" evaluation method for when you
+are working with strings.
 }
