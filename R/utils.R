@@ -37,6 +37,10 @@ msg_wrap <- function(..., brk = "\n") {
   message(wrap_str(...), brk)
 }
 
+backtick_name <- function(x) {
+  if (make.names(x) != x) {paste0("`", x, "`")} else {x}
+}
+
 #' @importFrom lme4 isLMM
 #' @importFrom methods as
 
