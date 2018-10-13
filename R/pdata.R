@@ -99,33 +99,71 @@ is_panel <- function(x) {
 #'   waves/periods and exclude all individuals with fewer observations than
 #'   that.
 #' @param data A [panel_data()] frame.
+#' @param ... Optionally, unquoted variable names/expressions separated by
+#'  commas to be passed to [dplyr::select()]. Otherwise, all columns are 
+#'  included if `formula` and `vars` are also NULL.
 #' @param formula A formula, like the one you'll be using to specify your model.
 #' @param vars As an alternative to formula, a vector of variable names.
 #' @param min.waves What is the minimum number of observations to be kept?
 #'   Default is `"all"`, but it can be any number.
 #' @return A `panel_data` frame.
+#' @details 
+#' 
+#' If `...` (that is, unquoted variable name(s)) are included, then `formula`
+#' and `vars` are ignored. Likewise, `formula` takes precedence over `vars`.
+#' These are just different methods for selecting variables and you can choose
+#' whichever you prefer/are comfortable with. `...` corresponds with the
+#' "tidyverse" way, `formula` is useful for programming or working with 
+#' model formulas, and `vars` is a "standard" evaluation method for when you
+#' are working with strings.
+#' 
 #' @rdname complete_data
 #' @export
 #' @importFrom stats complete.cases as.formula
 
-complete_data <- function(data, formula = NULL, vars = NULL,
+complete_data <- function(data, ..., formula = NULL, vars = NULL, 
                           min.waves = "all") {
   # OG data frame for reconstruct()
   old <- data
   
-  if (!is.null(formula)) {
-    d <- data[c("id", "wave", all.vars(formula))]
-  } else if (!is.null(vars)) {
-    d <- data[c("id", "wave", vars)]
+  id <- get_id(data)
+  wave <- get_wave(data)
+  
+  # Handling case of no selected vars --- I want to assume a selection
+  # of none means selection of all rather than default select behavior
+  # (which is to return nothing)
+  cols <- as.character(enexprs(...))
+  if (length(cols) == 0 & is.null(formula) & is.null(vars)) {
+    
+    cols <- names(data)
+    cols <- sapply(cols, backtick_name) # Avoid parsing non-syntactic names
+    cols <- lapply(cols, parse_expr)
+    cols <- c(sym(id), sym(wave), cols)
+    d <- select(data, UQS(cols))
+    
+  } else if (length(cols) > 0) {
+    
+    cols <- lapply(cols, parse_expr)
+    cols <- c(sym(id), sym(wave), cols)
+    d <- select(data, UQS(cols))
+    
   } else {
-    d <- data
+    
+    if (!is.null(formula)) {
+      d <- data[c(id, wave, all.vars(formula))]
+    } else if (!is.null(vars)) {
+      d <- data[c(id, wave, vars)]
+    } else {
+      d <- data
+    }
+    
   }
 
   # Keep only complete cases
   d <- d[complete.cases(d),]
 
   # Using the table to count up how many obs. of each person
-  t <- table(d["id"])
+  t <- table(d[id])
 
 
   if (min.waves == "all") {
@@ -136,7 +174,7 @@ complete_data <- function(data, formula = NULL, vars = NULL,
   keeps <- which(t >= min.waves)
   keeps <- names(t)[keeps]
 
-  data <- data[data[["id"]] %in% keeps,]
+  data <- data[data[[id]] %in% keeps,]
   
   data <- reconstruct(data, old)
 
