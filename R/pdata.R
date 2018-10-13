@@ -304,6 +304,15 @@ print.panel_data <- function(x, ...) {
   print(print_tbl)
 }
 
+#' @title Convert panel_data to regular data frame
+#' @description This convenience function removes the special features of 
+#'  `panel_data`.
+#' @param panel A `panel_data` object.
+#' @export
+
+unpanel <- function(panel) {
+  ungroup(panel)
+}
 #' @export
 #' @importFrom dplyr select
 #'
