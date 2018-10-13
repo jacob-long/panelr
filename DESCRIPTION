@@ -13,7 +13,6 @@ Depends: R (>= 3.4.0),
       lme4
 Imports: dplyr,
       tibble,
-      jtools,
       lmerTest,
       nloptr,
       magrittr,
@@ -21,7 +20,9 @@ Imports: dplyr,
       stringr,
       tidyr,
       purrr,
-      rlang
+      rlang,
+      jtools, 
+      ggplot2
 Suggests: brms,
     skimr,
     testthat,
