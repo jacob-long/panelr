@@ -23,6 +23,7 @@ Imports: dplyr,
       purrr,
       rlang
 Suggests: brms,
+    skimr,
     testthat,
     covr
 Remotes: jacob-long/jtools

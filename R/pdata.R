@@ -313,6 +313,58 @@ print.panel_data <- function(x, ...) {
 unpanel <- function(panel) {
   ungroup(panel)
 }
+
+#' @title Summarize panel data frames
+#' @description `summary` method for `panel_data` objects.
+#' @param object A `panel_data` frame.
+#' @param ... Optionally, unquoted variable names/expressions separated by
+#'  commas to be passed to [dplyr::select()]. Otherwise, all columns are 
+#'  included.
+#' @param by.wave (if `skimr` is installed) Separate descriptives by wave?
+#'  Default is TRUE.
+#' @param by.id (if `skimr` is installed) Separate descriptives by entity?
+#'  Default is FALSE. Be careful if you have a large number of entities as
+#'  the output will be massive.
+#' @importFrom purrr when
+#' @importFrom rlang UQS UQ
+#' @export
+
+summary.panel_data <- function(object, ..., by.wave = TRUE, by.id = FALSE) {
+  
+  # Handling case of no selected vars --- I want default summary behavior
+  # rather than default select behavior (which is to return nothing)
+  vars <- as.character(enexprs(...))
+  if (length(vars) == 0) {
+    vars <- names(object)
+    vars <- sapply(vars, backtick_name) # Avoid parsing non-syntactic names
+  } 
+  
+  vars <- lapply(vars, parse_expr)
+  
+  if (!requireNamespace("skimr")) {
+    msg_wrap("Get better summaries of panel_data frames by installing the 
+             skimr package. Falling back to default summary.data.frame...")
+    return(summary.data.frame(suppressMessages({
+                                panel_data %>% select(UQS(vars))
+                              })))
+  }
+  
+  id <- get_id(object)
+  wave <- get_wave(object)
+  
+  # Avoiding message from adding wave/id vars
+  suppressMessages({object %>% select(UQS(vars))}) %>%
+    # Behavior conditional on by.id arg
+    when(by.id == FALSE ~ unpanel(.) %>% select(., -UQ(id)), 
+         by.id == TRUE ~ .) %>% 
+    # Behavior conditional on by.wave arg
+    when(by.wave == TRUE ~ group_by(., UQ(object %>% get_wave %>% parse_expr) ),
+         by.wave == FALSE ~ select(., -UQ(wave))) %>%
+    # Call skim
+    (skimr::skim)
+  
+}
+
 #' @export
 #' @importFrom dplyr select
 #'
