@@ -481,6 +481,9 @@ widen_panel <- function(data, separator = "_", ignore.attributes = FALSE,
   # Reshape doesn't play nice with tibbles
   data <- as.data.frame(data)
   
+  # Remove reshape's saved attributes
+  attributes(data)$reshapeLong <- NULL
+  
   if (ignore.attributes == FALSE & is.null(varying)) {
     data <- stats::reshape(data = data, v.names = varying, timevar = wave,
                            idvar = id, direction = "wide", sep = separator)
@@ -490,6 +493,9 @@ widen_panel <- function(data, separator = "_", ignore.attributes = FALSE,
                            idvar = id, direction = "wide", sep = separator)
     })
   }
+  
+  # Remove reshape's saved attributes
+  attributes(data)$reshapeWide <- NULL
   
   return(data)
 
@@ -610,13 +616,13 @@ long_panel <- function(data, prefix = "_", suffix = NULL, begin = NULL,
   patterns <- c()
   if (label_location[1] == "beginning") {
     for (i in periods) {
-      pattern <- paste0("(?<=", pre_reg, escapeRegex(i), post_reg, ").*")
+      pattern <- paste0("^(?<=", pre_reg, escapeRegex(i), post_reg, ").*")
       patterns <- c(patterns, pattern)
     }
     sep <- suffix
   } else if (label_location[1] == "end") {
     for (i in periods) {
-      pattern <- paste0(".*(?=", pre_reg, escapeRegex(i), post_reg, ")")
+      pattern <- paste0(".*(?=", pre_reg, escapeRegex(i), post_reg, "$)")
       patterns <- c(patterns, pattern)
     }
     sep <- prefix
@@ -666,13 +672,18 @@ long_panel <- function(data, prefix = "_", suffix = NULL, begin = NULL,
     
   }
   
+  # Remove reshape's saved attributes
+  attributes(data)$reshapeLong <- NULL
   # Call reshape
-  out <- reshape(as.data.frame(data), timevar = "wave", idvar = id,
-                 times = periods,
-                 sep = sep, direction = "long",
+  out <- reshape(as.data.frame(data), timevar = "wave",
+                 idvar = id, times = periods, sep = sep, direction = "long",
                  varying = unlist(varying_by_period))
+                 # v.names = unique(unname(unlist(stubs_by_period))))
+  # Remove reshape's saved attributes
+  attributes(out)$reshapeWide <- NULL
+  # Dropping any rows that are all NA that are created for reasons unclear to me
+  out <- out[!is.na(out[[id]]),]
   if (as_panel_data == TRUE) { # Return panel_data object if requested
-    out["id"] <- out[[id]]
     out <- panel_data(out, id = !! sym(id), wave = !! sym("wave"),
                       reshaped = TRUE, varying = names(stub_tab), 
                       constants = names(out)[names(out) %nin% names(stub_tab)])
