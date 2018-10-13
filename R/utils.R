@@ -6,6 +6,11 @@ magrittr::`%>%`
 #' @export
 magrittr::`%<>%`
 
+# Opposite of %in%
+`%nin%` <- function(x, table) {
+  is.na(match(x, table, nomatch = NA_integer_))
+}
+
 # Automate the addition of newline characters for long strings
 wrap_str <- function(..., sep = "") {
   paste0(strwrap(paste(..., sep = sep), width = 0.95 * getOption("width", 80)),

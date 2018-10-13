@@ -343,10 +343,6 @@ bt <- function(x) {
   
 }
 
-`%nin%` <- function(x, table) {
-  is.na(match(x, table, nomatch = NA_integer_))
-}
-
 #### Regex helper ############################################################
 
 # Taken from Hmisc
