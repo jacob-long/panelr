@@ -59,6 +59,11 @@ panel_data <- function(data, id = id, wave = wave, ...) {
   # Ordering by wave and then group ensures lag functions work right
   data <- arrange(data, !!sym(wave), .by_group = TRUE)
   
+  # Order the columns to put id and wave first (must do this *before*
+  # creating the panel_data object or else there are endless loops in
+  # reconstruct functions)
+  data <- data[c(id, wave, names(data) %not% c(id, wave))]
+  
   # Inherit from df, tibble, and grouped_df (last one is critical)
   data <- tibble::new_tibble(data, ..., 
                              id = id,
