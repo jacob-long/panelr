@@ -133,7 +133,7 @@ make_wb_data <- function(formula, data, id = NULL, wave = NULL,
                     weights = NULL, offset = NULL, ...) {
   
   d <- wb_prepare_data(formula = formula, data, id = id, wave = id,
-                       model = "w-b", detrend = detrend, use.wave = use.wave,
+                       model = model, detrend = detrend, use.wave = use.wave,
                        wave.factor = wave.factor, min.waves = min.waves,
                        balance_correction = balance_correction,
                        dt_random = dt_random, dt_order = dt_order,
