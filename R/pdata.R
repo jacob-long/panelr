@@ -22,13 +22,8 @@
 
 panel_data <- function(data, id = id, wave = wave, ...) {
 
-  id <- expr_text(enexpr(id))
-  wave <- expr_text(enexpr(wave))
-
-  # # Append case ID column if not already named ID
-  # if (id != "id") {
-  #   data$id <- data[[id]]
-  # }
+  id <- as_name(enexpr(id))
+  wave <- as_name(enexpr(wave))
   
   if (id %nin% names(data)) {
     stop(id, "was not found in the data.")
