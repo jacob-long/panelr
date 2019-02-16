@@ -24,7 +24,7 @@
 #' @return The `ggplot` object.
 #' @rdname line_plot
 #' @export 
-#' @importFrom ggplot2 facet_wrap ggplot geom_path geom_point geom_smooth
+#' @importFrom ggplot2 facet_wrap ggplot geom_path geom_point geom_smooth aes
 line_plot <- function(data, var, id = NULL, wave = NULL, overlay = TRUE,
                       show.points = TRUE,  subset.ids = NULL,
                       n.random.subset = 8, add.mean = FALSE,
@@ -71,7 +71,6 @@ line_plot <- function(data, var, id = NULL, wave = NULL, overlay = TRUE,
     warning("Cannot add mean when `overlay` is FALSE.")
   }
   
-  p + jtools::theme_apa(legend.pos = "right", remove.y.gridlines = FALSE,
-                remove.x.gridlines = FALSE)
+  p + jtools::theme_nice(legend.pos = "right")
   
 }
