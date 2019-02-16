@@ -631,3 +631,69 @@ print.wbm <- function(x, ...) {
 #'   export(tidy.wbm)
 #' }
 
+tidy.wbm <- function(x, conf.int = FALSE, conf.level = .95,
+                     effects = c("fixed", "ran_pars"), conf.method = "Wald",
+                     ran_prefix = NULL, ...) {
+  # Going to get the organized values from the summary function
+  sum <- summary(x)
+  # Getting their rownames before they are dropped by dplyr
+  terms <- c(rownames(sum$within_table), rownames(sum$between_table),
+             rownames(sum$trends_table), rownames(sum$ints_table))
+  # Binding these tables together but saving their category to the .id variable
+  params <- dplyr::bind_rows(within = sum$within_table, 
+                             between = sum$between_table, 
+                             time_trends = sum$trends_table, 
+                             interactions = sum$ints_table, .id = "group")
+  # Adding those rownames as a column
+  params$term <- terms
+  # Renaming the other columns to fit the tidy model
+  switchv <- Vectorize(function(a) {
+    switch(a,
+           "Est." = "estimate",
+           "t val." = "statistic",
+           "z val." = "statistic",
+           "S.E." = "std.error",
+           "p" = "p.value",
+           a)
+    
+  }, "a")
+  names(params) <- switchv(names(params))
+  
+  # Getting confidence intervals if requested
+  if (conf.int == TRUE) {
+    ints <- as.data.frame(confint(x, level = conf.level, method = conf.method))
+    # Renaming the columns to fit the tidy model
+    names(ints) <- c("conf.low", "conf.high")
+    # Renaming the terms to remove the backticks to match the params d.f.
+    ints$term <- stringr::str_remove_all(rownames(ints), "`")
+    # Put things together
+    params <- dplyr::left_join(params, ints, by = "term")
+  }
+  # Get the random effects if requested
+  if ("ran_pars" %in% effects) {
+    ran_pars <- broom::tidy(as(model, switch(class(model), "wblm" = "lmerMod",
+                                             "wbglm" = "glmerMod")),
+                            effects = "ran_pars", conf.method = conf.method,
+                            conf.level = conf.level, ran_prefix = ran_prefix,
+                            ...)
+    params <- dplyr::bind_rows(params, ran_pars)
+  }
+  return(tibble::as_tibble( # Return a tibble
+    # Only return the relevant columns
+    params %just% c("term", "estimate", "statistic", "std.error", 
+                    "conf.low", "conf.high", "p.value", "group")
+    ))
+}
+
+#' @rdname wbm_tidiers
+#' @inheritParams broom::lme4_tidiers
+#' @rawNamespace 
+#' if (getRversion() >= "3.6.0") {
+#'   S3method(broom::glance, wbm)
+#' } else {
+#'   export(glance.wbm)
+#' }
+glance.wbm <- function(x, ...) {
+  sum <- summary(x)
+  return(tibble::as_tibble(sum$mod_info_list))
+}
