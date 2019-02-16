@@ -366,8 +366,8 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
               varying = pf$varying, constants = pf$constants,
               meanvars = pf$meanvars, model = model,
               stab_terms = e$stab_terms,
-              max_wave = prepped$maxwave, min_wave = prepped$minwave, ints = ints,
-              pvals = pvals, pR2 = pR2, env = the_env,
+              max_wave = prepped$maxwave, min_wave = prepped$minwave,
+              ints = ints, pvals = pvals, pR2 = pR2, env = the_env,
               mf_form = prepped$mf_form,
               use.wave = use.wave, detrend = detrend, dt_order = dt_order,
               dt_random = dt_random, balance_correction = balance_correction,
@@ -448,13 +448,17 @@ summary.wbm <- function(object, ...) {
           round(j2$rsqs$Marginal, j2$digits),
         "\n", "Pseudo-R\u00B2 (total) = ",
         round(j2$rsqs$Conditional, j2$digits), "\n\n")
+    
   } else {
     mod_fit <- paste(mod_fit, "\n")
   }
+  
+  # For glance method
+  mod_info_list <- list(min_wave = x2$min_wave, max_wave = x2$max_wave,
+                        N = lme4::ngrps(x)[x2$id], aic = j2$aic, bic = j2$bic,
+                        pR2_fe = j2$rsqs$Marginal,
+                        pR2_total = j2$rsqs$Conditional, model = est_name)
 
-  # if (x2$pvals == TRUE) {
-  #   ps <- j$coeftable[,"p"]
-  # }
   coefs <- j$coeftable
   rownames(coefs) <- gsub("`", "", rownames(coefs), fixed = TRUE)
   if (!is.null(x2$ints)) {
@@ -468,151 +472,43 @@ summary.wbm <- function(object, ...) {
     x2$ints <- NULL
   }
 
-  # if (x2$pvals == TRUE) {
-
-  #   cnames <- colnames(coefs)
-  #   coefs <- cbind(coefs, rep(0, nrow(coefs)))
-  #   colnames(coefs) <- c(cnames, "")
-
-  #   sigstars <- c()
-  #   for (y in 1:nrow(coefs)) {
-  #     if (ps[y] > 0.1) {
-  #       sigstars[y] <- ""
-  #     } else if (ps[y] <= 0.1 & ps[y] > 0.05) {
-  #       sigstars[y] <- "."
-  #     } else if (ps[y] > 0.01 & ps[y] <= 0.05) {
-  #       sigstars[y] <- "*"
-  #     } else if (ps[y] > 0.001 & ps[y] <= 0.01) {
-  #       sigstars[y] <- "**"
-  #     } else if (ps[y] <= 0.001) {
-  #       sigstars[y] <- "***"
-  #     }
-  #   }
-
-  #   coefs[,5] <- sigstars
-  #   coefs <- as.table(coefs)
-
-  # } else {
-
-  #   coefs <- as.table(coefs)
-
-  # }
-
-  coefs <- as.table(coefs)
+  coefs <- as.data.frame(coefs)
   rows <- rownames(coefs)
 
   if (length(varying) > 0 & est_name != "between") {
 
-    if (length(varying) == 1) {
-
-      # Can't have single row table
-      if (is.table(coefs)) {
-        vec <- coefs[rownames(coefs) %in% varying,]
-        coefs <- coefs[!(rownames(coefs) %in% varying),]
-      } else {
-        vec <- coefs
-        coefs <- NULL
-      }
-      vec <- t(as.matrix(vec))
-      rownames(vec) <- varying
-
-      within_table <- as.table(vec)
-
-    } else {
-
-      within_table <- coefs[rownames(coefs) %in% varying,]
-      coefs <- coefs[!(rownames(coefs) %in% varying),]
-    }
-
-    rows <- rows[!(rows %in% varying)]
+    within_table <- coefs[rownames(coefs) %in% varying,]
+    coefs <- coefs[rownames(coefs) %nin% varying,]
+    rows <- rows %not% varying
 
     if (length(x2$stab_terms) > 0) {
-
-      stabs <- coefs[rownames(coefs) %in% x2$stab_terms,]
-      coefs <- coefs[!(rownames(coefs) %in% x2$stab_terms),]
-      rows <- rows[!(rows %in% x2$stab_terms)]
-
+      stabs <- coefs[rownames(coefs) %in% x2$stab_terms, ]
+      coefs <- coefs[rownames(coefs) %nin% x2$stab_terms, ]
+      rows <- rows %not% x2$stab_terms
     }
-
+    
   } else {
-
     within_table <- NULL
-
   }
 
   if (length(x2$ints) > 0) {
-
-    if (length(x2$ints) == 1) {# Can't have single row table
-
-      if (is.table(coefs)) {
-        vec <- coefs[rownames(coefs) %in% x2$ints,]
-        coefs <- coefs[!(rownames(coefs) %in% x2$ints),]
-      } else {
-        vec <- coefs
-        coefs <- NULL
-      }
-      vec <- t(as.matrix(vec))
-      rownames(vec) <- x2$ints
-
-      ints_table <- as.table(vec)
-
-    } else {
-
-      ints_table <- coefs[rownames(coefs) %in% x2$ints,]
-      coefs <- coefs[!(rownames(coefs) %in% x2$ints),]
-
-    }
-
-    rows <- rows[!(rows %in% x2$ints)]
-
+    ints_table <- coefs[rownames(coefs) %in% x2$ints,]
+    coefs <- coefs[rownames(coefs) %nin% x2$ints,]
+    rows <- rows %not% x2$ints
   } else {
-
     ints_table <- NULL
-
   }
 
-  if (is.null(nrow(coefs)) && est_name != "within") { # Can't have single row
-
-    if (!is.null(coefs)) {
-      vec <- coefs
-      vec <- t(as.matrix(vec))
-      rownames(vec) <- rows
-
-      between_table <- as.table(vec)
-    } else {
-      between_table <- NULL
-    }
-
-  } else if (est_name != "within") {
-
-    between_table <- as.table(coefs)
-
+  if (est_name != "within") {
+    between_table <- coefs
   } else {
-
     between_table <- NULL
-
   }
 
   if (x2$model == "stability") {
-
-    if (length(x2$stab_terms) == 1) { # Can't have single row table
-
-      vec <- stabs
-      vec <- t(as.matrix(vec))
-      rownames(vec) <- x2$stab_terms
-
-      time_trends <- as.table(vec)
-
-    } else {
-
-      time_trends <- stabs
-
-    }
-
+    time_trends <- stabs
   } else {
-
     time_trends <- NULL
-
   }
 
   if (lme4::isLMM(x) == TRUE & j2$pvals == TRUE) {
@@ -628,8 +524,7 @@ summary.wbm <- function(object, ...) {
       
     } else {
 
-      df_msg <- paste("p values calculated using df =",
-                      round(j2$df, digits), "\n")
+      df_msg <- paste("p values calculated using df =", round(j2$df, digits))
 
     }
 
@@ -638,20 +533,16 @@ summary.wbm <- function(object, ...) {
     df_msg <- NULL
 
   }
-
-  # j$rcoeftable[,attr(j$rcoeftable, "variance")] <-
-  #   as.character(round(as.numeric(j$rcoeftable[,"Std.Dev."]), digits))
-  # the_table <- as.table(j$rcoeftable)
-  # rownames(the_table) <- rep("", nrow(the_table))
-  # ranef_table <- the_table
-  ranef_table <- j$rcoeftable
+  
+  ranef_table <- as.data.frame(j$rcoeftable)
+  ranef_table[, 3] <- as.numeric(as.character(ranef_table[, 3]))
 
   out <- list(ranef_table = ranef_table, time_trends = time_trends,
               within_table = within_table, between_table = between_table,
               entity_icc = entity_icc, mod_info = mod_info, mod_fit = mod_fit,
               model = x2$model, est_name = est_name,
               est_info = est_info, ints_table = ints_table, df_msg = df_msg,
-              digits = digits)
+              digits = digits, mod_info_list = mod_info_list)
   class(out) <- "summary.wbm"
   return(out)
 
@@ -672,8 +563,7 @@ print.summary.wbm <- function(x, ...) {
     if (x$est_name != "within") {
       cat("WITHIN EFFECTS:\n")
     }
-    pvals <- "p" %in% colnames(x$within_table)
-    print(add_stars(x$within_table, p_vals = pvals, digits = x$digits))
+    print(md_table(as.data.frame(x$within_table), digits = x$digits))
     cat("\n")
 
     cat("Within-entity ICC =", x$entity_icc, "\n\n")
@@ -682,16 +572,14 @@ print.summary.wbm <- function(x, ...) {
 
   if (x$est_name != "contextual" & !is.null(x$between_table)) {
 
-    pvals <- "p" %in% colnames(x$between_table)
     cat("BETWEEN EFFECTS:\n")
-    print(add_stars(x$between_table, p_vals = pvals, digits = x$digits))
+    print(md_table(x$between_table, digits = x$digits))
     cat("\n")
 
   } else if (x$est_name == "contextual" & !is.null(x$between_table)) {
     
-    pvals <- "p" %in% colnames(x$between_table)
     cat("CONTEXTUAL EFFECTS:\n")
-    print(add_stars(x$between_table, p_vals = pvals, digits = x$digits))
+    print(md_table(x$between_table, digits = x$digits))
     cat("\n")
 
   }
@@ -699,14 +587,14 @@ print.summary.wbm <- function(x, ...) {
   if (x$model == "stability") {
 
     cat("BETWEEN-ENTITY TIME TRENDS:\n")
-    print(add_stars(x$time_trends, p_vals = pvals, digits = x$digits))
+    print(md_table(x$time_trends, digits = x$digits))
     cat("\n")
   }
 
   if (!is.null(x$ints_table)) {
 
     cat("INTERACTIONS:\n")
-    print(add_stars(x$ints_table, p_vals = pvals, digits = x$digits))
+    print(md_table(x$ints_table, digits = x$digits))
     cat("\n")
 
   }
@@ -718,8 +606,8 @@ print.summary.wbm <- function(x, ...) {
   }
 
   cat("RANDOM EFFECTS:\n")
-  print(round_df_char(x$ranef_table, na_vals = "", digits = x$digits),
-        row.names = FALSE)
+  print(md_table(x$ranef_table, digits = x$digits, row.names = FALSE,
+                 align = "c"))
 
 }
 
