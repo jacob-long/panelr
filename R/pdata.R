@@ -63,7 +63,8 @@ panel_data <- function(data, id = id, wave = wave, ...) {
   data <- tibble::new_tibble(data, ..., 
                              id = id,
                              wave = wave,
-                             subclass = c("panel_data", "grouped_df"))
+                             subclass = c("panel_data", "grouped_df"),
+                             nrow = nrow(data))
 
   return(data)
 
