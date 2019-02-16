@@ -42,17 +42,12 @@ panel_data <- function(data, id = id, wave = wave, ...) {
              cause unexpected behavior or incorrect results.")
   } 
 
-  # # Append wave column if wave isn't already called wave
-  # if (wave != "wave") {
-  #   data[["wave"]] <- data[[wave]]
-  # }
-
   # Make sure wave variable is in format I can understand
-  if (is.factor(data[[wave]]) && !is.ordered(data[[wave]])) {
+  if (is.factor(data[[wave]]) & !is.ordered(data[[wave]])) {
     data[[wave]] <- factor(data[[wave]], ordered = TRUE)
     msg_wrap("Unordered factor wave variable was converted to ordered.
              You may wish to check that the order is correct.")
-  } else if (!is.ordered(data[[wave]]) && !is.numeric(data[[wave]])) {
+  } else if (!is.ordered(data[[wave]]) & !is.numeric(data[[wave]])) {
     stop("The wave variable must be numeric or an ordered factor.")
   }
   
