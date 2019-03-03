@@ -56,8 +56,12 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
                    chains = 3, iter = 2000, scale = FALSE, save_ranef = FALSE,
                    weights = NULL, offset = NULL, ...) {
 
+  if (!requireNamespace("brms")) {
+    stop_wrap("You must have the brms package installed to use wbm_stan.")
+  }
+  
   the_call <- match.call()
-  the_call[[1]] <- substitute(wbm)
+  the_call[[1]] <- substitute(wbm_stan)
   the_env <- parent.frame()
   
   if (any(c(detrend, balance_correction))) {
@@ -88,46 +92,17 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
   weights <- prepped$weights
   offset <- prepped$offset
 
-  if (use.wave == TRUE) {
-    e$fin_formula <- paste(e$fin_formula, "+", "wave")
-  }
-
   if (wave.factor == TRUE) {
-    data[,wave] <- as.factor(data[,wave])
+    data[wave] <- as.factor(data[wave])
   }
 
-  fin_formula <- formula_esc(e$fin_formula,
-                                   c(pf$varying,
-                                     pf$meanvars,
-                                     pf$constants))
+  fin_formula <- formula_esc(e$fin_formula, c(pf$varying, pf$meanvars, 
+                                              pf$constants))
 
   names(data) <- make.names(names(data))
-
-  if (pf$conds > 2) {
-    res <- lme4::findbars(as.formula(paste("~", pf$cross_ints_form)))
-    refs <- lme4::mkReTrms(res, data)$cnms
-
-    if (any(names(refs) == id)) {
-
-      inds <- which(names(refs) == id)
-
-      if (any(unlist(refs[inds]) == "(Intercept)")) {
-        no_add <- TRUE
-      } else {
-        no_add <- FALSE
-      }
-
-    } else {
-      no_add <- FALSE
-    }
-
-  } else {
-    no_add <- FALSE
-  }
-
-  if (no_add == FALSE) {
-    fin_formula <- paste0(fin_formula, " + (1 | ", id, ")")
-  }
+  
+  # Use helper function to generate formula to pass to lme4
+  fin_formula <- prepare_lme4_formula(fin_formula, pf, data, use.wave, wave, id)  
 
   # TODO: test this
   # Give brms the weights in the desired formula syntax
@@ -135,18 +110,26 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
     weights <- make.names(weights) # Also give syntactically valid name for wts
     lhs <- paste(dv, "~")
     new_lhs <- paste0(dv, " | weights(", weights, ") ~ ")
-    fin_formula <- sub(lhs, new_lhs, fin_formula, fixed = TRUE)
+    fin_formula <- sub(lhs, new_lhs, as.character(deparse(fin_formula)),
+                       fixed = TRUE)
   }
 
   fin_formula <- as.formula(fin_formula)
 
+  # Get the model frame so I can get the expanded factor variable names
+  mm <- suppressWarnings(model.matrix(fin_formula, data = data))
+  # Find the interaction terms (which may be expanded if factors are involved)
   int_indices <- which(attr(terms(fin_formula), "order") >= 2)
-  ints <- attr(terms(fin_formula),"term.labels")[int_indices]
+  # Grab those names from the model matrix
+  ints <- colnames(mm)[attr(mm, "assign") %in% int_indices]
+  # Save some memory
+  rm(mm)
+  
   ints <- ints[!(ints %in% e$stab_terms)]
   unbt_ints <- gsub("`", "", ints, fixed = TRUE)
   ints <- ints[!(unbt_ints %in% e$stab_terms)]
 
-  cor_form <- as.formula(paste("~ wave | id"))
+  cor_form <- as.formula(paste("~", wave, "|", id))
 
   if (scale == TRUE) {
 
