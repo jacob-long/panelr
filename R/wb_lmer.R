@@ -193,6 +193,7 @@
 #' https://doi.org/10.1146/annurev.psych.093008.100356
 #'
 #' @export
+#' @import jtools
 #' @rdname wbm
 #' @seealso [wbm_stan()] for a Bayesian estimation option.
 #' @importFrom stats as.formula gaussian terms

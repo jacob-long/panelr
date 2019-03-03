@@ -21,8 +21,8 @@ Imports: dplyr,
       tidyr,
       purrr,
       rlang,
-      jtools, 
       ggplot2
+      jtools (>= 2.0.0), 
       Formula
 Suggests: brms,
     skimr,
