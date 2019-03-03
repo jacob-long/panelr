@@ -30,7 +30,7 @@ wb_prepare_data <- function(formula, data, id = NULL, wave = NULL,
     if (!is.null(offset)) {data[".offset"] <- offset}
     
     # Get the left-hand side
-    dv <- as.character(deparse(attr(formula, "lhs")))
+    dv <- as.character((attr(formula, "lhs")))
     # Pass to helper function
     pf <- wb_formula_parser(formula, dv, data)
     
