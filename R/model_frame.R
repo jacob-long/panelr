@@ -52,10 +52,10 @@ model_frame <- function(formula, data) {
   # Only keep the model frame vars plus groups and wave if panel_data
   mf <- mf[c(as.character(vars), the_groups, wave)]
   
-  return(mf)
-  # variables <- eval(predvars, data, env) # replace me!
+  # Remove recursive back-ticking 
+  names(mf) <- gsub("`", "", names(mf))
   
-  # resp <- attr(formula, "response")
+  return(mf)
   
 }
 
