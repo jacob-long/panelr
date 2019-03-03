@@ -179,44 +179,6 @@ terms.wbm <- function(x, fixed.only = TRUE, random.only = FALSE, ...) {
     terms(x, fixed.only = fixed.only, random.only = random.only, ...)
 }
 
-#' @title Alternate optimizer for `wbm` and other models
-#' @description This optimizer is exported for use in [wbm()] to improve
-#'  speed and reliability of optimization.
-#' @param fn A function to be minimized (or maximized), with first
-#'        argument the vector of parameters over which minimization is
-#'        to take place.  It should return a scalar result.
-#' @param par a vector of initial values for the parameters for which
-#'        optimal values are to be found. Names on the elements of this
-#'        vector are preserved and used in the results data frame.
-#' @param lower Bounds on the variables for methods such as ‘"L-BFGS-B"’
-#'        that can handle box (or bounds) constraints.
-#' @param upper Bounds on the variables for methods such as ‘"L-BFGS-B"’
-#'        that can handle box (or bounds) constraints.
-#' @param control A list of control parameters.
-#' @param ... Further arguments passed to [nloptr::nloptr()]
-#' @export
-## original idea at https://stats.stackexchange.com/questions/132841/default-
-## lme4-optimizer-requires-lots-of-iterations-for-high-dimensional-data
-nloptwrap_alt <- function(fn, par, lower, upper, control = list(), ...) {
-
-  defaultControl <- list(algorithm = "NLOPT_LN_BOBYQA", xtol_rel = 1e-6,
-   maxeval = 1e5)
-
-    for (n in names(defaultControl)) {
-      if (is.null(control[[n]])) {
-        control[[n]] <- defaultControl[[n]]
-      }
-    }
-
-    res <- nloptr::nloptr(x0 = par, eval_f = fn, lb = lower, ub = upper, 
-      opts = control, ...)
-    with(res, list(par = solution,
-                   fval = objective,
-                   feval = iterations,
-                   conv = if (status > 0) 0 else status,
-                   message = message))
-}
-
 #' @importFrom jtools make_predictions
 #' @export
 
