@@ -297,6 +297,8 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
     msg_wrap("If wbm is taking too long to run, you can try setting 
              pvals = FALSE.")
   }
+  # check if pseudo-R2 calculation failed
+  if (is.na(attr(j, "rsqs")[1])) pR2 <- FALSE
   
   ints <- ints[!(ints %in% e$stab_terms)]
   unbt_ints <- gsub("`", "", ints, fixed = TRUE)
@@ -418,8 +420,9 @@ summary.wbm <- function(object, ...) {
   # For glance method
   mod_info_list <- list(min_wave = x2$min_wave, max_wave = x2$max_wave,
                         N = lme4::ngrps(x)[x2$id], aic = j2$aic, bic = j2$bic,
-                        pR2_fe = j2$rsqs$Marginal,
-                        pR2_total = j2$rsqs$Conditional, model = est_name)
+                        pR2_fe = if (x2$pR2) j2$rsqs$Marginal else NULL,
+                        pR2_total = if (x2$pR2)j2$rsqs$Conditional else NULL,
+                        model = est_name)
 
   coefs <- j$coeftable
   rownames(coefs) <- gsub("`", "", rownames(coefs), fixed = TRUE)
