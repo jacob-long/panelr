@@ -349,7 +349,9 @@ un_bt <- function(x) {
   gsub("`", "", x)
 }
 
+# Accessor function for Formula objects that have multiple parts
 get_rhs <- function(x, which = 1, to.formula = FALSE) {
+  # Coercing to formula can be useful, otherwise it's a call object
   if (to.formula == TRUE) {
     as.formula(paste("~", deparse(attr(x, "rhs")[[which]])))
   } else {
@@ -357,9 +359,12 @@ get_rhs <- function(x, which = 1, to.formula = FALSE) {
   }
 }
 
+# Get individual terms from formula
 get_term_labels <- function(x, which = 1, omit.ints = TRUE) {
+  # Formula provides an unusual access method but lets me get one part at a time
   labs <- attr(terms(get_rhs(x, which = which, to.formula = TRUE)),
                "term.labels")
+  # I can choose to get only first-order variables
   if (omit.ints == TRUE) {
     labs <- labs[
       which(attr(
@@ -391,11 +396,16 @@ get_term_labels <- function(x, which = 1, omit.ints = TRUE) {
   }
   vars
 }
+# Get the indices of terms in terms object involving a given variable
 which_terms <- function(formula, variable) {
+  # Get the factors matrix from the terms object
   facs <- attr(terms(formula), "factors")
+  # Get the term names
   raw_names <- rownames(facs)
+  # Use some jiu-jitsu to get the bare variable names for those terms
   bare_vars <- all.vars(
     as.formula(paste("~", paste(raw_names, collapse = "+"))), unique = FALSE)
+  # If there's more than one term involving variable, need to handle differently
   if (length(which(bare_vars == variable)) > 1) {
     which(colSums(facs[which(bare_vars == variable),]) > 0)
   } else {
