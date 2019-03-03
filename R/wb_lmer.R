@@ -601,6 +601,11 @@ print.wbm <- function(x, ...) {
 tidy.wbm <- function(x, conf.int = FALSE, conf.level = .95,
                      effects = c("fixed", "ran_pars"), conf.method = "Wald",
                      ran_prefix = NULL, ...) {
+  
+  if (!requireNamespace("broom")) {
+    stop_wrap("You must have the broom package to use tidy methods.")
+  }
+  
   # Going to get the organized values from the summary function
   sum <- summary(x)
   # Getting their rownames before they are dropped by dplyr
@@ -638,7 +643,7 @@ tidy.wbm <- function(x, conf.int = FALSE, conf.level = .95,
   }
   # Get the random effects if requested
   if ("ran_pars" %in% effects) {
-    ran_pars <- broom::tidy(as(model, switch(class(model), "wblm" = "lmerMod",
+    ran_pars <- broom::tidy(as(x, switch(class(x), "wblm" = "lmerMod",
                                              "wbglm" = "glmerMod")),
                             effects = "ran_pars", conf.method = conf.method,
                             conf.level = conf.level, ran_prefix = ran_prefix,

@@ -20,15 +20,16 @@ Imports: crayon,
       methods,
       stringr,
       rlang,
-      ggplot2
       jtools (>= 2.0.0), 
+      ggplot2,
       Formula
 Suggests: brms,
+    broom,
     plm,
     skimr,
-    testthat,
-    covr
     tidyr,
+      testthat,
+      covr
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
