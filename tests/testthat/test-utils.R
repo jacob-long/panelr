@@ -12,6 +12,7 @@ test_that("dplyr functions return panel_data objects", {
   expect_s3_class(filter(w, fem == 1), "panel_data")
   expect_s3_class(arrange(w, lwage), "panel_data")
   expect_s3_class(distinct(w, lwage), "tbl_df")
+  suppressWarnings({
   expect_s3_class(full_join(w, summarize(w, mean_wg = mean(lwage), by = "id")),
                   "panel_data")
   expect_s3_class(inner_join(w, summarize(w, mean_wg = mean(lwage), by = "id")),
@@ -24,14 +25,18 @@ test_that("dplyr functions return panel_data objects", {
                   "panel_data")
   expect_s3_class(semi_join(w, summarize(w, mean_wg = mean(lwage), by = "id")),
                   "panel_data")
+  })
   expect_s3_class(select(w, lwage), "panel_data")
   expect_s3_class(slice(w, 3), "panel_data")
   expect_s3_class(group_by(w, id), "panel_data")
+  suppressWarnings({
   expect_s3_class(mutate_(w, "gender" = "fem"), "panel_data")
   expect_s3_class(transmute_(w, "gender" = "fem"), "panel_data")
   expect_s3_class(summarize_(w, "mean_wg" = mean(w$lwage)), "tbl_df")
   expect_s3_class(summarise_(w, "mean_wg" = mean(w$lwage)), "tbl_df")
-  expect_s3_class(slice_(w, "fem" == 1), "panel_data")
+  expect_s3_class(filter_(w, "fem" == 1), "panel_data")
+  expect_s3_class(slice_(w, 3), "panel_data")
+  })
   expect_s3_class(w[names(w)], "panel_data")
 })
 
