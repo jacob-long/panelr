@@ -23,6 +23,7 @@ Imports: dplyr,
       jtools (>= 2.0.0), 
       Formula
 Suggests: brms,
+    plm,
     skimr,
     testthat,
     covr
