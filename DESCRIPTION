@@ -11,7 +11,8 @@ Description: This package implements several methods for creating regression
   supported via the brms package.
 Depends: R (>= 3.4.0),
       lme4
-Imports: dplyr,
+Imports: crayon, 
+      dplyr,
       tibble,
       purrr,
       lmerTest,

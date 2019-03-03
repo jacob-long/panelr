@@ -364,6 +364,7 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
 
 #' @export
 #' @importFrom stats family
+#' @importFrom crayon bold italic
 
 summary.wbm <- function(object, ...) {
 
@@ -384,16 +385,16 @@ summary.wbm <- function(object, ...) {
   entity_icc <- as.numeric(entity_icc["ICC"])
   entity_icc <- round(entity_icc, digits)
 
-  mod_info <- paste0("MODEL INFO:\n",
-                    "Entities: ", lme4::ngrps(x), "\n",
-                    "Time periods: ", paste0(x2$min_wave, "-",
+  mod_info <- paste0(bold("MODEL INFO:\n"),
+                    italic("Entities: "), lme4::ngrps(x), "\n",
+                    italic("Time periods: "), paste0(x2$min_wave, "-",
                                             x2$max_wave), "\n",
-                    "Dependent variable: ", x2$dv, "\n")
+                    italic("Dependent variable: "), x2$dv, "\n")
   if (family(x)$family == "gaussian") {
-    mod_info <- paste0(mod_info, "Model type: Linear mixed effects\n")
+    mod_info <- paste0(mod_info, italic("Model type:"), " Linear mixed effects\n")
   } else {
-    mod_info <- paste(mod_info, "Model family: ", family(x)$family,
-        ", Link: ", family(x)$link, "\n", sep = "")
+    mod_info <- paste(mod_info, italic("Model family: "), family(x)$family,
+        ", ", italic("Link: "), family(x)$link, "\n", sep = "")
   }
 
   # Name the model
@@ -402,19 +403,20 @@ summary.wbm <- function(object, ...) {
   if (est_name == "random") {est_name <- "between"}
   if (est_name == "fixed") {est_name <- "within"}
 
-  est_info <- paste("Specification: ", est_name, "\n\n", sep = "")
+  est_info <- paste(italic("Specification: "), est_name, "\n\n", sep = "")
 
-  mod_fit <- paste("MODEL FIT: ",
-      "\n", "AIC = ", round(j2$aic, j2$digits),
-      ", BIC = ", round(j2$bic, j2$digits), "\n", sep = "")
+  mod_fit <- paste(bold("MODEL FIT:"),
+      "\n", italic("AIC = "), round(j2$aic, j2$digits),
+      ", ", italic("BIC = "), round(j2$bic, j2$digits), "\n", sep = "")
   if (x2$pR2 == TRUE) {
-    mod_fit <- paste0(mod_fit, "Pseudo-R\u00B2 (fixed effects) = ",
+    mod_fit <- paste0(mod_fit, italic("Pseudo-R\u00B2 (fixed effects) = "),
           round(j2$rsqs$Marginal, j2$digits),
-        "\n", "Pseudo-R\u00B2 (total) = ",
-        round(j2$rsqs$Conditional, j2$digits), "\n\n")
+        "\n", italic("Pseudo-R\u00B2 (total) = "),
+        round(j2$rsqs$Conditional, j2$digits),
+        italic("\nEntity ICC = "), entity_icc, "\n\n")
     
   } else {
-    mod_fit <- paste(mod_fit, "\n")
+    mod_fit <- paste(mod_fit, italic("Entity ICC = "), entity_icc, "\n\n")
   }
   
   # For glance method
@@ -480,16 +482,18 @@ summary.wbm <- function(object, ...) {
 
     if (j2$p_calc == "k-r") {
 
-      df_msg <- paste("p values calculated using Kenward-Roger standard errors",
-                      "and d.f.", "\n")
+      df_msg <- italic(str_wrap("p values calculated using Kenward-Roger
+                                standard errors and d.f."), "\n")
 
     } else if (j2$p_calc == "s") {
       
-      df_msg <- "p values calculated using Satterthwaite d.f.\n"
+      df_msg <- italic("p values calculated using Satterthwaite d.f.\n")
       
     } else {
 
-      df_msg <- paste("p values calculated using df =", round(j2$df, digits))
+      df_msg <- italic(
+        paste("p values calculated using df =", round(j2$df, digits))
+      )
 
     }
 
@@ -526,24 +530,22 @@ print.summary.wbm <- function(x, ...) {
   if (x$est_name != "between" & !is.null(x$within_table)) {
 
     if (x$est_name != "within") {
-      cat("WITHIN EFFECTS:\n")
+      cat(bold("WITHIN EFFECTS:\n"))
     }
     print(md_table(as.data.frame(x$within_table), digits = x$digits))
     cat("\n")
-
-    cat("Within-entity ICC =", x$entity_icc, "\n\n")
 
   }
 
   if (x$est_name != "contextual" & !is.null(x$between_table)) {
 
-    cat("BETWEEN EFFECTS:\n")
+    cat(bold("BETWEEN EFFECTS:\n"))
     print(md_table(x$between_table, digits = x$digits))
     cat("\n")
 
   } else if (x$est_name == "contextual" & !is.null(x$between_table)) {
     
-    cat("CONTEXTUAL EFFECTS:\n")
+    cat(bold("CONTEXTUAL EFFECTS:\n"))
     print(md_table(x$between_table, digits = x$digits))
     cat("\n")
 
@@ -551,14 +553,14 @@ print.summary.wbm <- function(x, ...) {
 
   if (x$model == "stability") {
 
-    cat("BETWEEN-ENTITY TIME TRENDS:\n")
+    cat(bold("BETWEEN-ENTITY TIME TRENDS:\n"))
     print(md_table(x$time_trends, digits = x$digits))
     cat("\n")
   }
 
   if (!is.null(x$ints_table)) {
 
-    cat("INTERACTIONS:\n")
+    cat(bold("INTERACTIONS:\n"))
     print(md_table(x$ints_table, digits = x$digits))
     cat("\n")
 
@@ -570,7 +572,7 @@ print.summary.wbm <- function(x, ...) {
 
   }
 
-  cat("RANDOM EFFECTS:\n")
+  cat(bold("RANDOM EFFECTS:\n"))
   print(md_table(x$ranef_table, digits = x$digits, row.names = FALSE,
                  align = "c"))
 
