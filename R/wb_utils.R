@@ -5,6 +5,19 @@ wb_formula_parser <- function(formula, dv, data) {
   # See how many parts the formula has 
   conds <- length(formula)[2]
   
+  # Deal with non-numeric variables
+  if (any(!sapply(data[all.vars(get_rhs(formula))], is.numeric))) {
+    # Find the time-varying non-numeric vars 
+    vars <- 
+      names(sapply(data[all.vars(get_rhs(formula))], is.numeric) %just% FALSE)
+    # Expand these factors into 0/1 variables in the data
+    data <- expand_factors(vars, data)
+    # Now create a formula that does the same
+    for (var in vars) {
+      attr(formula, "rhs")[[1]] <- expand_formula(formula, var, data)[[2]]
+    }
+  }
+  
   # Save varying variables
   varying <- sapply(get_term_labels(formula), function(x) {
     # If non-syntactic names are inside functions, retain backticks
@@ -393,9 +406,36 @@ get_term_labels <- function(x, which = 1, omit.ints = TRUE) {
 #   }
 #   vars
 # }
-  }
-  vars
+
+# Generate the labels for factors that R normally does already
+expand_labels <- function(data, variable) {
+  paste0(variable, unique(data[[variable]] %not% base_level(data[[variable]])))
 }
+
+# Make all the labels for terms of all orders for (especially) factors
+make_labels <- function(formula, variable, data) {
+  term_labels <- labels(terms(formula))[which_terms(formula, variable)]
+  labs <- c()
+  expanded <- expand_labels(data, variable)
+  for (lab in term_labels) {
+    for (val in expanded) {
+      labs <- c(labs, sub(variable, bt(val), lab, fixed = TRUE))
+    }
+  }
+  labs
+}
+
+# Retrieve the base level of factors or other non-numeric variables
+base_level <- function(x) {
+  if (is.factor(x)) {
+    return(levels(x)[1])
+  } else if (!is.logical(x)) {
+    return(levels(factor(x))[1])
+  } else {
+    return(FALSE)
+  }
+}
+
 # Get the indices of terms in terms object involving a given variable
 which_terms <- function(formula, variable) {
   # Get the factors matrix from the terms object
@@ -411,6 +451,37 @@ which_terms <- function(formula, variable) {
   } else {
     which(facs[which(bare_vars == variable),] > 0)
   }
+}
+
+# Create a formula with an expanded factor variable (i.e., with dummies)
+expand_formula <- function(formula, variable, data) {
+  # get rid of constants
+  if (length(attr(formula, "rhs")) > 1) {
+    attr(formula, "rhs")[[2]] <- 1
+  }
+  # Get terms that don't have anything to do with variable
+  o_terms <- labels(drop.terms(terms(formula), which_terms(formula, variable)))
+  # Get vector of term labels for all terms that involve variable
+  labs <- make_labels(formula, variable, data)
+  # Use base R's reformulate function to make a new formula using these 
+  # character objects
+  reformulate(c(o_terms, labs))
+}
+
+# TODO: consider more robust support of non-treatment contrasts
+# This adds new columns to the data frame for the levels of factors
+expand_factors <- function(variables, data) {
+  # Loop through the variables
+  for (var in variables) {
+    # Get values of variable
+    vals <- unique(data[[var]] %not% base_level(data[[var]]))
+    # Loop through values
+    for (val in vals) {
+      # Create new column of 0/1 for whether variable equals this value
+      data[[paste0(var, val)]] <- as.numeric(data[[var]] == val)
+    }
+  }
+  return(data)
 }
 
 #### Regex helper ############################################################

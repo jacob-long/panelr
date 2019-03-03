@@ -196,7 +196,8 @@
 #' @import jtools
 #' @rdname wbm
 #' @seealso [wbm_stan()] for a Bayesian estimation option.
-#' @importFrom stats as.formula gaussian terms
+#' @importFrom stats as.formula gaussian terms confint drop.terms reformulate
+#' @importFrom stats model.matrix
 
 wbm <- function(formula, data, id = NULL, wave = NULL,
                 model = "w-b", detrend = FALSE, use.wave = FALSE,
@@ -287,7 +288,14 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
 
   fin_formula <- as.formula(fin_formula)
 
+  # Get the model frame so I can get the expanded factor variable names
+  mm <- suppressWarnings(model.matrix(fin_formula, data = data))
+  # Find the interaction terms (which may be expanded if factors are involved)
   int_indices <- which(attr(terms(fin_formula), "order") >= 2)
+  # Grab those names from the model matrix
+  ints <- colnames(mm)[attr(mm, "assign") %in% int_indices]
+  # Save some memory
+  rm(mm)
   
   if (!is.null(offset)) {
     offset[!is.finite(offset)] <- NA
@@ -345,7 +353,6 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
              pvals = FALSE.")
   }
   
-  ints <- names(lme4::fixef(fit))[int_indices]
   ints <- ints[!(ints %in% e$stab_terms)]
   unbt_ints <- gsub("`", "", ints, fixed = TRUE)
   ints <- ints[!(unbt_ints %in% e$stab_terms)]

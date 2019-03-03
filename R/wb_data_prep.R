@@ -32,28 +32,13 @@ wb_prepare_data <- function(formula, data, id = NULL, wave = NULL,
     # Get the left-hand side
     dv <- as.character(deparse(attr(formula, "lhs")))
     # Pass to helper function
-    
-    # Temp DF to look for factors
-    vdata <- model_frame(as.formula(paste("~", pf$varying_form)), data = data)
-    # Check for factors in the varying part
-    any_factors <- sapply(vdata[pf$varying], is.factor)
-    if (any(any_factors)) {
-      stop_wrap(paste(pf$varying[any_factors], collapse = " and "), 
-                " is a factor variable and therefore cannot be mean-centered.
-                Consider converting to numeric dummy variable(s).")
-    }
-    any_chars <- sapply(vdata[pf$varying], is.character)
-    if (any(any_chars)) {
-      stop_wrap(paste(pf$varying[any_chars], collapse = " and "), 
-                " is a character variable and therefore cannot be mean-centered.
-                Consider converting to numeric dummy variable(s).")
-    }
-    rm(vdata) # save some memory
     pf <- wb_formula_parser(formula, dv, data)
     
     # Need to do detrending before lags, etc.
     if (detrend == TRUE) {
-      data <- detrend(data, pf, dt_order, balance_correction, dt_random)
+      data <- detrend(pf$data, pf, dt_order, balance_correction, dt_random)
+    } else {
+      data <- pf$data
     }
     
     # models that don't use constants
