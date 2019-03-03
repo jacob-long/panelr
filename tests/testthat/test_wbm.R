@@ -77,10 +77,10 @@ test_that("wbm summary works (with contextual model)", {
 })
 
 context("wbm with within model")
-wb <- wbm(wks ~ union + lag(lwage) | blk, data = wages,
-          model = "within")
 
 test_that("wbm with within model works", {
+  expect_warning(wb <- wbm(wks ~ union + lag(lwage) | blk, data = wages,
+                 model = "within"))
   expect_s4_class(wb, "wbm")
 })
 test_that("wbm summary works (with within model)", {
@@ -266,7 +266,7 @@ test_that("wbm_stan works w/ custom random effect", {
   expect_s3_class(model$stan_code, "brmsmodel")
 })
 
-model <- wbm_stan(lwage ~ lag(union) + wks | blk, data = wages,
+model <- wbm_stan(lwage ~ lag(union) + wks, data = wages,
                   model = "within", fit_model = FALSE)
 model2 <- wbm_stan(lwage ~ lag(union) + wks | blk, data = wages,
                   model = "between", fit_model = FALSE)
