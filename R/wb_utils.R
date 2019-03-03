@@ -370,20 +370,24 @@ get_term_labels <- function(x, which = 1, omit.ints = TRUE) {
   return(labs)
 }
 
-interaction_vars <- function(formula, variable) {
-  facs <- attr(terms(formula), "factors")
-  raw_names <- rownames(facs)
-  bare_vars <- all.vars(as.formula(paste("~", paste(raw_names, collapse = "+"))))
-  fac_vars <- raw_names[which(bare_vars == variable)]
-  ints <- sapply(fac_vars, function(x) {
-    names(which(facs[x,] > 0)) %not% x
-  })
-  vars <- list()
-  for (int in ints) {
-    vars[[which(ints == int)]] <- 
-      sapply(fac_vars, function(x) {
-        names(facs[, int] %not% 0) %not% x
-      }, USE.NAMES = FALSE)
+# Retrieve all variables involving interactions
+# interaction_vars <- function(formula, variable) {
+#   facs <- attr(terms(formula), "factors")
+#   raw_names <- rownames(facs)
+#   bare_vars <- all.vars(as.formula(paste("~", paste(raw_names, collapse = "+"))))
+#   fac_vars <- raw_names[which(bare_vars == variable)]
+#   ints <- sapply(fac_vars, function(x) {
+#     names(which(facs[x,] > 0)) %not% x
+#   })
+#   vars <- list()
+#   for (int in ints) {
+#     vars[[which(ints == int)]] <- 
+#       sapply(fac_vars, function(x) {
+#         names(facs[, int] %not% 0) %not% x
+#       }, USE.NAMES = FALSE)
+#   }
+#   vars
+# }
   }
   vars
 }
