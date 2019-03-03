@@ -23,11 +23,8 @@ wb_prepare_data <- function(formula, data, id = NULL, wave = NULL,
     offset <- eval_tidy(enquo(offset), data)
     if (!is.null(offset)) {data[".offset"] <- offset}
     
-    dv <- as.character(formula[[2]])
-    formula <- as.character(formula)[[3]]
     dv <- names(Formula::model.part(formula, data, lhs = 1))
     # Pass to helper function
-    pf <- wb_formula_parser(formula, dv)
     
     # Temp DF to look for factors
     vdata <- model_frame(as.formula(paste("~", pf$varying_form)), data = data)
@@ -45,6 +42,7 @@ wb_prepare_data <- function(formula, data, id = NULL, wave = NULL,
                 Consider converting to numeric dummy variable(s).")
     }
     rm(vdata) # save some memory
+    pf <- wb_formula_parser(formula, dv, data)
     
     # Need to do detrending before lags, etc.
     if (detrend == TRUE) {
@@ -77,9 +75,7 @@ wb_prepare_data <- function(formula, data, id = NULL, wave = NULL,
                      end_form, collapse = ""
     )
     
-    mf_form <- as.formula(mf_form)
-    mf_form <- paste(as.character(deparse(update(mf_form, ~ . - id))),
-                     collapse = "")
+    mf_form <- formula_ticks(mf_form, names(data))
     
     # Add weights to keep it in the DF
     if (!is.null(weights)) {
@@ -92,9 +88,17 @@ wb_prepare_data <- function(formula, data, id = NULL, wave = NULL,
     }
     
     # Pass to special model_frame function that respects tibble groupings
-    data <- model_frame(as.formula(mf_form), data = data)
+    data <- model_frame(update(as.formula(mf_form),
+                               as.formula(paste("~ . -", id))), 
+                        data = data)
     
+    # Now I fix any back-ticked names saved in this pf object
+    pf$meanvars <- un_bt(pf$meanvars)
+    names(pf$meanvars) <- un_bt(names(pf$meanvars))
+    pf$varying <- un_bt(pf$varying)
+    pf$constants <- un_bt(pf$constants)
     
+    # Drop missing cases, collect some metadata 
     data <- complete_cases(data, min.waves = min.waves)
     num_distinct <- length(unique(data[[id]]))
     maxwave <- max(data[[wave]])
@@ -110,6 +114,7 @@ wb_prepare_data <- function(formula, data, id = NULL, wave = NULL,
       offset <- data$.offset
     }
     
+    # Send to helper that will demean, etc.
     e <- wb_model(model, pf, dv, data, detrend)
     
     list(e = e, num_distinct = num_distinct, maxwave = maxwave,

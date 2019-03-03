@@ -1,67 +1,65 @@
 #' @importFrom stats as.formula terms
 #' @import stringr
 
-wb_formula_parser <- function(formula, dv) {
+wb_formula_parser <- function(formula, dv, data) {
+  # See how many parts the formula has 
+  conds <- length(formula)[2]
+  
+  # Save varying variables
+  varying <- sapply(get_term_labels(formula), function(x) {
+    # If non-syntactic names are inside functions, retain backticks
+    if (make.names(x) != x & x %in% data) un_bt(x) else x
+  })
+  # Save time-varying part of the formula
+  varying_form <- formula_ticks(
+    as.character(paste(deparse(get_rhs(formula)), collapse = "")),
+    varying %just% names(data)
+  )
 
-  conds <- sum(attr(gregexpr("\\|", formula)[[1]], "match.length"))
-
-  if (conds == -1L) {conds <- 0}
-
-  if (conds == 0) {
-
+  if (conds == 1) {
+    # There are no constants
     constants <- NULL
     constants_form <- NULL
-
-    varying <- stringr::str_split(formula, "\\+")
-    varying <- stringr::str_split(unlist(varying), "\\*")
-    varying <- stringr::str_split(unlist(varying), "\\:")
-    varying <- unlist(lapply(varying, trimws))
-
-    varying_form <- formula
-
-    allvars <- c(dv, varying)
-
-  } else if (conds > 0) {
-
-    splitted <- stringr::str_split(formula, "\\|")
-
-    varying <- stringr::str_split(splitted[[1]][1], "\\+")
-    varying <- stringr::str_split(unlist(varying), "\\*")
-    varying <- stringr::str_split(unlist(varying), "\\:")
-    varying <- unlist(lapply(varying, trimws))
-
-    varying_form <- splitted[[1]][1]
-
-    constants <- stringr::str_split(splitted[[1]][2], "\\+")
-    constants <- stringr::str_split(unlist(constants), "\\*")
-    constants <- stringr::str_split(unlist(constants), "\\:")
-    constants <- unlist(lapply(constants, trimws))
-
-    ## Deal with number given as variable
-    con_nums <- suppressWarnings(as.numeric(constants))
-    constants <- constants[is.na(con_nums)]
-
-    constants_form <- splitted[[1]][2]
-
-    allvars <- c(dv, varying, constants)
-
+    
+  } else if (conds > 1) {
+    # Save constants
+    constants <- sapply(get_term_labels(formula, which = 2), function(x) {
+      # If non-syntactic names are inside functions, retain backticks
+      if (make.names(x) != x & x %in% data) un_bt(x) else x
+    })
+    # Save constants part of the formula
+    constants_form <- formula_ticks(
+      as.character(paste(deparse(get_rhs(formula, which = 2)), collapse = "")),
+      constants %just% names(data)
+    )
   }
+  
+  # Retain list of all variables to go into final model
+  allvars <- c(dv, varying, constants)
 
-  if (conds >= 2) {
-
-    if (length(splitted[[1]]) == 3) {
-      fin_splitted <- splitted[[1]][3]
-    } else {
-      fin_splitted <-
-        paste0(splitted[[1]][3:(conds + 1)], collapse = "|")
+  if (conds >= 3) { # Deal with interactions et al. part of formula
+    # Grab all the variables mentioned in this part of the formula
+    int_vars <- sapply(get_term_labels(formula, which = 3), function(x) {
+      # If non-syntactic names are inside functions, retain backticks
+      if (make.names(x) != x & x %in% data) un_bt(x) else x
+    })
+    
+    if (any(stringr::str_detect(int_vars, "\\|"))) {
+      barred <- int_vars[stringr::str_detect(int_vars, "\\|")]
+      int_vars <- int_vars[!stringr::str_detect(int_vars, "\\|")]
+      split <- stringr::str_trim(unlist(stringr::str_split(barred, "\\|")))
+      int_vars <- c(int_vars, split)
     }
-
-    cross_ints_form <- fin_splitted
-
+    
+    # Add them onto the allvars vector as long as they aren't redundant
+    allvars <- unique(c(allvars, int_vars))
+    # Save that part of the formula
+    cross_ints_form <- formula_ticks(
+      as.character(paste(deparse(get_rhs(formula, which = 3)), collapse = "")),
+      allvars %just% names(data)
+    )
   } else {
-
     cross_ints_form <- NULL
-
   }
 
   # Create vector of varnames for which we will get the mean
@@ -119,6 +117,10 @@ wb_formula_parser <- function(formula, dv) {
   non_lag_vars <- meanvars
   names(non_lag_vars) <- varying
   # Set all the mean var names to mean(var)
+  meanvars <- sapply(meanvars, function(x) {
+    # If non-syntactic variable name, need to escape it inside the mean function
+    if (make.names(x) != x & x %in% names(data)) bt(x) else x 
+  })
   meanvars <- paste0("imean(", meanvars, ")")
   # Use this for matching varying vars to their parents
   names(meanvars) <- varying
@@ -127,7 +129,7 @@ wb_formula_parser <- function(formula, dv) {
               varying_form = varying_form, constants = constants,
               constants_form = constants_form,
               cross_ints_form = cross_ints_form, meanvars = meanvars,
-              non_lag_vars = non_lag_vars)
+              non_lag_vars = non_lag_vars, data = data)
   return(out)
 
 }
@@ -300,11 +302,11 @@ formula_ticks <- function(formula, vars) {
 
   for (var in vars) {
 
-    regex_pattern <- paste0("(?<=(~|\\s|\\*|\\+))", escapeRegex(var),
-                           "(?=($|~|\\s|\\*|\\+))")
+    regex_pattern <- paste0("(?<=(~|\\s|\\*|\\+|\\:))", escapeRegex(var),
+                           "(?=($|~|\\s|\\*|\\+|\\:))")
     backtick_name <- paste("`", var, "`", sep = "")
-    formula <- gsub(regex_pattern, backtick_name, formula, perl = T)
-
+    backtick_name <- gsub("(?<!^)`(?!$)", "", backtick_name, perl = TRUE)
+    formula <- gsub(regex_pattern, backtick_name, formula, perl = TRUE)
   }
 
   formula <- paste0(formula, collapse = "")
@@ -341,6 +343,60 @@ bt <- function(x) {
   btv <- gsub("``", "`", btv, fixed = TRUE)
   return(btv)
   
+}
+
+un_bt <- function(x) {
+  gsub("`", "", x)
+}
+
+get_rhs <- function(x, which = 1, to.formula = FALSE) {
+  if (to.formula == TRUE) {
+    as.formula(paste("~", deparse(attr(x, "rhs")[[which]])))
+  } else {
+    attr(x, "rhs")[[which]]
+  }
+}
+
+get_term_labels <- function(x, which = 1, omit.ints = TRUE) {
+  labs <- attr(terms(get_rhs(x, which = which, to.formula = TRUE)),
+               "term.labels")
+  if (omit.ints == TRUE) {
+    labs <- labs[
+      which(attr(
+        terms(get_rhs(x, which = which, to.formula = TRUE)),
+      "order") == 1)
+    ]
+  }
+  return(labs)
+}
+
+interaction_vars <- function(formula, variable) {
+  facs <- attr(terms(formula), "factors")
+  raw_names <- rownames(facs)
+  bare_vars <- all.vars(as.formula(paste("~", paste(raw_names, collapse = "+"))))
+  fac_vars <- raw_names[which(bare_vars == variable)]
+  ints <- sapply(fac_vars, function(x) {
+    names(which(facs[x,] > 0)) %not% x
+  })
+  vars <- list()
+  for (int in ints) {
+    vars[[which(ints == int)]] <- 
+      sapply(fac_vars, function(x) {
+        names(facs[, int] %not% 0) %not% x
+      }, USE.NAMES = FALSE)
+  }
+  vars
+}
+which_terms <- function(formula, variable) {
+  facs <- attr(terms(formula), "factors")
+  raw_names <- rownames(facs)
+  bare_vars <- all.vars(
+    as.formula(paste("~", paste(raw_names, collapse = "+"))), unique = FALSE)
+  if (length(which(bare_vars == variable)) > 1) {
+    which(colSums(facs[which(bare_vars == variable),]) > 0)
+  } else {
+    which(facs[which(bare_vars == variable),] > 0)
+  }
 }
 
 #### Regex helper ############################################################
