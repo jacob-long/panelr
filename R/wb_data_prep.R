@@ -47,7 +47,8 @@ wb_prepare_data <- function(formula, data, id = NULL, wave = NULL,
       pf$allvars <- pf$allvars[pf$allvars %nin% pf$constants]
       pf$constants_form <- NULL
       if (!is.null(pf$constants)) {
-        warn_wrap("Constants are ignored with ", model, "model specifications.")
+        warn_wrap("Constants are ignored with ", model, " model 
+                  specifications.")
       }
     }
     
