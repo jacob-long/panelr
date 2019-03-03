@@ -13,12 +13,11 @@ Depends: R (>= 3.4.0),
       lme4
 Imports: dplyr,
       tibble,
+      purrr,
       lmerTest,
       magrittr,
       methods,
       stringr,
-      tidyr,
-      purrr,
       rlang,
       ggplot2
       jtools (>= 2.0.0), 
@@ -27,6 +26,7 @@ Suggests: brms,
     skimr,
     testthat,
     covr
+    tidyr,
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

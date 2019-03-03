@@ -60,6 +60,15 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
   the_call[[1]] <- substitute(wbm)
   the_env <- parent.frame()
   
+  if (any(c(detrend, balance_correction))) {
+    if (!requireNamespace("tidyr") | !requireNamespace("purrr")) {
+      stop_wrap("To use the 'detrend' or 'balance_correction' arguments, you 
+                must have the 'tidyr' and 'purrr' packages installed.")
+    }
+  }
+  
+  formula <- Formula::Formula(formula)
+  
   # Send to helper function for data prep
   prepped <- wb_prepare_data(formula = formula, data = data, id = id,
                              wave = wave, model = model, detrend = detrend,
