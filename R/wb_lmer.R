@@ -273,43 +273,18 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
   # Conditionally choose lme4 function based on family argument
   if (as.character(substitute(family))[1] == "gaussian") {
 
-    # Get extra arguments
-    dots <- list(...)
-    if ("control" %nin% names(dots)) {
-      control <- lme4::lmerControl(optimizer = "nloptwrap_alt")
-      fit <- lme4::lmer(fin_formula, data = data, weights = weights,
-                        offset = offset, control = control, ...)
-    } else {
       fit <- lme4::lmer(fin_formula, data = data, weights = weights,
                         offset = offset, ...)
-    }
 
   } else if (as.character(substitute(family))[1] == "negbinomial") {
 
-    # Get extra arguments
-    dots <- list(...)
-    if ("control" %nin% names(dots)) {
-      control <- lme4::glmerControl(optimizer = "nloptwrap_alt")
-      fit <- lme4::glmer.nb(fin_formula, data = data, weights = weights,
-                            offset = offset, nb.control = control, ...)
-    } else {
       fit <- lme4::glmer.nb(fin_formula, data = data, weights = weights,
                             offset = offset, ...)
-    }
 
   } else {
 
-    # Get extra arguments
-    dots <- list(...)
-    if ("control" %nin% names(dots)) {
-      control <- lme4::glmerControl(optimizer = "nloptwrap_alt")
-      fit <- lme4::glmer(fin_formula, data = data, family = family,
-                         weights = weights, offset = offset, control = control,
-                         ...)
-    } else {
       fit <- lme4::glmer(fin_formula, data = data, family = family,
                           weights = weights, offset = offset, ...)
-    }
 
   }
 
