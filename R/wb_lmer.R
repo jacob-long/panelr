@@ -249,44 +249,13 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
     
   }
 
-  if (use.wave == TRUE) {
-    e$fin_formula <- paste(e$fin_formula, "+", wave)
-  }
-
   if (wave.factor == TRUE) {
     data[wave] <- as.factor(data[wave])
   }
 
-  if (pf$conds > 2) {
-    res <- lme4::findbars(as.formula(paste("~", pf$cross_ints_form)))
-    refs <- lme4::mkReTrms(res, data)$cnms
-
-    if (any(names(refs) == id)) {
-
-      inds <- which(names(refs) == id)
-
-      if (any(unlist(refs[inds]) == "(Intercept)")) {
-        no_add <- TRUE
-      } else {
-        no_add <- FALSE
-      }
-
-    } else {
-      no_add <- FALSE
-    }
-
-  } else {
-    no_add <- FALSE
-  }
-
-  if (no_add == FALSE) {
-    e$fin_formula <- paste0(e$fin_formula, " + (1 | ", id, ")")
-  }
-
-  fin_formula <- formula_ticks(e$fin_formula, c(pf$varying, pf$meanvars,
-                                               pf$constants))
-
-  fin_formula <- as.formula(fin_formula)
+  # Use helper function to generate formula to pass to lme4
+  fin_formula <- 
+    prepare_lme4_formula(e$fin_formula, pf, data, use.wave, wave, id)  
 
   # Get the model frame so I can get the expanded factor variable names
   mm <- suppressWarnings(model.matrix(fin_formula, data = data))
@@ -301,6 +270,7 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
     offset[!is.finite(offset)] <- NA
   }
 
+  # Conditionally choose lme4 function based on family argument
   if (as.character(substitute(family))[1] == "gaussian") {
 
     # Get extra arguments

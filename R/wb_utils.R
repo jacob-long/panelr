@@ -147,6 +147,43 @@ wb_formula_parser <- function(formula, dv, data) {
 
 }
 
+prepare_lme4_formula <- function(formula, pf, data, use.wave, wave, id) {
+  # Append fixed wave to formula if requested
+  if (use.wave == TRUE) {
+    formula <- paste(formula, "+", wave)
+  }
+  # By default, assume no random effects have been added
+  add <- FALSE
+  
+  # See if the formula has 3 parts
+  if (pf$conds > 2) {
+    # See if there are any random effects specified
+    res <- lme4::findbars(as.formula(paste("~", pf$cross_ints_form)))
+    # If there are, let's deal with them
+    if (!is.null(res)) {
+      # Get info on those random effects
+      refs <- lme4::mkReTrms(res, data)$cnms
+      # Check if any of those random effects include the id variable
+      if (any(names(refs) == id)) {
+        # Check if those terms include an intercept
+        inds <- which(names(refs) == id)
+        if (any(unlist(refs[inds]) == "(Intercept)")) {
+          # If the user specified a random intercept for id, I won't add it 
+          # myself
+          add <- TRUE
+        }
+      }
+    }
+  }
+  # Add random intercept for id if it wasn't user-specified
+  if (add == FALSE) {
+    formula <- paste0(formula, " + (1 | ", id, ")")
+  }
+  # Lastly, I need to escape non-syntactic variables in the model formula
+  fin_formula <- formula_ticks(formula, c(pf$varying, pf$meanvars, pf$constants))
+  as.formula(fin_formula)
+}
+
 wb_model <- function(model, pf, dv, data, detrend) {
 
   # Create empty stab terms vector so I can pass it along even for other
