@@ -167,7 +167,7 @@ formula.wbm <- function(x, raw = FALSE, ...) {
   if (raw == TRUE) {
     return(x@call_info$merMod_call$formula)
   } else {
-    return(getCall(x)$formula)
+    return(Formula::Formula(as.formula(getCall(x)$formula)))
   }
 }
 
