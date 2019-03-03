@@ -209,6 +209,7 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
   the_call[[1]] <- substitute(wbm)
   the_env <- parent.frame()
   
+  formula <- Formula::Formula(formula)
   # Send to helper function for data prep
   prepped <- wb_prepare_data(formula = formula, data = data, id = id,
                              wave = wave, model = model, detrend = detrend,

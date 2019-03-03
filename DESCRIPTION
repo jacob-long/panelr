@@ -23,6 +23,7 @@ Imports: dplyr,
       rlang,
       jtools, 
       ggplot2
+      Formula
 Suggests: brms,
     skimr,
     testthat,

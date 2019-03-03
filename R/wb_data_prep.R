@@ -25,6 +25,7 @@ wb_prepare_data <- function(formula, data, id = NULL, wave = NULL,
     
     dv <- as.character(formula[[2]])
     formula <- as.character(formula)[[3]]
+    dv <- names(Formula::model.part(formula, data, lhs = 1))
     # Pass to helper function
     pf <- wb_formula_parser(formula, dv)
     
