@@ -15,15 +15,22 @@ wb_prepare_data <- function(formula, data, id = NULL, wave = NULL,
       stop("data argument must be a data frame.")
     }
     
+    # Coerce to panel_data
     data <- panel_data(data, id = !! sym(id), wave = !! sym(wave))
+    # Save this input data separately
     orig_data <- data
     
+    # Get the weights argument like lm() does (can be name or object)
     weights <- eval_tidy(enquo(weights), data)
+    # Append to data with special name
     if (!is.null(weights)) {data[".weights"] <- weights}
+    # Get the offset argument like lm() does (can be name or object)
     offset <- eval_tidy(enquo(offset), data)
+    # Append to data with special name
     if (!is.null(offset)) {data[".offset"] <- offset}
     
-    dv <- names(Formula::model.part(formula, data, lhs = 1))
+    # Get the left-hand side
+    dv <- as.character(deparse(attr(formula, "lhs")))
     # Pass to helper function
     
     # Temp DF to look for factors
@@ -50,12 +57,17 @@ wb_prepare_data <- function(formula, data, id = NULL, wave = NULL,
     }
     
     # models that don't use constants
-    within_only <- c("within","fixed")
+    within_only <- c("within", "fixed")
     if (model %in% within_only) {
       pf$allvars <- pf$allvars[pf$allvars %nin% pf$constants]
       pf$constants_form <- NULL
+      if (!is.null(pf$constants)) {
+        warn_wrap("Constants are ignored with ", model, "model specifications.")
+      }
     }
     
+    # If there are random effects specified, substitute a plus sign to make
+    # model_frame function work right
     if (!is.null(pf$cross_ints_form)) {
       end_form <- as.character(
         deparse(lme4::subbars(
@@ -74,7 +86,7 @@ wb_prepare_data <- function(formula, data, id = NULL, wave = NULL,
                      paste(pf$meanvars, collapse = " + "),
                      end_form, collapse = ""
     )
-    
+    # Escape non-syntactic variables that are in the data
     mf_form <- formula_ticks(mf_form, names(data))
     
     # Add weights to keep it in the DF
@@ -104,12 +116,12 @@ wb_prepare_data <- function(formula, data, id = NULL, wave = NULL,
     maxwave <- max(data[[wave]])
     minwave <- min(data[[wave]])
     
-    # Modify weights to reflect missing data drops
+    # Modify weights object to reflect missing data drops
     if (!is.null(weights)) {
       weights <- data$.weights
     }
     
-    # Modify offset to reflect missing data drops
+    # Modify offset object to reflect missing data drops
     if (!is.null(offset)) {
       offset <- data$.offset
     }
