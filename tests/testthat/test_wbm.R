@@ -114,8 +114,8 @@ test_that("wbm summary works (with between model)", {
 
 # GLMs --------------------------------------------------------------------
 context("wbm as poisson glm")
-wb <- wbm(wks ~ union + lag(lwage) | fem, data = wages,
-          family = poisson)
+wb <- suppressWarnings(wbm(wks ~ union + lag(lwage) | fem, data = wages,
+          family = poisson))
 
 test_that("wbm with poisson family works", {
   expect_s4_class(wb, "wbm")
@@ -225,8 +225,9 @@ test_that("wbm summary works", {
 # wbm with detrending ---------------------------------------------------
 context("wbm with detrending")
 
-wb1 <- wbm(wks ~ union + lag(lwage) | blk | (union | id),
-          data = wages, pvals = FALSE, detrend = TRUE)
+# May not converge perfectly
+wb1 <- suppressWarnings(wbm(wks ~ union + lag(lwage) | blk | (union | id),
+           data = wages, pvals = FALSE, detrend = TRUE))
 wb2 <- wbm(wks ~ union + lag(lwage) | blk | (union | id),
            data = wages, pvals = FALSE, detrend = TRUE,
            balance_correction = TRUE)
