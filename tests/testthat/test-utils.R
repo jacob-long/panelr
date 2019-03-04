@@ -87,3 +87,43 @@ test_that("extractors work", {
   expect_silent(isLMM(mod))
   expect_silent(isNLMM(mod))
 })
+
+context("panel_data")
+
+test_that("summary.panel_data works", {
+  expect_output(print(summary(w, lwage, blk)))
+  expect_output(print(summary(w[1:14,], lwage, blk, by.id = TRUE, by.wave = FALSE)))
+})
+
+test_that("complete_data works", {
+  expect_is(complete_data(w, lwage, blk), "panel_data")
+  expect_is(complete_data(w, formula = ~ lwage + blk), "panel_data")
+  expect_is(complete_data(w, vars = c("lwage", "blk")), "panel_data")
+})
+
+if (requireNamespace("plm")) {
+  test_that("coercion to pdata.frame works", {
+    expect_is(as_pdata.frame(w), "pdata.frame")
+  })
+  data(Males, package = "plm")
+  males <- plm::pdata.frame(Males)
+  test_that("coercion from pdata.frame works", {
+    expect_is(as_panel_data(males), "panel_data")
+  })
+}
+
+context("tidiers")
+
+if (requireNamespace("broom")) {
+  wb <- wbm(wks ~ union + lwage | blk, data = w)
+  test_that("tidy works", {
+    expect_is(tidy.wbm(wb), "tbl_df")
+    expect_is(tidy.wbm(wb, conf.int = TRUE), "tbl_df")
+  })
+  test_that("glance works", {
+    expect_is(glance.wbm(wb), "tbl_df")
+  })
+}
+
+
+

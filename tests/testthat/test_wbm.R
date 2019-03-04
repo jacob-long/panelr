@@ -248,6 +248,26 @@ test_that("wbm summary works (detrend only)", {
 })
 
 
+# factors -----------------------------------------------------------------
+context("Time-varying factors")
+if (requireNamespace("plm")) {
+  data(Males, package = "plm")
+  males <- panel_data(Males, id = nr, wave = year)
+  test_that("Models with time-varying factors work", {
+    expect_s4_class(wbf <- wbm(wage ~ industry + exper | ethn, data = males),
+                    "wbm")
+    expect_output(print(summary(wbf)))
+    expect_s4_class(wbf <- wbm(wage ~ industry * exper | ethn, data = males),
+                    "wbm")
+    expect_output(print(summary(wbf)))
+    expect_s4_class(wbf <- wbm(wage ~ industry + exper | ethn | industry * ethn,
+                               data = males),
+                    "wbm")
+    expect_output(print(summary(wbf)))
+  })
+}
+
+
 # wbm_stan ----------------------------------------------------------------
 context("wbm_stan")
 model <- wbm_stan(lwage ~ lag(union) + wks | blk + fem | blk * lag(union),
@@ -267,7 +287,7 @@ test_that("wbm_stan works w/ custom random effect", {
 })
 
 model <- wbm_stan(lwage ~ lag(union) + wks, data = wages,
-                  model = "within", fit_model = FALSE)
+                  model = "within", fit_model = FALSE, model.cor = TRUE)
 model2 <- wbm_stan(lwage ~ lag(union) + wks | blk, data = wages,
                   model = "between", fit_model = FALSE)
 model3 <- wbm_stan(lwage ~ lag(union) + wks | blk, data = wages,
