@@ -351,11 +351,11 @@ summary.panel_data <- function(object, ..., by.wave = TRUE, by.id = FALSE) {
   # Avoiding message from adding wave/id vars
   suppressMessages({object %>% select(UQS(vars))}) %>%
     # Behavior conditional on by.id arg
-    when(by.id == FALSE ~ unpanel(.) %>% select(., -UQ(id)), 
-         by.id == TRUE ~ .) %>% 
+    when(by.id == FALSE ~ unpanel(.) %>% ungroup(.) %>% select(., - !! sym(id)), 
+         by.id == TRUE ~ unpanel(.) %>% group_by(., !! sym(id))) %>% 
     # Behavior conditional on by.wave arg
-    when(by.wave == TRUE ~ group_by(., UQ(object %>% get_wave %>% parse_expr) ),
-         by.wave == FALSE ~ select(., -UQ(wave))) %>%
+    when(by.wave == TRUE ~ group_by(., !! sym(wave)),
+         by.wave == FALSE ~ select(., - !! sym(wave))) %>%
     # Call skim
     (skimr::skim)
   
