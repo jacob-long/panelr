@@ -1,3 +1,9 @@
+# panelr 0.5.1
+
+Bugfixes:
+* You now can add the `wave` variable to `wbm()` in the formula without
+running into cryptic errors.
+
 # panelr 0.5.0
 
 Starting to polish things up for CRAN.

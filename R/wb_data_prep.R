@@ -87,7 +87,7 @@ wb_prepare_data <- function(formula, data, id = NULL, wave = NULL,
     
     # Pass to special model_frame function that respects tibble groupings
     data <- model_frame(update(as.formula(mf_form),
-                               as.formula(paste("~ . -", id))), 
+                               as.formula(paste("~ . -", id, "-", wave))), 
                         data = data)
     
     # Now I fix any back-ticked names saved in this pf object
