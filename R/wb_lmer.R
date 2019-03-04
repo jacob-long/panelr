@@ -534,7 +534,7 @@ print.summary.wbm <- function(x, ...) {
     }
     print(md_table(as.data.frame(x$within_table), digits = x$digits,
                    sig.digits = FALSE, 
-                   format = getOption("panelr.table.format", "multiline")))
+                   format = getOption("panelr.table.format", markdown)))
     cat("\n")
 
   }
@@ -543,14 +543,14 @@ print.summary.wbm <- function(x, ...) {
 
     cat(bold("BETWEEN EFFECTS:\n"))
     print(md_table(x$between_table, digits = x$digits, sig.digits = FALSE,
-                   format = getOption("panelr.table.format", "multiline")))
+                   format = getOption("panelr.table.format", markdown)))
     cat("\n")
 
   } else if (x$est_name == "contextual" & !is.null(x$between_table)) {
     
     cat(bold("CONTEXTUAL EFFECTS:\n"))
     print(md_table(x$between_table, digits = x$digits, sig.digits = FALSE,
-                   format = getOption("panelr.table.format", "multiline")))
+                   format = getOption("panelr.table.format", markdown)))
     cat("\n")
 
   }
@@ -559,7 +559,7 @@ print.summary.wbm <- function(x, ...) {
 
     cat(bold("BETWEEN-ENTITY TIME TRENDS:\n"))
     print(md_table(x$time_trends, digits = x$digits, sig.digits = FALSE,
-                   format = getOption("panelr.table.format", "multiline")))
+                   format = getOption("panelr.table.format", markdown)))
     cat("\n")
   }
 
@@ -567,7 +567,7 @@ print.summary.wbm <- function(x, ...) {
 
     cat(bold("INTERACTIONS:\n"))
     print(md_table(x$ints_table, digits = x$digits, sig.digits = FALSE,
-                   format = getOption("panelr.table.format", "multiline")))
+                   format = getOption("panelr.table.format", markdown)))
     cat("\n")
 
   }
@@ -581,7 +581,7 @@ print.summary.wbm <- function(x, ...) {
   cat(bold("RANDOM EFFECTS:\n"))
   print(md_table(x$ranef_table, digits = x$digits, row.names = FALSE,
                  align = "c",
-                 format = getOption("panelr.table.format", "multiline")))
+                 format = getOption("panelr.table.format", markdown)))
 
 }
 
