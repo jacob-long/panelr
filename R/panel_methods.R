@@ -38,7 +38,7 @@ as_panel_data.pdata.frame <- function(data, ...) {
   if (wave %nin% names(data)) {
     x[wave] <- indices[wave]
   }
-  panel_data(x, id = !! id, wave = !! wave, ...)
+  panel_data(data, id = !! id, wave = !! wave, ...)
 }
 
 #' @rdname panel_data
