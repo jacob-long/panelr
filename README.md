@@ -124,34 +124,39 @@ summary(model)
     #> Model type: Linear mixed effects
     #> Specification: within-between
     #> 
-    #> MODEL FIT: 
+    #> MODEL FIT:
     #> AIC = 1426.48, BIC = 1494.47
-    #>  
-    #> WITHIN EFFECTS:
-    #>            Est. S.E. t val. p      
-    #> lag(union) 0.05 0.03 2.01   0.04 * 
-    #> wks        0    0    -2.93  0    **
+    #> Pseudo-R² (fixed effects) = 0.05
+    #> Pseudo-R² (total) = 0.75
+    #> Entity ICC = 0.73
     #> 
-    #> Within-entity ICC = 0.73 
+    #> WITHIN EFFECTS:
+    #> |                |  Est. | S.E. | t val. |    d.f. |    p |
+    #> |:---------------|------:|-----:|-------:|--------:|-----:|
+    #> | lag(union)     |  0.05 | 0.03 |   2.01 | 2966.55 | 0.04 |
+    #> | wks            | -0.00 | 0.00 |  -2.93 |  116.43 | 0.00 |
     #> 
     #> BETWEEN EFFECTS:
-    #>              Est.  S.E. t val. p       
-    #> (Intercept)  6.25  0.24 25.93  0    ***
-    #> imean(union) 0.03  0.04 0.85   0.4     
-    #> imean(wks)   0.01  0.01 2.06   0.04 *  
-    #> blk          -0.35 0.06 -5.61  0    ***
+    #> |                  |  Est. | S.E. | t val. |   d.f. |    p |
+    #> |:-----------------|------:|-----:|-------:|-------:|-----:|
+    #> | (Intercept)      |  6.25 | 0.24 |  25.93 | 591.43 | 0.00 |
+    #> | imean(union)     |  0.03 | 0.04 |   0.85 | 589.91 | 0.40 |
+    #> | imean(wks)       |  0.01 | 0.01 |   2.06 | 591.31 | 0.04 |
+    #> | blk              | -0.35 | 0.06 |  -5.61 | 587.32 | 0.00 |
     #> 
     #> INTERACTIONS:
-    #>                Est.  S.E. t val. p    
-    #> lag(union):blk -0.12 0.12 -0.98  0.33 
+    #> |                    |  Est. | S.E. | t val. |    d.f. |    p |
+    #> |:-------------------|------:|-----:|-------:|--------:|-----:|
+    #> | lag(union):blk     | -0.12 | 0.12 |  -0.98 | 2934.78 | 0.33 |
     #> 
-    #> p values calculated using Kenward-Roger df = 592.31 
+    #> p values calculated using Satterthwaite d.f.
     #>  
     #> RANDOM EFFECTS:
-    #>  Group    Parameter   Std.Dev.
-    #>  id       (Intercept) 0.38    
-    #>  id       wks         0.01    
-    #>  Residual             0.23
+    #> |  Group   |  Parameter  | Std. Dev. |
+    #> |:--------:|:-----------:|:---------:|
+    #> |    id    | (Intercept) |  0.3786   |
+    #> |    id    |     wks     |  0.0134   |
+    #> | Residual |             |  0.2276   |
 
 Note that `imean` is an internal function that calculates the
 individual-level mean, which represents the between-subjects effects of
