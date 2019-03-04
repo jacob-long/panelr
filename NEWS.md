@@ -1,3 +1,29 @@
+# panelr 0.5.0
+
+Starting to polish things up for CRAN.
+
+Key changes:
+
+* `panel_data` frames now always place the `id` and `wave` columns first (in 
+that order).
+* `wbm()` can now handle time-varying factors appropriately. Do note that it
+only uses treatment contrasts, however. (#8)
+* There is a new function, `line_plot()`, to help you explore trends in data.
+It's a little rough around the edges for now.
+* Summaries of `wbm` objects are now a bit more streamlined and nice-looking.
+* There are now `tidy()` and `glance()` methods (from the `broom` package) for
+`wbm` objects. (#4)
+* `as_panel_data()` is an alias for `panel_data()` when supplying a data frame
+and an S3 method otherwise. It can be used to convert `pdata.frame` objects
+from the `plm` package to `panel_data`.
+* Formulas provided to `wbm()` are now converted to `Formula` objects to make
+working with their multiple parts easier (see the `Formula` package for more 
+info).
+* There is now a `summary` method for `panel_data` frames, which works best
+if you have `skimr` installed. You can use `dplyr::select()` style syntax
+to select which variables you want to describe and choose to get descriptives
+by wave and/or entity.
+
 # panelr 0.4.1
 
 This version has switched the default degrees of freedom calculation for
