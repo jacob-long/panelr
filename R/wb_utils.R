@@ -27,7 +27,7 @@ wb_formula_parser <- function(formula, dv, data) {
   # Save varying variables
   varying <- sapply(get_term_labels(formula), function(x) {
     # If non-syntactic names are inside functions, retain backticks
-    if (make.names(x) != x & x %in% data) un_bt(x) else x
+    if (make.names(x) != x & x %in% names(data)) un_bt(x) else x
   })
   # Save time-varying part of the formula
   varying_form <- formula_ticks(
@@ -44,7 +44,7 @@ wb_formula_parser <- function(formula, dv, data) {
     # Save constants
     constants <- sapply(get_term_labels(formula, which = 2), function(x) {
       # If non-syntactic names are inside functions, retain backticks
-      if (make.names(x) != x & x %in% data) un_bt(x) else x
+      if (make.names(x) != x & x %in% names(data)) un_bt(x) else x
     })
     # Save constants part of the formula
     constants_form <- formula_ticks(
@@ -60,7 +60,7 @@ wb_formula_parser <- function(formula, dv, data) {
     # Grab all the variables mentioned in this part of the formula
     int_vars <- sapply(get_term_labels(formula, which = 3), function(x) {
       # If non-syntactic names are inside functions, retain backticks
-      if (make.names(x) != x & x %in% data) un_bt(x) else x
+      if (make.names(x) != x & x %in% names(data)) un_bt(x) else x
     })
     
     if (any(stringr::str_detect(int_vars, "\\|"))) {
