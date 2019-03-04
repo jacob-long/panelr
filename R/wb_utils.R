@@ -14,7 +14,13 @@ wb_formula_parser <- function(formula, dv, data) {
     data <- expand_factors(vars, data)
     # Now create a formula that does the same
     for (var in vars) {
-      attr(formula, "rhs")[[1]] <- expand_formula(formula, var, data)[[2]]
+      if (conds < 3) {
+        attr(formula, "rhs")[[1]] <- expand_formula(formula, var, data)[[2]]
+      } else {
+        pieces <- expand_formula(formula, var, data)
+        attr(formula, "rhs")[[1]] <- pieces[[1]][[2]]
+        attr(formula, "rhs")[[3]] <- pieces[[2]][[2]]
+      }
     }
   }
   
@@ -496,13 +502,31 @@ expand_formula <- function(formula, variable, data) {
   if (length(attr(formula, "rhs")) > 1) {
     attr(formula, "rhs")[[2]] <- 1
   }
-  # Get terms that don't have anything to do with variable
-  o_terms <- labels(drop.terms(terms(formula), which_terms(formula, variable)))
-  # Get vector of term labels for all terms that involve variable
-  labs <- make_labels(formula, variable, data)
-  # Use base R's reformulate function to make a new formula using these 
-  # character objects
-  reformulate(c(o_terms, labs))
+  if (length(attr(formula, "rhs")) < 3) {
+    # Get terms that don't have anything to do with variable
+    o_terms <- labels(drop.terms(terms(formula),
+                                 which_terms(formula, variable)))
+    # Get vector of term labels for all terms that involve variable
+    labs <- make_labels(formula, variable, data)
+    # Use base R's reformulate function to make a new formula using these 
+    # character objects
+    return(reformulate(c(o_terms, labs)))
+  } else {
+    out <- list()
+    for (i in c(1, 3)) {
+      tmp_form <- get_rhs(formula, which = i, to.formula = TRUE)
+      # Get terms that don't have anything to do with variable
+      o_terms <- labels(
+        drop.terms(terms(tmp_form), which_terms(tmp_form, variable))
+      )
+      # Get vector of term labels for all terms that involve variable
+      labs <- make_labels(tmp_form, variable, data)
+      # Use base R's reformulate function to make a new formula using these 
+      # character objects
+      out <- c(out, reformulate(c(o_terms, labs)))
+    }
+    return(out)
+  }
 }
 
 # TODO: consider more robust support of non-treatment contrasts
