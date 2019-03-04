@@ -3,6 +3,10 @@
 Bugfixes:
 * You now can add the `wave` variable to `wbm()` in the formula without
 running into cryptic errors.
+* Fixed a problem in which transformed variables (like `lag(x)`) could not be
+included as a user-specified random effect. Pre-0.5.0, these could be included
+if they were surrounded by backticks, but now that hack is unnecessary and 
+does not work.
 
 # panelr 0.5.0
 

@@ -161,10 +161,13 @@ prepare_lme4_formula <- function(formula, pf, data, use.wave, wave, id) {
   # By default, assume no random effects have been added
   add <- FALSE
   
+  # I need to escape non-syntactic variables in the model formula
+  formula <- formula_ticks(formula, c(pf$varying, pf$meanvars, pf$constants))
+  
   # See if the formula has 3 parts
   if (pf$conds > 2) {
     # See if there are any random effects specified
-    res <- lme4::findbars(as.formula(paste("~", pf$cross_ints_form)))
+    res <- lme4::findbars(as.formula(formula))
     # If there are, let's deal with them
     if (!is.null(res)) {
       # Get info on those random effects
@@ -185,7 +188,7 @@ prepare_lme4_formula <- function(formula, pf, data, use.wave, wave, id) {
   if (add == FALSE) {
     formula <- paste0(formula, " + (1 | ", id, ")")
   }
-  # Lastly, I need to escape non-syntactic variables in the model formula
+  # Lastly, I need to escape non-syntactic variables in the model formula again
   fin_formula <- formula_ticks(formula, c(pf$varying, pf$meanvars, pf$constants))
   as.formula(fin_formula)
 }
@@ -357,9 +360,14 @@ detrend <- function(data, pf, dt_order, balance_correction, dt_random) {
 formula_ticks <- function(formula, vars) {
 
   for (var in vars) {
-
-    regex_pattern <- paste0("(?<=(~|\\s|\\*|\\+|\\:))", escapeRegex(var),
-                           "(?=($|~|\\s|\\*|\\+|\\:))")
+    # Trying to isolate the variables from synthetic terms in the formula.
+    # Can't have variable width lookbehinds so I say up to 3 open parentheses
+    # that are preceded by whitespace (as opposed to the I function or 
+    # something).
+    regex_pattern <- paste0(
+      "(?<=(~|\\s|\\*|\\+|\\:)|\\s\\(|\\s\\(\\(|\\s\\(\\(\\(\\()",
+      escapeRegex(var),
+      "(?=(~|\\s|\\*|\\+|\\:)|\\))")
     backtick_name <- paste("`", var, "`", sep = "")
     backtick_name <- gsub("(?<!^)`(?!$)", "", backtick_name, perl = TRUE)
     formula <- gsub(regex_pattern, backtick_name, formula, perl = TRUE)
