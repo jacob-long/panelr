@@ -7,6 +7,8 @@ running into cryptic errors.
 included as a user-specified random effect. Pre-0.5.0, these could be included
 if they were surrounded by backticks, but now that hack is unnecessary and 
 does not work.
+* `make_wb_data()` is now updated to work with other internal updates 
+introduced in 0.5.0.
 
 # panelr 0.5.0
 

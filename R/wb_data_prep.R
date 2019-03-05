@@ -136,13 +136,13 @@ make_wb_data <- function(formula, data, id = NULL, wave = NULL,
                     balance_correction = FALSE, dt_random = TRUE, dt_order = 1,
                     weights = NULL, offset = NULL, ...) {
   
-  d <- wb_prepare_data(formula = formula, data, id = id, wave = id,
+  d <- wb_prepare_data(formula = Formula::Formula(formula),
+                       data, id = id, wave = id,
                        model = model, detrend = detrend, use.wave = use.wave,
                        wave.factor = wave.factor, min.waves = min.waves,
                        balance_correction = balance_correction,
                        dt_random = dt_random, dt_order = dt_order,
                        weights = weights, offset = offset)
-  
   d$e$data
   
 }
