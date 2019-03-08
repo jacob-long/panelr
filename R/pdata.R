@@ -512,7 +512,8 @@ widen_panel <- function(data, separator = "_", ignore.attributes = FALSE,
 #'   or anything that can be sequenced and lies further along the sequence
 #'   than the `begin` argument.
 #' @param id The name of the ID variable as a string. If there is no ID 
-#'   variable, set to NULL and one will automatically be created. 
+#'   variable, then this will be the name of the newly-created ID variable. 
+#' @param wave This will be the name of the newly-created wave variable. 
 #' @param periods If you period indicator does not lie in a sequence or is 
 #'   not understood by the function, then you can supply them as a vector
 #'   instead. For instance, you could give `c("one","three","five")` if
@@ -523,6 +524,12 @@ widen_panel <- function(data, separator = "_", ignore.attributes = FALSE,
 #'   it is `"beginning"`.
 #' @param as_panel_data Should the return object be a [panel_data()] object?
 #'   Default is TRUE.
+#' @param match The regex that will match the part of the variable names other
+#'   than the wave indicator. By default it will match any character any 
+#'   amount of times. Sometimes you might know that the variable names should
+#'   start with a digit, for instance, and you might use `"\\d.*"` instead.
+#' @param use.regex Should the `begin` and `end` arguments be treated as 
+#'   regular expressions? Default is FALSE.
 #' @return Either a `data.frame` or `panel_data` frame.
 #' @details 
 #' 
@@ -564,9 +571,10 @@ widen_panel <- function(data, separator = "_", ignore.attributes = FALSE,
 #' @export 
 
 long_panel <- function(data, prefix = "_", suffix = NULL, begin = NULL,
-                       end = NULL, id = NULL, periods = NULL,
-                       label_location = c("end","beginning"),
-                       as_panel_data = TRUE) {
+                       end = NULL, id = "id", wave = "wave", periods = NULL,
+                       label_location = c("end", "beginning"),
+                       as_panel_data = TRUE, match = ".*", 
+                       use.regex = FALSE) {
   
   if (is.numeric(begin) & is.null(periods)) { # Handle numeric period labels
     if (!is.numeric(end)) {stop("begin and end must be the same type.")}
@@ -576,7 +584,7 @@ long_panel <- function(data, prefix = "_", suffix = NULL, begin = NULL,
   } else if (is.character(begin) & is.null(periods)) { # Handle letter labels
     if (!is.character(end)) {stop("begin and end must be the same type.")}
     
-    if (is.finite(as.numeric(begin))) { # in case it was "1" or some such
+    if (suppressWarnings(is.finite(as.numeric(begin)))) { # in case it's e.g. "1"
       periods <- seq(from = as.numeric(begin), to = as.numeric(end))
     }
     
@@ -593,36 +601,47 @@ long_panel <- function(data, prefix = "_", suffix = NULL, begin = NULL,
   }
   
   # Make sure there is an ID column
-  if (is.null(id)) {
-    data["id"] <- 1:nrow(data)
-    id <- "id"
+  if (id %nin% names(data)) {
+    data[id] <- 1:nrow(data)
   }
   # Now is time to find the varying variables
   wvars <- names(data)[names(data) %nin% id]
   
   # Escaping the prefix and suffix
   if (!is.null(prefix)) {
-    pre_reg <- escapeRegex(paste0(prefix))
+    pre_reg <- if (use.regex == FALSE) escapeRegex(paste0(prefix)) else prefix
   } else {pre_reg <- NULL} 
   if (!is.null(suffix)) {
-    post_reg <- escapeRegex(paste0(suffix))
+    post_reg <- if (use.regex == FALSE) escapeRegex(paste0(suffix)) else suffix
   } else {post_reg <- NULL}
   
   # Programmatically building vector of regex patterns for each period
   patterns <- c()
   if (label_location[1] == "beginning") {
     for (i in periods) {
-      pattern <- paste0("^(?<=", pre_reg, escapeRegex(i), post_reg, ").*")
+      pattern <- 
+        paste0("(?<=^", pre_reg, escapeRegex(i), post_reg, ")(", match, ")")
       patterns <- c(patterns, pattern)
     }
     sep <- suffix
   } else if (label_location[1] == "end") {
     for (i in periods) {
-      pattern <- paste0(".*(?=", pre_reg, escapeRegex(i), post_reg, "$)")
+      pattern <- 
+        paste0("(", match, ")(?=", pre_reg, escapeRegex(i), post_reg, "$)")
       patterns <- c(patterns, pattern)
     }
     sep <- prefix
   } else {stop("label_location must be 'beginning' or 'end'.")}
+  
+  if (label_location[1] == "end" & (is.null(prefix) || nchar(prefix) == 0) |
+      label_location[1] == "beginning" & (is.null(suffix) || nchar(suffix) == 0)) {
+    no_sep <- TRUE
+    if (label_location == "end") {
+      sep <- prefix <- "__"
+    } else {
+      sep <- suffix <- "__"
+    }
+  } else {no_sep <- FALSE}
   
   # Using regex patterns to build up a list of variable names for 
   # reshape's "varying" argument
@@ -635,6 +654,16 @@ long_panel <- function(data, prefix = "_", suffix = NULL, begin = NULL,
     matches <- str_detect(wvars, p)
     which_period <- as.character(periods[which(patterns == p)])
     stubs_by_period[[which_period]] <- stubs[matches]
+    # Deal with the problem of there being no separator by adding it myself
+    if (no_sep == TRUE) {
+      if (label_location == "end") {
+        replace <- "\\1__"
+      } else {
+        replace <- "__\\1"
+      }
+      wvars <- str_replace(wvars, p, replace)
+      names(data)[names(data) %nin% id] <- wvars
+    }
     varying_by_period[[which_period]] <-  wvars[matches]
   }
   
@@ -643,11 +672,9 @@ long_panel <- function(data, prefix = "_", suffix = NULL, begin = NULL,
   if (any(stub_tab != length(periods))) {
     
     which_miss <- names(stub_tab)[which(stub_tab != length(periods))]
-    
+  
     for (var in which_miss) { # Iterate through stubs with missing periods
-      
       for (period in periods) { # Iterate through periods
-        
         if (var %nin% stubs_by_period[[period]]) { # If stub missing in period
           # Build variable name
           if (label_location[1] == "beginning") {
@@ -659,28 +686,28 @@ long_panel <- function(data, prefix = "_", suffix = NULL, begin = NULL,
           data[vname] <- rep(NA, times = nrow(data))
           # Add to var list (has to be done this way to preserve time order)
           varying_by_period[[period]] <- c(varying_by_period[[period]], vname)
-          
         }
-        
       }
-      
     }
-    
   }
   
   # Remove reshape's saved attributes
   attributes(data)$reshapeLong <- NULL
   # Call reshape
-  out <- reshape(as.data.frame(data), timevar = "wave",
+  out <- reshape(as.data.frame(data), timevar = wave,
                  idvar = id, times = periods, sep = sep, direction = "long",
-                 varying = unlist(varying_by_period))
-                 # v.names = unique(unname(unlist(stubs_by_period))))
+                 varying = unlist(varying_by_period),
+                 v.names = unique(unname(unlist(stubs_by_period))))
   # Remove reshape's saved attributes
   attributes(out)$reshapeWide <- NULL
+  # If the periods are character, convert to an ordered factor
+  if (is.character(periods)) {
+    out[[wave]] <- ordered(out[[wave]], levels = periods)
+  }
   # Dropping any rows that are all NA that are created for reasons unclear to me
   out <- out[!is.na(out[[id]]),]
   if (as_panel_data == TRUE) { # Return panel_data object if requested
-    out <- panel_data(out, id = !! sym(id), wave = !! sym("wave"),
+    out <- panel_data(out, id = !! sym(id), wave = !! sym(wave),
                       reshaped = TRUE, varying = names(stub_tab), 
                       constants = names(out)[names(out) %nin% names(stub_tab)])
   }

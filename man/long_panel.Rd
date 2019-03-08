@@ -5,8 +5,9 @@
 \title{Convert wide panels to long format}
 \usage{
 long_panel(data, prefix = "_", suffix = NULL, begin = NULL,
-  end = NULL, id = NULL, periods = NULL, label_location = c("end",
-  "beginning"), as_panel_data = TRUE)
+  end = NULL, id = "id", wave = "wave", periods = NULL,
+  label_location = c("end", "beginning"), as_panel_data = TRUE,
+  match = ".*", use.regex = FALSE)
 }
 \arguments{
 \item{data}{The wide data frame.}
@@ -25,7 +26,9 @@ or anything that can be sequenced and lies further along the sequence
 than the \code{begin} argument.}
 
 \item{id}{The name of the ID variable as a string. If there is no ID
-variable, set to NULL and one will automatically be created.}
+variable, then this will be the name of the newly-created ID variable.}
+
+\item{wave}{This will be the name of the newly-created wave variable.}
 
 \item{periods}{If you period indicator does not lie in a sequence or is
 not understood by the function, then you can supply them as a vector
@@ -39,6 +42,14 @@ it is \code{"beginning"}.}
 
 \item{as_panel_data}{Should the return object be a \code{\link[=panel_data]{panel_data()}} object?
 Default is TRUE.}
+
+\item{match}{The regex that will match the part of the variable names other
+than the wave indicator. By default it will match any character any
+amount of times. Sometimes you might know that the variable names should
+start with a digit, for instance, and you might use \code{"\\d.*"} instead.}
+
+\item{use.regex}{Should the \code{begin} and \code{end} arguments be treated as
+regular expressions? Default is FALSE.}
 }
 \value{
 Either a \code{data.frame} or \code{panel_data} frame.
