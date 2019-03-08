@@ -32,7 +32,7 @@ model_frame <- function(formula, data) {
   id <- get_id(data)
   
   # These are the names with transformations
-  vars <- attr(terms(formula), "term.labels")[attr(terms(formula), "order") == 1]
+  vars <- rownames(attr(terms(formula), "factors"))
   
   # Only do the mutations for vars with transformations
   inds <- which(as.character(vars) %nin% names(data) &
