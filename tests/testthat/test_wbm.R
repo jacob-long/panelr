@@ -115,7 +115,7 @@ test_that("wbm summary works (with between model)", {
 # GLMs --------------------------------------------------------------------
 context("wbm as poisson glm")
 wb <- suppressWarnings(wbm(wks ~ union + lag(lwage) | fem, data = wages,
-          family = poisson))
+          family = poisson, nAGQ = 0L))
 
 test_that("wbm with poisson family works", {
   expect_s4_class(wb, "wbm")
@@ -128,7 +128,7 @@ test_that("wbm summary works (as poisson glm)", {
 context("wbm as negbinomial glm")
 library(lme4)
 wb <- suppressWarnings(wbm(wks ~ union + lag(lwage) | blk, data = wages,
-          family = negbinomial))
+          family = negbinomial, nAGQ = 0L))
 
 test_that("wbm with negbinomial family works", {
   expect_s4_class(wb, "wbm")
@@ -253,6 +253,9 @@ context("Time-varying factors")
 if (requireNamespace("plm")) {
   data(Males, package = "plm")
   males <- panel_data(Males, id = nr, wave = year)
+  set.seed(2)
+  # Cutting down on the time it takes to fit these models
+  males <- filter(males, nr %in% sample(males$nr, 100))
   test_that("Models with time-varying factors work", {
     expect_s4_class(wbf <- wbm(wage ~ industry + exper | ethn, data = males),
                     "wbm")
