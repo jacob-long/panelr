@@ -204,6 +204,9 @@ is_varying <- function(data, variable) {
 #' @description This function is designed for use with [panel_data()] objects.
 #' @param data A data frame, typically of [panel_data()] class.
 #' @param ... Variable names. If none are given, all variables are checked.
+#' @param type Check for variance over time or across individuals? Default
+#'  is `"time"`. `"individual"` considers variables like age to be non-varying
+#'  because everyone ages at the same speed.
 #' @return A named logical vector. If TRUE, the variable is varying.
 #' @examples 
 #' 
@@ -216,7 +219,7 @@ is_varying <- function(data, variable) {
 #' @importFrom stringr str_detect
 #' @export 
 
-are_varying <- function(data, ...) {
+are_varying <- function(data, ..., type = "time") {
   
   class(data) <- class(data)[class(data) %nin% "panel_data"]
   dots <- quos(...)
@@ -230,9 +233,62 @@ are_varying <- function(data, ...) {
   if (any(str_detect(dnames, "`"))) {
     dnames <- stringr::str_replace_all(dnames, "^`|`$", "")
   }
-  out <- map_lgl(dots, function(x, d) { is_varying(!! x, data = d) }, d = data)
+  # Get time variation
+  if ("time" %in% type) {
+    outt <- map_lgl(dots, function(x, d) is_varying(!! x, data = d), d = data)
+  } 
+  # Get individual variation
+  if ("individual" %in% type) {
+    outi <- map_lgl(dots, function(x, d) is_varying_individual(!! x, data = d),
+                    d = data)
+    # If both, rbind them into a d.f.
+    if (exists("outt")) {
+      out <- as.data.frame(rbind(outt, outi))
+      rownames(out) <- c("time", "individual")
+    } else {out <- outi}
+  }
+  # If not both, make time the out object
+  if (!exists("out")) {
+    out <- outt
+  }
+  
   names(out) <- dnames
   out
+}
+
+#' @importFrom tibble deframe
+#' @import dplyr 
+#' @import rlang
+
+is_varying_individual <- function(data, variable) {
+  
+  variable <- enquo(variable)
+  
+  # Need to deal with non-numeric data
+  if (!is.numeric(data[[as_name(variable)]])) {
+    # If ordered, pretend it's numeric
+    if (is.ordered(data[[as_name(variable)]])) {
+      data[[as_name(variable)]] <- as.numeric(data[[as_name(variable)]])
+    } else {
+      # Otherwise just check if it varies at all
+      return(is_varying(data, !! variable))
+    }
+  }
+
+  out <- data %>%
+    mutate(var = n_distinct(!! variable - lag(!! variable), na.rm = TRUE) %in%
+             c(0L,1L)) %>%
+    unpanel() %>%
+    select(var) %>%
+    # Changing to a vector
+    deframe() %>%
+    # Asking if all groups had zero changes within the groups
+    all(na.rm = TRUE)
+  
+  # Because the above operation basically produces the answer to is_constant
+  # I now need to return the opposite of out
+  return(!out)
+  
 }
 
 ## Using these to get around limitations with constants that are measured
