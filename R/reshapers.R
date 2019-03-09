@@ -174,7 +174,7 @@ widen_panel <- function(data, separator = "_", ignore.attributes = FALSE,
 #' @importFrom stringr str_extract str_detect
 #' @export 
 
-long_panel <- function(data, prefix = "_", suffix = NULL, begin = NULL,
+long_panel <- function(data, prefix = NULL, suffix = NULL, begin = NULL,
                        end = NULL, id = "id", wave = "wave", periods = NULL,
                        label_location = c("end", "beginning"),
                        as_panel_data = TRUE, match = ".*", 
