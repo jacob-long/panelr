@@ -184,16 +184,15 @@ is_varying <- function(data, variable) {
   
   variable <- enquo(variable)
   
-  # It appends a message every...single...time
-  suppressMessages({
-    out <- data %>%
-      # For each group, does the variable vary?
-      transmute(n_distinct(!! variable, na.rm = TRUE) %in% c(0L,1L)) %>%
-      # Changing to a vector
-      deframe() %>%
-      # Asking if all groups had zero changes within the groups
-      all(na.rm = TRUE)
-  })
+  out <- data %>%
+    # For each group, does the variable vary?
+    mutate(var := n_distinct(!! variable, na.rm = TRUE) %in% c(0L,1L)) %>%
+    unpanel() %>%
+    select(var) %>%
+    # Changing to a vector
+    deframe() %>%
+    # Asking if all groups had zero changes within the groups
+    all(na.rm = TRUE)
   
   # Because the above operation basically produces the answer to is_constant
   # I now need to return the opposite of out
