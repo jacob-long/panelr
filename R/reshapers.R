@@ -219,24 +219,6 @@ long_panel <- function(data, prefix = NULL, suffix = NULL, begin = NULL,
     post_reg <- if (use.regex == FALSE) escapeRegex(paste0(suffix)) else suffix
   } else {post_reg <- NULL}
   
-  # Programmatically building vector of regex patterns for each period
-  patterns <- c()
-  if (label_location[1] == "beginning") {
-    for (i in periods) {
-      pattern <- 
-        paste0("(?<=^", pre_reg, escapeRegex(i), post_reg, ")(", match, ")")
-      patterns <- c(patterns, pattern)
-    }
-    sep <- suffix
-  } else if (label_location[1] == "end") {
-    for (i in periods) {
-      pattern <- 
-        paste0("(", match, ")(?=", pre_reg, escapeRegex(i), post_reg, "$)")
-      patterns <- c(patterns, pattern)
-    }
-    sep <- prefix
-  } else {stop("label_location must be 'beginning' or 'end'.")}
-  
   if (label_location[1] == "end" & (is.null(prefix) || nchar(prefix) == 0) |
       label_location[1] == "beginning" & (is.null(suffix) || nchar(suffix) == 0)) {
     no_sep <- TRUE
@@ -246,6 +228,31 @@ long_panel <- function(data, prefix = NULL, suffix = NULL, begin = NULL,
       sep <- suffix <- "__"
     }
   } else {no_sep <- FALSE}
+  
+  # Programmatically building vector of regex patterns for each period
+  patterns <- c()
+  # Something I need if label is at beginning where I capture the entire varname
+  begin_patterns <- c()
+  if (label_location[1] == "beginning") {
+    for (i in periods) {
+      patterns <- c(patterns,
+        paste0("(?<=^", pre_reg, escapeRegex(i), post_reg, ")(", match, ")")
+      )
+      begin_patterns <- c(begin_patterns,
+        paste0("^", pre_reg, "(", escapeRegex(i), ")(", post_reg, ")(", match, ")")
+      )
+    }
+    sep <- suffix
+    sep <- prefix <- paste0(sep, prefix)
+    suffix <- NULL
+  } else if (label_location[1] == "end") {
+    for (i in periods) {
+      patterns <- c(patterns,
+        paste0("(", match, ")(?=", pre_reg, escapeRegex(i), post_reg, "$)")
+      )
+    }
+    sep <- prefix
+  } else {stop("label_location must be 'beginning' or 'end'.")}
   
   # Using regex patterns to build up a list of variable names for 
   # reshape's "varying" argument
@@ -259,13 +266,27 @@ long_panel <- function(data, prefix = NULL, suffix = NULL, begin = NULL,
     which_period <- as.character(periods[which(patterns == p)])
     stubs_by_period[[which_period]] <- stubs[matches]
     # Deal with the problem of there being no separator by adding it myself
-    if (no_sep == TRUE) {
-      if (label_location == "end") {
-        replace <- "\\1__"
-      } else {
-        replace <- "__\\1"
-      }
+    if (no_sep == TRUE && label_location == "end") {
+      replace <- "\\1__"
       wvars <- str_replace(wvars, p, replace)
+      names(data)[names(data) %nin% id] <- wvars
+    }
+    # If label is at beginning, I'm moving it to the end
+    if (label_location[1] == "beginning") {
+      # Notice that I omit match 2, which is the suffix 
+      replace <- paste0("\\3", sep, "\\1")
+      wvars <- str_replace(wvars, begin_patterns[which(patterns == p)], replace)
+      names(data)[names(data) %nin% id] <- wvars
+    }
+    # We have problems when there is a suffix at the very end,
+    # so I'll delete it here
+    if (label_location[1] == "end" & !(is.null(suffix) || nchar(suffix) == 0)) {
+      the_match <- paste0("(?<=", pre_reg,
+                          escapeRegex(periods[which(patterns == p)]),
+                          ")", post_reg, "$")
+      # Need to use gsub instead of str_replace for the ability to do 
+      # non-fixed-width look-behind (with perl = TRUE)
+      wvars <- gsub(the_match, "", wvars, perl = TRUE)
       names(data)[names(data) %nin% id] <- wvars
     }
     varying_by_period[[which_period]] <-  wvars[matches]
@@ -280,12 +301,8 @@ long_panel <- function(data, prefix = NULL, suffix = NULL, begin = NULL,
     for (var in which_miss) { # Iterate through stubs with missing periods
       for (period in periods) { # Iterate through periods
         if (var %nin% stubs_by_period[[period]]) { # If stub missing in period
-          # Build variable name
-          if (label_location[1] == "beginning") {
-            vname <- paste0(prefix, period, suffix, var)
-          } else {
-            vname <- paste0(var, prefix, period, suffix)
-          }
+          # Build variable name (all suffixes are deleted by now)
+          vname <- paste0(var, prefix, period)
           # Create column in data with empty values
           data[vname] <- rep(NA, times = nrow(data))
           # Add to var list (has to be done this way to preserve time order)
@@ -300,8 +317,8 @@ long_panel <- function(data, prefix = NULL, suffix = NULL, begin = NULL,
   # Call reshape
   out <- reshape(as.data.frame(data), timevar = wave,
                  idvar = id, times = periods, sep = sep, direction = "long",
-                 varying = unlist(varying_by_period),
-                 v.names = unique(unname(unlist(stubs_by_period))))
+                 varying = unlist(varying_by_period))
+                 # v.names = unique(unname(unlist(stubs_by_period))))
   # Remove reshape's saved attributes
   attributes(out)$reshapeWide <- NULL
   # If the periods are character, convert to an ordered factor
