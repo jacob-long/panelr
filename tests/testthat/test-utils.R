@@ -48,15 +48,186 @@ test_that("widen_panel works", {
 
 context("long_panel")
 
-wide <- widen_panel(w)
+w <- tibble::tribble(
+  ~Q1_W1, ~Q1_W2, ~Q1_W3, 
+  1,      1.5,     2,      
+  5,      4,       3,    
+  15,     12,      9,      
+)
 
-test_that("long_panel works", {
-  expect_s3_class(long_panel(wide, begin = 1, end = 7), "panel_data")
+l <- panel_data(tibble::tribble(
+  ~id, ~wave, ~Q1,
+  "1",     1,   1,
+  "1",     2, 1.5,
+  "1",     3,   2,
+  "2",     1,   5,
+  "2",     2,   4,
+  "2",     3,   3,
+  "3",     1,  15,
+  "3",     2,  12,
+  "3",     3,   9
+))
+
+test_that("long_panel works (basic case)", {
+  expect_equal(long_panel(w, prefix = "_W", begin = 1, end = 3), l)
 })
 
-wide <- wide[names(wide) %nin% c("occ_3", "lwage_5")]
-test_that("long_panel handles unbalanced data", {
-  expect_s3_class(long_panel(wide, begin = 1, end = 7), "panel_data")
+w <- tibble::tribble(
+  ~Q1_W1, ~Q1_W2, ~Q1_W3, ~Q2_W1, ~Q2_W3,
+  1,      1.5,     2,      5,      10,
+  5,      4,       3,      14,     7,
+  15,     12,      9,      8,      16
+)
+
+l <- panel_data(tibble::tribble(
+  ~id, ~wave, ~Q1, ~Q2,
+  "1",     1,   1,   5,
+  "1",     2, 1.5,  NA,
+  "1",     3,   2,  10,
+  "2",     1,   5,  14,
+  "2",     2,   4,  NA,
+  "2",     3,   3,   7,
+  "3",     1,  15,   8,
+  "3",     2,  12,  NA,
+  "3",     3,   9,  16
+))
+
+test_that("long_panel works (unbalanced data)", {
+  expect_equal(long_panel(w, prefix = "_W", begin = 1, end = 3), l)
+})
+
+w <- tibble::tribble(
+  ~Q1_WA, ~Q1_WB, ~Q1_WC, ~Q2_WA, ~Q2_WC,
+  1,      1.5,     2,      5,      10,
+  5,      4,       3,      14,     7,
+  15,     12,      9,      8,      16
+)
+
+l <- tibble::tribble(
+  ~id, ~wave, ~Q1, ~Q2,
+  "1",   "A",   1,   5,
+  "1",   "B", 1.5,  NA,
+  "1",   "C",   2,  10,
+  "2",   "A",   5,  14,
+  "2",   "B",   4,  NA,
+  "2",   "C",   3,   7,
+  "3",   "A",  15,   8,
+  "3",   "B",  12,  NA,
+  "3",   "C",   9,  16
+)
+
+l$wave <- ordered(l$wave, c("A", "B", "C"))
+
+test_that("long_panel works (character periods)", {
+  expect_equal(long_panel(w, prefix = "_W", begin = "A", end = "C"), 
+               panel_data(l))
+})
+
+w <- tibble::tribble(
+  ~W1_Q1, ~W2_Q1, ~W3_Q1, ~W1_Q2, ~W3_Q2,
+  1,      1.5,     2,      5,      10,
+  5,      4,       3,      14,     7,
+  15,     12,      9,      8,      16
+)
+
+l <- panel_data(tibble::tribble(
+    ~id, ~wave, ~Q1, ~Q2,
+    "1",     1,   1,   5,
+    "1",     2, 1.5,  NA,
+    "1",     3,   2,  10,
+    "2",     1,   5,  14,
+    "2",     2,   4,  NA,
+    "2",     3,   3,   7,
+    "3",     1,  15,   8,
+    "3",     2,  12,  NA,
+    "3",     3,   9,  16
+))
+
+test_that("long_panel works (beginning label)", {
+  expect_equal(long_panel(w, prefix = "W", suffix = "_", begin = 1, end = 3,
+                          label_location = "beginning"), l)
+})
+
+w <- tibble::tribble(
+  ~WA_Q1, ~WB_Q1, ~WC_Q1, ~WA_Q2, ~WC_Q2,
+  1,      1.5,     2,      5,      10,
+  5,      4,       3,      14,     7,
+  15,     12,      9,      8,      16
+)
+
+l <- tibble::tribble(
+  ~id, ~wave, ~Q1, ~Q2,
+  "1",   "A",   1,   5,
+  "1",   "B", 1.5,  NA,
+  "1",   "C",   2,  10,
+  "2",   "A",   5,  14,
+  "2",   "B",   4,  NA,
+  "2",   "C",   3,   7,
+  "3",   "A",  15,   8,
+  "3",   "B",  12,  NA,
+  "3",   "C",   9,  16
+)
+
+l$wave <- ordered(l$wave, c("A", "B", "C"))
+
+test_that("long_panel works (beginning label/character periods)", {
+  expect_equal(long_panel(w, prefix = "W", suffix = "_", begin = "A", end = "C",
+                          label_location = "beginning"), panel_data(l))
+})
+
+w <- tibble::tribble(
+  ~Q1_AW, ~Q1_BW, ~Q1_CW, ~Q2_AW, ~Q2_CW,
+  1,      1.5,     2,      5,      10,
+  5,      4,       3,      14,     7,
+  15,     12,      9,      8,      16
+)
+
+l <- tibble::tribble(
+  ~id, ~wave, ~Q1, ~Q2,
+  "1",   "A",   1,   5,
+  "1",   "B", 1.5,  NA,
+  "1",   "C",   2,  10,
+  "2",   "A",   5,  14,
+  "2",   "B",   4,  NA,
+  "2",   "C",   3,   7,
+  "3",   "A",  15,   8,
+  "3",   "B",  12,  NA,
+  "3",   "C",   9,  16
+)
+
+l$wave <- ordered(l$wave, c("A", "B", "C"))
+
+test_that("long_panel works (prefix and suffix/character periods)", {
+  expect_equal(long_panel(w, prefix = "_", suffix = "W", begin = "A", end = "C",
+                          label_location = "end"), panel_data(l))
+})
+
+w <- tibble::tribble(
+  ~AQ1, ~BQ1, ~CQ1, ~AQ2, ~CQ2,
+  1,    1.5,  2,    5,    10,
+  5,    4,    3,    14,   7,
+  15,   12,   9,    8,    16
+)
+
+l <- tibble::tribble(
+  ~id, ~wave, ~Q1, ~Q2,
+  "1",   "A",   1,   5,
+  "1",   "B", 1.5,  NA,
+  "1",   "C",   2,  10,
+  "2",   "A",   5,  14,
+  "2",   "B",   4,  NA,
+  "2",   "C",   3,   7,
+  "3",   "A",  15,   8,
+  "3",   "B",  12,  NA,
+  "3",   "C",   9,  16
+)
+
+l$wave <- ordered(l$wave, c("A", "B", "C"))
+
+test_that("long_panel works (beginning/no separators/character periods)", {
+  expect_equal(long_panel(w, prefix = "", suffix = "",
+                          label_location = "beginning", begin = "A", end = "C"),
+               panel_data(l))
 })
 
 context("tibble printing")
@@ -68,6 +239,7 @@ test_that("print.panel_data works", {
 context("extractors")
 
 library(lme4)
+w <- panel_data(WageData, id = id, wave = t)
 mod <- wbm(lwage ~ union, data = w, pvals = FALSE)
 
 test_that("extractors work", {
