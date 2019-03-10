@@ -1,5 +1,10 @@
 # panelr 0.5.1
 
+New feature:
+* `are_varying()` can now also assess individual-leve variation, so using 
+the `type = "individual"` argument you can instead assess variables like age 
+that vary over time but change equally for every case.
+
 Bugfixes:
 * You now can add the `wave` variable to `wbm()` in the formula without
 running into cryptic errors.
@@ -9,6 +14,10 @@ if they were surrounded by backticks, but now that hack is unnecessary and
 does not work.
 * `make_wb_data()` is now updated to work with other internal updates 
 introduced in 0.5.0.
+* `long_panel()` was never really working right when the source data's labels
+were located at the beginning (i.e., `label_location = "beginning"`). It is
+now much more robust.
+
 
 # panelr 0.5.0
 
