@@ -276,18 +276,16 @@ is_varying_individual <- function(data, variable) {
   }
 
   out <- data %>%
-    mutate(var = n_distinct(!! variable - lag(!! variable), na.rm = TRUE) %in%
-             c(0L,1L)) %>%
+    # make new variable with the within-subject variance
+    mutate(var = var(!! variable, na.rm = TRUE)) %>%
+    # ungroup
     unpanel() %>%
+    # select only our new value
     select(var) %>%
-    # Changing to a vector
+    # change to a vector
     deframe() %>%
-    # Asking if all groups had zero changes within the groups
-    all(na.rm = TRUE)
-  
-  # Because the above operation basically produces the answer to is_constant
-  # I now need to return the opposite of out
-  return(!out)
+    # see how many distinct values there are
+    n_distinct(na.rm = TRUE) %nin% c(0L, 1L)
   
 }
 
