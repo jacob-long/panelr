@@ -50,8 +50,8 @@ summary.panel_data <- function(object, ..., by.wave = TRUE, by.id = FALSE) {
 }
 
 ## WIP describe within and between variance
+#' @importFrom stats weighted.mean
 describe <- function(.data, ...) {
-  # data <- dplyr::select(.data, ...)
   out <- lapply(enexprs(...), function(x) {
     btw <- summarize(.data,
                      mean = mean(!! x, na.rm = TRUE),
@@ -61,8 +61,8 @@ describe <- function(.data, ...) {
     btw_var <- sum((wts * (btw$mean - the_mean)^2) /
                      (sum(wts) - 1), na.rm = TRUE)
     within <- mutate(.data, 
-                     within_mean = mean(!! x, na.rm = TRUE),
-                     within_var = (!! x - within_mean) ^ 2)
+                     mean = mean(!! x, na.rm = TRUE),
+                     within_var = (!! x - mean) ^ 2)
     within_var <- sum(within$within_var, na.rm = TRUE) / 
                     (table(is.na(within$within_var))[1] - 1)
     c("mean" = the_mean, "between" = sqrt(btw_var), 

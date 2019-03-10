@@ -186,9 +186,9 @@ is_varying <- function(data, variable) {
   
   out <- data %>%
     # For each group, does the variable vary?
-    mutate(var := n_distinct(!! variable, na.rm = TRUE) %in% c(0L,1L)) %>%
+    mutate(variable := n_distinct(!! variable, na.rm = TRUE) %in% c(0L,1L)) %>%
     unpanel() %>%
-    select(var) %>%
+    select(variable) %>%
     # Changing to a vector
     deframe() %>%
     # Asking if all groups had zero changes within the groups
@@ -277,11 +277,11 @@ is_varying_individual <- function(data, variable) {
 
   out <- data %>%
     # make new variable with the within-subject variance
-    mutate(var = var(!! variable, na.rm = TRUE)) %>%
+    mutate(variable = var(!! variable, na.rm = TRUE)) %>%
     # ungroup
     unpanel() %>%
     # select only our new value
-    select(var) %>%
+    select(variable) %>%
     # change to a vector
     deframe() %>%
     # see how many distinct values there are
