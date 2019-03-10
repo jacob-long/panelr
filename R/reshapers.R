@@ -222,7 +222,7 @@ long_panel <- function(data, prefix = NULL, suffix = NULL, begin = NULL,
   if (label_location[1] == "end" & (is.null(prefix) || nchar(prefix) == 0) |
       label_location[1] == "beginning" & (is.null(suffix) || nchar(suffix) == 0)) {
     no_sep <- TRUE
-    if (label_location == "end") {
+    if (label_location[1] == "end") {
       sep <- prefix <- "__"
     } else {
       sep <- suffix <- "__"
@@ -266,7 +266,7 @@ long_panel <- function(data, prefix = NULL, suffix = NULL, begin = NULL,
     which_period <- as.character(periods[which(patterns == p)])
     stubs_by_period[[which_period]] <- stubs[matches]
     # Deal with the problem of there being no separator by adding it myself
-    if (no_sep == TRUE && label_location == "end") {
+    if (no_sep == TRUE && label_location[1] == "end") {
       replace <- "\\1__"
       wvars <- str_replace(wvars, p, replace)
       names(data)[names(data) %nin% id] <- wvars
