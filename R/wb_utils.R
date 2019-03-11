@@ -81,74 +81,54 @@ wb_formula_parser <- function(formula, dv, data) {
     cross_ints_form <- NULL
   }
 
-  # Create vector of varnames for which we will get the mean
-  # assuming a within-between specification
-  meanvars <- varying
-
-  # See which vars are lagged, if any
-  lag_matches <-
-    regexec(text = meanvars, pattern = "(?<=lag\\().*(?=\\))",
-                         perl = T)
-
-  # Indices of lagged variables
-  lagvars <- which(lag_matches > 0)
+  v_info <- tibble::tibble(term = varying, root = NA, lag = NA, meanvar = NA)
+  
+  # If there's a lag function call, set lag to 1 and 0 otherwise. We'll go 
+  # back and look for the n argument in a second
+  v_info$lag <- as.numeric(stringr::str_detect(varying, "(?<=lag\\().*(?=\\))"))
 
   # If there are lagged vars, we need the original varname for taking
   # the mean later
-  if (any(lag_matches > 0)) {
-    for (i in lagvars) {
-
-      the_match <- regmatches(meanvars, lag_matches)[[i]]
-      # Check if there were args so that I only get the var name
-      if (grepl(the_match, pattern = ",")) {
-        the_match <- stringr::str_split(the_match, ",")[[1]][1]
-      }
-      # Now put the parent variable in the meanvars vector
-      meanvars[i] <- the_match
-
+  if (any(v_info$lag > 0)) {
+    for (i in which(v_info$lag > 0)) {
+      # Convert to call to match the arguments and unambiguously get the n = 
+      the_call <- 
+        match.call(dplyr::lag, call = parse(text = v_info$term[i]))
+      v_info$lag[i] <- if (!is.null(the_call$n)) the_call$n else 1
+      v_info$root[i] <- as.character(the_call$x)
     }
   }
 
-  # Same deal with leads
-  lead_matches <-
-    regexec(text = meanvars, pattern = "(?<=lead\\().*(?=\\))",
-            perl = T)
-
-  # Indices of lagged variables
-  leadvars <- which(lead_matches > 0)
-
+  # If there's a lead function call, set lag to -1 and 0 otherwise. We'll go 
+  # back and look for the n argument in a second
+  leads <- stringr::str_detect(varying, "(?<=lead\\().*(?=\\))")
+  
   # If there are lagged vars, we need the original varname for taking
   # the mean later
-  if (any(lead_matches > 0)) {
-    for (i in leadvars) {
-
-      the_match <- regmatches(meanvars, lead_matches)[[i]]
-      # Check if there were args so that I only get the var name
-      if (grepl(the_match, pattern = ",")) {
-        the_match <- stringr::str_split(the_match, ",")[[1]][1]
-      }
-      # Now put the parent variable in the meanvars vector
-      meanvars[i] <- the_match
-
+  if (any(leads)) {
+    for (i in which(leads)) {
+      # Convert to call to match the arguments and unambiguously get the n = 
+      the_call <- 
+        match.call(dplyr::lead, call = parse(text = v_info$term[i]))
+      v_info$lag[i] <- if (!is.null(the_call$n)) the_call$n * -1 else -1
+      v_info$root[i] <- as.character(the_call$x)
     }
   }
+  
+  v_info$root[is.na(v_info$root)] <- v_info$term[is.na(v_info$root)]
 
-  non_lag_vars <- meanvars
-  names(non_lag_vars) <- varying
   # Set all the mean var names to mean(var)
-  meanvars <- sapply(meanvars, function(x) {
+  v_info$term <- sapply(v_info$term, function(x) {
     # If non-syntactic variable name, need to escape it inside the mean function
     if (make.names(x) != x & x %in% names(data)) bt(x) else x 
   })
-  meanvars <- paste0("imean(", meanvars, ")")
-  # Use this for matching varying vars to their parents
-  names(meanvars) <- varying
-
+  v_info$meanvar <- paste0("imean(", v_info$term, ")")
+  
   out <- list(conds = conds, allvars = allvars, varying = varying,
               varying_form = varying_form, constants = constants,
               constants_form = constants_form,
-              cross_ints_form = cross_ints_form, meanvars = meanvars,
-              non_lag_vars = non_lag_vars, data = data)
+              cross_ints_form = cross_ints_form, v_info = v_info,
+              data = data)
   return(out)
 
 }
@@ -189,7 +169,8 @@ prepare_lme4_formula <- function(formula, pf, data, use.wave, wave, id) {
     formula <- paste0(formula, " + (1 | ", id, ")")
   }
   # Lastly, I need to escape non-syntactic variables in the model formula again
-  fin_formula <- formula_ticks(formula, c(pf$varying, pf$meanvars, pf$constants))
+  fin_formula <- formula_ticks(formula, c(pf$varying, unique(pf$v_info$meanvar),
+                                          pf$constants))
   as.formula(fin_formula)
 }
 
@@ -207,51 +188,60 @@ wb_model <- function(model, pf, dv, data, detrend) {
   within_family <- c("w-b", "within-between", "within", "stability", "fixed")
 
   # De-mean varying vars if needed
-  if (model %in% within_family && detrend == FALSE) { # within models
-
+  if (model %in% within_family & detrend == FALSE) { # within models
     # Iterate through the varying variables
-    for (v in pf$varying) {
+    for (i in seq_along(pf$v_info$term)) {
       # De-mean
-      data[v] <- data[v] - data[pf$meanvars[v]]
-
+      data[[pf$v_info$term[i]]] <- 
+        data[[pf$v_info$term[i]]] - data[[pf$v_info$meanvar[i]]]
     }
-
   }
 
   # Create extra piece of formula based on model
   if (model %in% c("w-b", "within-between", "contextual")) {
-    # Contextual model is same as within-between, just no de-meaning
-
-    # Make formula add-on
-    for (v in pf$varying) {
-      if (which(pf$varying == v) == 1) {
-        add_form <- paste(v, "+", pf$meanvars[v])
-      } else {
-        add_form <- paste(add_form, "+", v, "+", pf$meanvars[v])
+    # Avoid redundant mean variables when multiple lags of the same variable
+    # are included... e.g., imean(lag(x)) and imean(x). I want whichever is 
+    # the most recent (or covering the most waves in the case of there being
+    # leads)
+    v_subset <- pf$v_info
+    # If no duplicate root terms, nothing to do here
+    if (any(duplicated(v_subset$root))) {
+      # Get the variables with more than one instance
+      multi_vars <- names(which(table(v_subset$root) > 1))
+      # Loop through them
+      for (var in multi_vars) {
+        if (any(v_subset$term == var)) { # that means no lag
+          # Drop the others
+          v_subset <- filter(v_subset, term == !! var | root != !! var)
+        } else { # find the minimum lag
+          min_lag <- which(min(filter(v_subset, root == !!var)$lag))
+          # Drop the others
+          v_subset <- filter(v_subset, root != !! var | 
+                               (root == !! var & lag == !! min_lag))
+        }
+        # Now assign this mean variable to all instances of that root term in
+        # the original d.f.
+        pf$v_info$meanvar[pf$v_info$root == var] <- 
+          v_subset$meanvar[v_subset$root == var]
       }
     }
-
+    # Make formula add-on
+    add_form <- paste(unique(c(pf$v_info$term, pf$v_info$meanvar)),
+                      collapse = " + ")
   } else if (model %in% c("within","fixed")) { # Many know it as fixed
-
     # Don't need to worry about constants, etc.
     add_form <- ""
-
   } else if (model == "stability") {
 
     # Make formula add-on
-    for (v in pf$varying) {
-      if (which(pf$varying == v) == 1) {
-        add_form <- paste(v, "+", pf$meanvars[v])
-      } else {
-        add_form <- paste(add_form, "+", v, "+", pf$meanvars[v])
-      }
-    }
+    add_form <- paste(unique(c(pf$v_info$term, pf$v_info$meanvar)),
+                      collapse = " + ")
 
     # Add the stability terms
-    for (v in pf$varying) {
-      add_form <- paste(add_form, "+", pf$meanvars[v], "*", wave)
-      stab_terms <- c(stab_terms, paste(pf$meanvars[v], ":", wave, sep = ""))
-    }
+    add_form <- paste(add_form, "+", 
+                  paste(unique(pf$v_info$meanvar), "*", wave), collapse = " + ")
+    stab_terms <- c(stab_terms, paste(unique(pf$v_info$meanvar), ":", wave,
+                    sep = ""))
 
 
   } else if (model %in% c("between","random")) {
@@ -319,7 +309,6 @@ detrend <- function(data, pf, dt_order, balance_correction, dt_random) {
         coef(mod <- lm(formula = the_formula, data = data))["(Intercept)"]
       }, error = function(x) {NA})
       rep(out, times = nrow(data))
-      
     }
     
   }

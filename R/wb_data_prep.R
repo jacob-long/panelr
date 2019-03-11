@@ -69,7 +69,7 @@ wb_prepare_data <- function(formula, data, id = NULL, wave = NULL,
     mf_form <- paste(" ~ ",
                      paste(pf$allvars, collapse = " + "),
                      " + ",
-                     paste(pf$meanvars, collapse = " + "),
+                     paste(pf$v_info$meanvar, collapse = " + "),
                      end_form, collapse = ""
     )
     # Escape non-syntactic variables that are in the data
@@ -91,8 +91,8 @@ wb_prepare_data <- function(formula, data, id = NULL, wave = NULL,
                         data = data)
     
     # Now I fix any back-ticked names saved in this pf object
-    pf$meanvars <- un_bt(pf$meanvars)
-    names(pf$meanvars) <- un_bt(names(pf$meanvars))
+    pf$v_info$meanvar <- un_bt(pf$v_info$meanvar)
+    pf$v_info$root <- un_bt(pf$v_info$root)
     pf$varying <- un_bt(pf$varying)
     pf$constants <- un_bt(pf$constants)
     
