@@ -29,9 +29,9 @@ Suggests: brms,
     broom,
     plm,
     skimr,
-    tidyr,
       testthat,
       covr
+    tidyr (>= 0.8.3),
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
