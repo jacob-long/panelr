@@ -318,19 +318,35 @@ long_panel <- function(data, prefix = NULL, suffix = NULL, begin = NULL,
   out <- reshape(as.data.frame(data), timevar = wave,
                  idvar = id, times = periods, sep = sep, direction = "long",
                  varying = unlist(varying_by_period))
-                 # v.names = unique(unname(unlist(stubs_by_period))))
   # Remove reshape's saved attributes
   attributes(out)$reshapeWide <- NULL
+  attributes(out)$reshapeLong <- NULL
   # If the periods are character, convert to an ordered factor
   if (is.character(periods)) {
     out[[wave]] <- ordered(out[[wave]], levels = periods)
   }
   # Dropping any rows that are all NA that are created for reasons unclear to me
   out <- out[!is.na(out[[id]]),]
+  # Now I check for variables that are only quasi-varying because of poor 
+  # labeling in the long format (e.g., W1_race)
+  v.names <- unique(unname(unlist(stubs_by_period))) 
+  # Create panel_data object to use for these checks
+  tmp_pd <- panel_data(out, id = !!sym(id), wave = !!sym(wave))
+  # Check whether the variables really are varying
+  varying <- are_varying(tmp_pd, !!! syms(v.names))
+  if (any(varying == FALSE)) {
+    # Loop through the non-varying vars and make them constant by returning the
+    # sole non-NA value.
+    for (var in names(varying)[!varying]) {
+      tmp_pd <- mutate(tmp_pd, !! var := uniq_nomiss(!! sym(var)))
+    }
+  }
   if (as_panel_data == TRUE) { # Return panel_data object if requested
-    out <- panel_data(out, id = !! sym(id), wave = !! sym(wave),
-                      reshaped = TRUE, varying = names(stub_tab), 
-                      constants = names(out)[names(out) %nin% names(stub_tab)])
+    out <- panel_data(tmp_pd, id = !! sym(id), wave = !! sym(wave),
+                      reshaped = TRUE, varying = names(varying)[varying], 
+                      constants = names(varying)[!varying])
+  } else { # Otherwise unpanel
+    out <- unpanel(tmp_pd)
   }
   return(out)
   
