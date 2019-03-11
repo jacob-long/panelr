@@ -250,7 +250,7 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
   }
 
   if (wave.factor == TRUE) {
-    data[wave] <- as.factor(data[wave])
+    data[[wave]] <- as.factor(data[[wave]])
   }
 
   # Use helper function to generate formula to pass to lme4
