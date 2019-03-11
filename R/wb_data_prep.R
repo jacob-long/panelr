@@ -146,3 +146,95 @@ make_wb_data <- function(formula, data, id = NULL, wave = NULL,
   d$e$data
   
 }
+
+
+wb_model <- function(model, pf, dv, data, detrend) {
+  
+  # Create empty stab terms vector so I can pass it along even for other
+  # models
+  stab_terms <- c()
+  
+  # Extract wave and id
+  wave <- get_wave(data)
+  id <- get_id(data)
+  
+  # models that require de-meaning
+  within_family <- c("w-b", "within-between", "within", "stability", "fixed")
+  
+  # De-mean varying vars if needed
+  if (model %in% within_family & detrend == FALSE) { # within models
+    # Iterate through the varying variables
+    for (i in seq_along(pf$v_info$term)) {
+      # De-mean
+      data[[pf$v_info$term[i]]] <- 
+        data[[pf$v_info$term[i]]] - data[[pf$v_info$meanvar[i]]]
+    }
+  }
+  
+  # Create extra piece of formula based on model
+  if (model %in% c("w-b", "within-between", "contextual")) {
+    # Avoid redundant mean variables when multiple lags of the same variable
+    # are included... e.g., imean(lag(x)) and imean(x). I want whichever is 
+    # the most recent (or covering the most waves in the case of there being
+    # leads)
+    v_subset <- pf$v_info
+    # If no duplicate root terms, nothing to do here
+    if (any(duplicated(v_subset$root))) {
+      # Get the variables with more than one instance
+      multi_vars <- names(which(table(v_subset$root) > 1))
+      # Loop through them
+      for (var in multi_vars) {
+        if (any(v_subset$term == var)) { # that means no lag
+          # Drop the others
+          v_subset <- filter(v_subset, term == !! var | root != !! var)
+        } else { # find the minimum lag
+          min_lag <- which(min(filter(v_subset, root == !!var)$lag))
+          # Drop the others
+          v_subset <- filter(v_subset, root != !! var | 
+                               (root == !! var & lag == !! min_lag))
+        }
+        # Now assign this mean variable to all instances of that root term in
+        # the original d.f.
+        pf$v_info$meanvar[pf$v_info$root == var] <- 
+          v_subset$meanvar[v_subset$root == var]
+      }
+    }
+    # Make formula add-on
+    add_form <- paste(unique(c(pf$v_info$term, pf$v_info$meanvar)),
+                      collapse = " + ")
+  } else if (model %in% c("within","fixed")) { # Many know it as fixed
+    # Don't need to worry about constants, etc.
+    add_form <- ""
+  } else if (model == "stability") {
+    
+    # Make formula add-on
+    add_form <- paste(unique(c(pf$v_info$term, pf$v_info$meanvar)),
+                      collapse = " + ")
+    
+    # Add the stability terms
+    add_form <- paste(add_form, "+", 
+                      paste(unique(pf$v_info$meanvar), "*", wave), collapse = " + ")
+    stab_terms <- c(stab_terms, paste(unique(pf$v_info$meanvar), ":", wave,
+                                      sep = ""))
+    
+    
+  } else if (model %in% c("between","random")) {
+    
+    # It doesn't need anything special
+    add_form <- ""
+    
+  }
+  
+  # Put the pieces together
+  fin_formula <- paste(dv, "~", add_form, "+", pf$varying_form)
+  if (pf$conds >= 1) {
+    fin_formula <- paste(fin_formula, "+", pf$constants_form, "+",
+                         pf$cross_ints_form)
+  }
+  
+  out <- list(data = data, fin_formula = fin_formula,
+              stab_terms = stab_terms)
+  return(out)
+  
+}
+
