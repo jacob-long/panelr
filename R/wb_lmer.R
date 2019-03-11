@@ -290,8 +290,11 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
 
   # Getting jtools summary info so it isn't re-run every time summary()
   # is called
+  if (as.character(substitute(family))[1] == "gaussian" & isREML(fit) == FALSE) {
+    t.df <- "residual"
+  } else {t.df <- NULL}
   t0 <- Sys.time()
-  j <- suppressMessages(jtools::j_summ(fit, pvals = pvals, r.squared = pR2))
+  j <- suppressMessages(jtools::j_summ(fit, pvals = pvals, r.squared = pR2, t.df = t.df))
   t1 <- Sys.time()
   if (t1 - t0 > 5) {
     msg_wrap("If wbm is taking too long to run, you can try setting 
@@ -492,7 +495,7 @@ summary.wbm <- function(object, ...) {
     } else {
 
       df_msg <- italic(
-        paste("p values calculated using df =", round(j2$df, digits))
+        paste("p values calculated using df =", round(j2$df, digits), "\n")
       )
 
     }
