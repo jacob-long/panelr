@@ -97,7 +97,7 @@ widen_panel <- function(data, separator = "_", ignore.attributes = FALSE,
   # Remove reshape's saved attributes
   attributes(data)$reshapeWide <- NULL
   
-  return(data)
+  return(tibble::as_tibble(data))
   
 }
 
