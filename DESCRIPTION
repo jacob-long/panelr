@@ -25,15 +25,19 @@ Imports: crayon,
       jtools (>= 2.0.0), 
       ggplot2,
       Formula
-Suggests: brms,
+Suggests: 
+    brms,
     broom,
     plm,
     skimr,
-      testthat,
-      covr
     tidyr (>= 0.8.3),
+    testthat,
+    covr,
+    knitr,
+    rmarkdown
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
 Roxygen: list(markdown = TRUE)
+VignetteBuilder: knitr
