@@ -348,25 +348,8 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
               pf = pf, merMod_call = merMod_call)
 
   out@call <- the_call
-
   out@summ <- j
   out@summ_atts <- j2
-
-  # out <- list(model = fit, data = data, fin_formula = fin_formula)
-
-  # out <- structure(out, dv = dv, id = id, wave = wave,
-  #             num_distinct = num_distinct,
-  #             varying = pf$varying, constants = pf$constants,
-  #             meanvars = pf$meanvars, model = model,
-  #             stab_terms = e$stab_terms,
-  #             max_wave = maxwave, min_wave = minwave, ints = ints,
-  #             pvals = pvals, pR2 = pR2, jsumm = j, jatts = j2,
-  #             call = the_call, env = the_env, mf_form = mf_form,
-  #             use.wave = use.wave, detrend = detrend, dt_order = dt_order,
-  #             dt_random = dt_random, balance_correction = balance_correction,
-  #             pf = pf)
-
-  # class(out) <- "wbm"
 
   return(out)
 
