@@ -96,13 +96,14 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
     data[wave] <- as.factor(data[wave])
   }
 
-  fin_formula <- formula_esc(e$fin_formula, c(pf$varying, pf$meanvars, 
-                                              pf$constants))
+  fin_formula <- formula_esc(e$fin_formula, c(e$within_ints, pf$v_info$meanvar,
+                                              pf$varying, pf$constants))
 
   names(data) <- make.names(names(data))
   
   # Use helper function to generate formula to pass to lme4
-  fin_formula <- prepare_lme4_formula(fin_formula, pf, data, use.wave, wave, id)  
+  fin_formula <- prepare_lme4_formula(fin_formula, pf, data, use.wave, wave,
+                                      id, e$within_ints)  
 
   # TODO: test this
   # Give brms the weights in the desired formula syntax

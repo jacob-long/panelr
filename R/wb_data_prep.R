@@ -153,6 +153,8 @@ wb_model <- function(model, pf, dv, data, detrend) {
   # Create empty stab terms vector so I can pass it along even for other
   # models
   stab_terms <- c()
+  # Create object to store within interactions
+  within_ints <- NULL
   
   # Extract wave and id
   wave <- get_wave(data)
@@ -169,7 +171,29 @@ wb_model <- function(model, pf, dv, data, detrend) {
       data[[pf$v_info$term[i]]] <- 
         data[[pf$v_info$term[i]]] - data[[pf$v_info$meanvar[i]]]
     }
-  }
+    # Deal with within by within interactions
+    if (!is.null(pf$int_labs)) {
+      for (iv in pf$int_labs) {
+        iv_mean <- paste0("imean(", iv, ")")
+        subtract_mean <- paste(iv, "-", iv_mean)
+        pretty_int <- stringr::str_replace(iv, "\\*", ":")
+        data <- mutate(data,
+          !! iv := !! parse_expr(iv),
+          !! iv_mean := !! parse_expr(iv_mean),
+          !! pretty_int := !! parse_expr(subtract_mean)
+        )
+        within_ints <- c(within_ints, pretty_int)
+      }
+      # Remove recursive back-ticking 
+      names(data) <- gsub("`", "", names(data))
+      within_int_form <- paste(within_ints, collapse = " + ")
+      pf$varying_form <- paste(
+        as.character(reformulate(pf$v_info$term))[2], " + ",
+        within_int_form
+      )
+      # What to do with interaction mean terms?
+    }
+  } 
   
   # Create extra piece of formula based on model
   if (model %in% c("w-b", "within-between", "contextual")) {
@@ -206,13 +230,11 @@ wb_model <- function(model, pf, dv, data, detrend) {
   
   # Put the pieces together
   fin_formula <- paste(dv, "~", add_form, "+", pf$varying_form)
-  if (pf$conds >= 1) {
-    fin_formula <- paste(fin_formula, "+", pf$constants_form, "+",
-                         pf$cross_ints_form)
-  }
+  fin_formula <- paste(c(fin_formula, pf$constants_form, pf$cross_ints_form),
+                       collapse = " + ")
   
   out <- list(data = data, fin_formula = fin_formula,
-              stab_terms = stab_terms)
+              stab_terms = stab_terms, within_ints = within_ints)
   return(out)
   
 }

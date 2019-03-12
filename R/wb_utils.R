@@ -29,6 +29,13 @@ wb_formula_parser <- function(formula, dv, data) {
     # If non-syntactic names are inside functions, retain backticks
     if (make.names(x) != x & x %in% names(data)) un_bt(x) else x
   })
+  varying_form <- as.formula(paste("~", deparse(get_rhs(formula))))
+  if (any_interaction(varying_form)) {
+    int_labs <- sapply(get_interactions(varying_form), function(x) {
+      if (all(x %in% varying)) paste(x, collapse = "*") else NULL
+    })
+  } else {int_labs <- NULL}
+  
   # Save time-varying part of the formula
   varying_form <- formula_ticks(
     as.character(paste(deparse(get_rhs(formula)), collapse = "")),
@@ -128,12 +135,13 @@ wb_formula_parser <- function(formula, dv, data) {
               varying_form = varying_form, constants = constants,
               constants_form = constants_form,
               cross_ints_form = cross_ints_form, v_info = v_info,
-              data = data)
+              data = data, int_labs = int_labs)
   return(out)
 
 }
 
-prepare_lme4_formula <- function(formula, pf, data, use.wave, wave, id) {
+prepare_lme4_formula <- function(formula, pf, data, use.wave, wave, id,
+                                 within_ints) {
   # Append fixed wave to formula if requested
   if (use.wave == TRUE) {
     formula <- paste(formula, "+", wave)
@@ -142,7 +150,8 @@ prepare_lme4_formula <- function(formula, pf, data, use.wave, wave, id) {
   add <- FALSE
   
   # I need to escape non-syntactic variables in the model formula
-  formula <- formula_ticks(formula, c(pf$varying, pf$meanvars, pf$constants))
+  formula <- formula_ticks(formula, c(within_ints, pf$varying,
+                                      unique(pf$v_info$meanvar), pf$constants))
   
   # See if the formula has 3 parts
   if (pf$conds > 2) {
@@ -169,7 +178,8 @@ prepare_lme4_formula <- function(formula, pf, data, use.wave, wave, id) {
     formula <- paste0(formula, " + (1 | ", id, ")")
   }
   # Lastly, I need to escape non-syntactic variables in the model formula again
-  fin_formula <- formula_ticks(formula, c(pf$varying, unique(pf$v_info$meanvar),
+  fin_formula <- formula_ticks(formula, c(within_ints, pf$varying,
+                                          unique(pf$v_info$meanvar),
                                           pf$constants))
   as.formula(fin_formula)
 }
@@ -222,26 +232,30 @@ detrend <- function(data, pf, dt_order, balance_correction, dt_random) {
     }
     
   }
+  # Avoid redundant mean variables when multiple lags of the same variable
+  # are included... e.g., imean(lag(x)) and imean(x). I want whichever is 
+  # the most recent (or covering the most waves in the case of there being
+  # leads)
+  v_info <- set_meanvars(pf)
     
   # Iterate through the varying variables
-  for (v in pf$varying) {
+  for (v in v_info$term) {
         
     # De-trend
     # Note that b_model differs depending on balance_correction 
-    the_var <- pf$non_lag_vars[v]
-    mean_var <- pf$meanvars[v]
+    mean_var <- pf$v_info$meanvar[pf$v_info$term == v]
     if (dt_random == TRUE) {
       data <-  dplyr::mutate(data,
-                             !!mean_var :=
-                               purrr::map(data, b_model, var = the_var),
-                             !!the_var :=
-                               purrr::map(data, dt_model, var = the_var)
+                             !! mean_var :=
+                               purrr::map(data, b_model, var = v),
+                             !! v :=
+                               purrr::map(data, dt_model, var = v)
                             )
     } else {
       
       data <-  dplyr::mutate(data,
-                             !!mean_var := b_model(data, var = the_var),
-                             !!the_var := dt_model(data, var = the_var)
+                             !! mean_var := b_model(data, var = v),
+                             !! v := dt_model(data, var = v)
       )
       
     }
@@ -450,6 +464,28 @@ expand_factors <- function(variables, data) {
     }
   }
   return(data)
+}
+
+# Taken from interactions pkg
+
+any_interaction <- function(formula) {
+  any(attr(terms(formula), "order") > 1)
+}
+
+get_interactions <- function(formula) {
+  if (any_interaction(formula)) {
+    ts <- terms(formula)
+    labs <- paste("~", attr(ts, "term.labels"))
+    forms <- lapply(labs, as.formula)
+    forms <- forms[which(attr(ts, "order") > 1)]
+    ints <- lapply(forms, function(x) {
+      rownames(attr(terms(x), "factors"))
+    })
+    names(ints) <- attr(ts, "term.labels")[which(attr(ts, "order") > 1)]
+    return(ints)
+  } else {
+    NULL
+  }
 }
 
 set_meanvars <- function(pf) {
