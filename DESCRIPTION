@@ -1,14 +1,15 @@
 Package: panelr
 Title: Regression Models and Utilities for Repeated Measures and Panel Data
-Version: 0.5.1
+Version: 0.6.0
 Authors@R: person("Jacob A.", "Long", email = "long.1377@osu.edu", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-1582-6214"))
-Description: This package implements several methods for creating regression
+Description: Provides an object type and associated tools for storing and 
+  wrangling panel data. Implements several methods for creating regression
   models that take advantage of the unique aspects of 
-  panel data. It automates the "within-between" (also known as
-  "between-within" and "hybrid") specification that combines the
-  desirable aspects of both fixed effects and random effects econometric models
-  and fits them with the lme4 package. Bayesian estimation of these models is 
-  supported via the brms package.
+  panel data. Among other capabilities, automates the "within-between" 
+  (also known as "between-within" and "hybrid") panel regression specification
+  that combines the desirable aspects of both fixed effects and random effects 
+  econometric models and fits them as multilevel models. Bayesian estimation is
+  (optionally) supported via Stan.
 URL: https://panelr.jacob-long.com
 BugReports: https://github.com/jacob-long/panelr
 Depends: R (>= 3.4.0),
@@ -21,7 +22,7 @@ Imports: crayon,
       magrittr,
       methods,
       stringr,
-      rlang,
+      rlang (>= 0.3.0),
       jtools (>= 2.0.0), 
       ggplot2,
       Formula

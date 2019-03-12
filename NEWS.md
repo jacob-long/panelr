@@ -1,11 +1,22 @@
-# panelr 0.5.1
+# panelr 0.6.0
 
-New feature:
-* `are_varying()` can now also assess individual-leve variation, so using 
+New stuff:
+* There is now a vignette to walk users through the process of reshaping panel
+data.
+* There is now more sophisticated handling of interactions between time-varying
+variables in line with the recommendations of [Giesselmann and Schmidt-Catran
+(2018)](https://ideas.repec.org/p/diw/diwwpp/dp1748.html).
+* `are_varying()` can now also assess individual-level variation, so using 
 the `type = "individual"` argument you can instead assess variables like age 
 that vary over time but change equally for every case.
+* `wbm()` can now handle transformed dependent variables (e.g. `log(y)`).
 
 Bugfixes:
+* The way lagged predictors are mean-centered is now consistent with the 
+conventional fixed effects estimator. Results may change non-trivially
+due to this change. Previously, the mean used for mean-centering was based on
+all waves of data, but now it is based on all waves except the number of lags
+away from the latest wave. 
 * You now can add the `wave` variable to `wbm()` in the formula without
 running into cryptic errors.
 * Fixed a problem in which transformed variables (like `lag(x)`) could not be
@@ -17,7 +28,8 @@ introduced in 0.5.0.
 * `long_panel()` was never really working right when the source data's labels
 were located at the beginning (i.e., `label_location = "beginning"`). It is
 now much more robust.
-
+* `wbm()`'s `wave.factor` argument had become non-functional for some time but
+is now fixed.
 
 # panelr 0.5.0
 
