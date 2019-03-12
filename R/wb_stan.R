@@ -121,6 +121,12 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
   mm <- suppressWarnings(model.matrix(fin_formula, data = data))
   # Find the interaction terms (which may be expanded if factors are involved)
   int_indices <- which(attr(terms(fin_formula), "order") >= 2)
+  if (length(int_indices) > 0) {
+    keeps <- sapply(get_interactions(fin_formula), function(x) {
+      any(x %in% pf$varying)
+    })
+    int_indices <- int_indices[keeps]
+  }
   # Grab those names from the model matrix
   ints <- colnames(mm)[attr(mm, "assign") %in% int_indices]
   # Save some memory

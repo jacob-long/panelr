@@ -261,6 +261,12 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
   mm <- suppressWarnings(model.matrix(fin_formula, data = data))
   # Find the interaction terms (which may be expanded if factors are involved)
   int_indices <- which(attr(terms(fin_formula), "order") >= 2)
+  if (length(int_indices) > 0) {
+    keeps <- sapply(get_interactions(fin_formula), function(x) {
+      any(x %in% pf$varying)
+    })
+    int_indices <- int_indices[keeps]
+  }
   # Grab those names from the model matrix
   ints <- colnames(mm)[attr(mm, "assign") %in% int_indices]
   # Save some memory
@@ -294,7 +300,8 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
     t.df <- "residual"
   } else {t.df <- NULL}
   t0 <- Sys.time()
-  j <- suppressMessages(jtools::j_summ(fit, pvals = pvals, r.squared = pR2, t.df = t.df))
+  j <- suppressMessages(
+    jtools::j_summ(fit, pvals = pvals, r.squared = pR2, t.df = t.df))
   t1 <- Sys.time()
   if (t1 - t0 > 5) {
     msg_wrap("If wbm is taking too long to run, you can try setting 
@@ -303,9 +310,9 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
   # check if pseudo-R2 calculation failed
   if (is.na(attr(j, "rsqs")[1])) pR2 <- FALSE
   
-  ints <- ints[!(ints %in% e$stab_terms)]
+  ints <- ints[ints %nin% e$stab_terms]
   unbt_ints <- gsub("`", "", ints, fixed = TRUE)
-  ints <- ints[!(unbt_ints %in% e$stab_terms)]
+  ints <- ints[unbt_ints %nin% e$stab_terms]
 
   j2 <- attributes(j)
   # Drop redundant model from the summ object
@@ -330,7 +337,7 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
 
   out@call_info <- list(dv = dv, id = id, wave = wave,
               num_distinct = prepped$num_distinct,
-              varying = pf$varying, constants = pf$constants,
+              varying = c(pf$varying, e$within_ints), constants = pf$constants,
               meanvars = pf$meanvars, model = model,
               stab_terms = e$stab_terms,
               max_wave = prepped$maxwave, min_wave = prepped$minwave,
@@ -568,7 +575,7 @@ print.summary.wbm <- function(x, ...) {
 
   if (!is.null(x$ints_table)) {
 
-    cat(bold("INTERACTIONS:\n"))
+    cat(bold("CROSS-LEVEL INTERACTIONS:\n"))
     print(md_table(x$ints_table, digits = x$digits, sig.digits = FALSE,
                    format = getOption("panelr.table.format", "markdown")))
     cat("\n")

@@ -168,8 +168,8 @@ wb_model <- function(model, pf, dv, data, detrend) {
     # Iterate through the varying variables
     for (i in seq_along(pf$v_info$term)) {
       # De-mean
-      data[[pf$v_info$term[i]]] <- 
-        data[[pf$v_info$term[i]]] - data[[pf$v_info$meanvar[i]]]
+      data[[un_bt(pf$v_info$term[i])]] <- 
+        data[[un_bt(pf$v_info$term[i])]] - data[[un_bt(pf$v_info$meanvar[i])]]
     }
     # Deal with within by within interactions
     if (!is.null(pf$int_labs)) {
@@ -203,8 +203,7 @@ wb_model <- function(model, pf, dv, data, detrend) {
     # leads)
     pf$v_info <- set_meanvars(pf)
     # Make formula add-on
-    add_form <- paste(unique(c(pf$v_info$term, pf$v_info$meanvar)),
-                      collapse = " + ")
+    add_form <- paste(unique(pf$v_info$meanvar), collapse = " + ")
   } else if (model %in% c("within","fixed")) { # Many know it as fixed
     # Don't need to worry about constants, etc.
     add_form <- ""
@@ -216,7 +215,8 @@ wb_model <- function(model, pf, dv, data, detrend) {
     
     # Add the stability terms
     add_form <- paste(add_form, "+", 
-                      paste(unique(pf$v_info$meanvar), "*", wave), collapse = " + ")
+                      paste(unique(pf$v_info$meanvar), "*", wave),
+                      collapse = " + ")
     stab_terms <- c(stab_terms, paste(unique(pf$v_info$meanvar), ":", wave,
                                       sep = ""))
     

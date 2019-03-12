@@ -280,7 +280,7 @@ formula_ticks <- function(formula, vars) {
     regex_pattern <- paste0(
       "(?<=(~|\\s|\\*|\\+|\\:)|\\s\\(|\\s\\(\\(|\\s\\(\\(\\(\\()",
       escapeRegex(var),
-      "(?=(~|\\s|\\*|\\+|\\:)|\\))")
+      "(?=(~|$|\\s|\\*|\\+|\\:)|\\))")
     backtick_name <- paste("`", var, "`", sep = "")
     backtick_name <- gsub("(?<!^)`(?!$)", "", backtick_name, perl = TRUE)
     formula <- gsub(regex_pattern, backtick_name, formula, perl = TRUE)
