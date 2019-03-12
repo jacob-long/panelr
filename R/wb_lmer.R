@@ -263,7 +263,7 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
   int_indices <- which(attr(terms(fin_formula), "order") >= 2)
   if (length(int_indices) > 0) {
     keeps <- sapply(get_interactions(fin_formula), function(x) {
-      any(x %in% pf$varying)
+      any(un_bt(x) %in% pf$varying)
     })
     int_indices <- int_indices[keeps]
   }
