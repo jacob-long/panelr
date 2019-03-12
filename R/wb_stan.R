@@ -146,22 +146,19 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
                            binary.inputs = "0/1")
 
   }
+  
+  cor_arg <- if (model.cor == TRUE) brms::cor_ar(formula = cor_form) else NULL
+  
 
   # Give users the option to just get code + data for this
   if (fit_model == TRUE) {
 
-    if (model.cor == TRUE) {
-      model <- brms::brm(fin_formula,
-                         autocor = brms::cor_ar(formula = cor_form),
-                         data = data,
-                         chains = chains, iter = iter,
-                         family = family,
-                         save_ranef = save_ranef, ...)
-    } else {
-      model <- brms::brm(fin_formula, data = data,
-                         chains = chains, iter = iter,
-                         family = family, save_ranef = save_ranef, ...)
-    }
+    model <- brms::brm(fin_formula,
+                       autocor = cor_arg,
+                       data = data,
+                       chains = chains, iter = iter,
+                       family = family,
+                       save_ranef = save_ranef, ...)
 
     out <- list(model = model, data = data, fin_formula = fin_formula,
                 dv = dv, id = id, wave = wave,
@@ -177,36 +174,20 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
 
   } else {
 
-    if (model.cor == TRUE) {
-      standat <- brms::make_standata(fin_formula,
-                         autocor = brms::cor_ar(formula = cor_form),
-                         data = data,
-                         chains = chains, iter = iter,
-                         family = family,
-                         save_ranef = save_ranef, ...)
+    standat <- brms::make_standata(fin_formula,
+                       autocor = cor_arg,
+                       data = data,
+                       chains = chains, iter = iter,
+                       family = family,
+                       save_ranef = save_ranef, ...)
 
-      stancode <-
-        brms::make_stancode(fin_formula,
-                            autocor = brms::cor_ar(formula = cor_form),
-                            data = data, chains = chains, iter = iter,
-                            family = family, save_ranef = save_ranef, ...)
+    stancode <-
+      brms::make_stancode(fin_formula,
+                          autocor = brms::cor_ar(formula = cor_form),
+                          data = data, chains = chains, iter = iter,
+                          family = family, save_ranef = save_ranef, ...)
 
-      return(list(stan_data = standat, stan_code = stancode))
-
-    } else {
-
-      standat <- brms::make_standata(fin_formula, data = data,
-                         chains = chains, iter = iter,
-                         family = family, save_ranef = save_ranef, ...)
-
-      stancode <- brms::make_stancode(fin_formula, data = data,
-                                     chains = chains, iter = iter,
-                                     family = family, save_ranef = save_ranef,
-                                     ...)
-
-      return(list(stan_data = standat, stan_code = stancode))
-
-    }
+    return(list(stan_data = standat, stan_code = stancode))
 
   }
 
