@@ -177,28 +177,7 @@ wb_model <- function(model, pf, dv, data, detrend) {
     # are included... e.g., imean(lag(x)) and imean(x). I want whichever is 
     # the most recent (or covering the most waves in the case of there being
     # leads)
-    v_subset <- pf$v_info
-    # If no duplicate root terms, nothing to do here
-    if (any(duplicated(v_subset$root))) {
-      # Get the variables with more than one instance
-      multi_vars <- names(which(table(v_subset$root) > 1))
-      # Loop through them
-      for (var in multi_vars) {
-        if (any(v_subset$term == var)) { # that means no lag
-          # Drop the others
-          v_subset <- filter(v_subset, term == !! var | root != !! var)
-        } else { # find the minimum lag
-          min_lag <- which(min(filter(v_subset, root == !!var)$lag))
-          # Drop the others
-          v_subset <- filter(v_subset, root != !! var | 
-                               (root == !! var & lag == !! min_lag))
-        }
-        # Now assign this mean variable to all instances of that root term in
-        # the original d.f.
-        pf$v_info$meanvar[pf$v_info$root == var] <- 
-          v_subset$meanvar[v_subset$root == var]
-      }
-    }
+    pf$v_info <- set_meanvars(pf)
     # Make formula add-on
     add_form <- paste(unique(c(pf$v_info$term, pf$v_info$meanvar)),
                       collapse = " + ")

@@ -452,6 +452,32 @@ expand_factors <- function(variables, data) {
   return(data)
 }
 
+set_meanvars <- function(pf) {
+  v_subset <- pf$v_info
+  # If no duplicate root terms, nothing to do here
+  if (any(duplicated(v_subset$root))) {
+    # Get the variables with more than one instance
+    multi_vars <- names(which(table(v_subset$root) > 1))
+    # Loop through them
+    for (var in multi_vars) {
+      if (any(v_subset$term == var)) { # that means no lag
+        # Drop the others
+        v_subset <- filter(v_subset, term == !! var | root != !! var)
+      } else { # find the minimum lag
+        min_lag <- which(min(filter(v_subset, root == !!var)$lag))
+        # Drop the others
+        v_subset <- filter(v_subset, root != !! var | 
+                             (root == !! var & lag == !! min_lag))
+      }
+      # Now assign this mean variable to all instances of that root term in
+      # the original d.f.
+      pf$v_info$meanvar[pf$v_info$root == var] <- 
+        v_subset$meanvar[v_subset$root == var]
+    }
+    return(pf$v_info)
+  } else {return(pf$v_info)}
+}
+
 #### Regex helper ############################################################
 
 # Taken from Hmisc
