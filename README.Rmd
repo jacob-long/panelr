@@ -10,6 +10,7 @@ knitr::opts_chunk$set(
   comment = "#>",
   fig.path = "README-"
 )
+options("panelr.table.format" = "multiline")
 ```
 
 [![Travis-CI Build Status](https://travis-ci.org/jacob-long/panelr.svg?branch=master)](https://travis-ci.org/jacob-long/panelr) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/jacob-long/panelr?branch=master&svg=true)](https://ci.appveyor.com/project/jacob-long/panelr) [![Coverage Status](https://img.shields.io/codecov/c/github/jacob-long/panelr/master.svg)](https://codecov.io/github/jacob-long/panelr?branch=master)
@@ -26,8 +27,8 @@ analyses of these data.
 It automates the "within-between" (also known as
 "between-within" and "hybrid") specification that combines the
 desirable aspects of both fixed effects and random effects econometric models
-and fits them using the lme4 package in the backend. Bayesian estimation of 
-these models is supported by interfacing with the brms package.
+and fits them using the `lme4` package in the backend. Bayesian estimation of 
+these models is supported by interfacing with the `brms` package.
 
 ## Installation
 
@@ -38,10 +39,6 @@ CRAN is coming soon.
 install.packages("devtools")
 devtools::install_github("jacob-long/panelr")
 ```
-
-Note the several dependencies: `dplyr`, `tidyr`, `lme4`, `pbkrtest`, `jtools`,
-`magrittr`, `stringr`, and `rlang`. You will need `brms` (and its dependencies,
-like `rstan`) to do Bayesian estimation.
 
 ## Usage
 
@@ -64,20 +61,23 @@ respondents. We will use those two pieces of information to create a
 
 ```{r}
 wages <- panel_data(WageData, id = id, wave = t)
+wages
 ```
 
 We have to tell `panel_data()` which column refers to the unique identifiers
 for respondents/entities (the latter when you have something like countries
 or companies instead of people) and which column refers to the period/wave of
-data collection. If the waves are not numeric and indexed starting at 1, 
-the function will attempt to coerce them to that kind of numbering scheme.
+data collection. 
 
-Note that the resulting `panel_data` object will always use the column names
-`id` and `wave`, so it will overwrite those columns if they already exist in the
-source data. `panel_data` frames are modified tibbles 
-([`tibble` package](http://tibble.tidyverse.org/)) that are grouped by entity.
+Note that the resulting `panel_data` object will remember which of the columns
+is the ID column and which is the wave column. It will also fight you a bit 
+when you do things that might have the side effect of dropping those columns
+or putting them out of time order.
+`panel_data` frames are modified tibbles 
+([`tibble` package](http://tibble.tidyverse.org/)) that are grouped by entity 
+(i.e., the ID column).
 
-### `wbm` --- the within-between model
+### `wbm()` --- the within-between model
 
 Anyone can fit a within-between model without the use of this package as it is
 just a particular specification of a multilevel model. With that said, it's 
@@ -85,20 +85,22 @@ something that will require some programming and could be rather prone to
 error. In the best case, it is cumbersome and inefficient to create the 
 necessary variables. 
 
-`wbm` is the primary function that you'll use from this package and it fits
-within-between models for you, utilizing
+`wbm()` is the primary model-fitting function that you'll use from this package 
+and it fits within-between models for you, utilizing
 [`lme4`](https://cran.r-project.org/web/packages/lme4/index.html) as a 
-backend. 
+backend for estimation. 
 
 A three-part model syntax is used that goes like this:
 
-`dv ~ varying_variables | invariant_variables | cross_level_interactions`
+`dv ~ varying_variables | invariant_variables | cross_level_interactions/random effects`
 
 It works like a typical formula otherwise. The bars just tell `panelr` how to 
 treat the variables. Note also that you can specify random slopes using
-`lme4`-style syntax in the third part of the formula as well. 
+`lme4`-style syntax in the third part of the formula as well. A random intercept
+for the ID variable is included by default and doesn't need to be specified
+in the formula.
 
-Lagged variables are supported as well through the `lag` function. Unlike base
+Lagged variables are supported as well through the `lag()` function. Unlike base
 R, `panelr` lags the variables correctly --- wave 1 observations will have NA
 values for the lagged variable rather than taking the final wave value of the
 previous entity. 
@@ -107,40 +109,43 @@ Here we will specify a model using the `wages` data. We will predict
 logged wages (`lwage`) using two time-varying variables --- lagged
 union membership (`union`) and contemporaneous weeks worked (`wks`) --- along 
 with a time-invariant predictor, a binary indicator for black race (`blk`).
-For demonstrative purposes, we'll fit a random slope for `wks` and an 
-interaction between `blk` and `lag(union)`.
+For demonstrative purposes, we'll fit a random slope for `lag(union)` and a 
+cross-level interaction between `blk` and `wks`.
 
 ```{r message = FALSE}
-model <- wbm(lwage ~ lag(union) + wks | blk | blk * lag(union) + (wks | id),
+model <- wbm(lwage ~ lag(union) + wks | blk | blk * wks + (lag(union) | id),
              data = wages)
 summary(model)
 ```
 
-Note that `imean` is an internal function that calculates the individual-level
+Note that `imean()` is an internal function that calculates the individual-level
 mean, which represents the between-subjects effects of the time-varying 
 predictors. The within effects are the time-varying predictors at the occasion 
 level with the individal-level mean subtracted. If you want the model specified
 such that the occasion level predictors do not have the mean subtracted, use
 the `model = "contextual"` argument. The "contextual" label refers to the way 
-these terms are normally interpreted when it is specified that way.
+these terms are normally interpreted when it is specified that way. 
 
-### `widen_panel` and `long_panel`
+You may also use `model = "between"` to fit what econometricians call the 
+random effects model, which does not disaggregate the within- and between-entity
+variation.
+
+### `widen_panel()` and `long_panel()`
 
 Two functions that should cover your bases for the tricky business of 
 **reshaping** panel data are included. Sometimes, like for doing SEM-based
 analyses, you need your data in wide format --- i.e., one row per entity.
-`widen_panel` makes that easy and should require minimal trial and error or 
+`widen_panel()` makes that easy and should require minimal trial and error or 
 thinking.
 
 Perhaps more often, your raw data are already in wide format and you need
-to get it into long format to do cool stuff like use `wbm`. That can be very
-tricky, but `long_panel` (I didn't think `lengthen_panel` or `longen_panel`
+to get it into long format to do cool stuff like use `wbm()`. That can be very
+tricky, but `long_panel()` (I didn't think `lengthen_panel()` or `longen_panel()`
 quite worked as names) should cover most situations. You tell it what the
 labels for periods are (e.g., does it range from `1` to `5`, `"A"` to `"E"`,
 or something else?), where they are located (before or after the variable's
-name?), and what kinds of formatting go before/after it. Unbalanced data are
-perfectly fine, unlike when trying to use the already confusing `reshape`
-function.
+name?), and what kinds of formatting go before/after it. Check out the
+vignette for more details and some worked examples.
 
 ## Contributing
 
