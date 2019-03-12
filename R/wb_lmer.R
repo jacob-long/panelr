@@ -255,7 +255,7 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
 
   # Use helper function to generate formula to pass to lme4
   fin_formula <-  prepare_lme4_formula(e$fin_formula, pf, data, use.wave, wave,
-                                       id, e$within_ints)  
+                                       id, e$within_ints, dv)  
 
   # Get the model frame so I can get the expanded factor variable names
   mm <- suppressWarnings(model.matrix(fin_formula, data = data))

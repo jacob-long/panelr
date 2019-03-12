@@ -141,7 +141,7 @@ wb_formula_parser <- function(formula, dv, data) {
 }
 
 prepare_lme4_formula <- function(formula, pf, data, use.wave, wave, id,
-                                 within_ints) {
+                                 within_ints, dv) {
   # Append fixed wave to formula if requested
   if (use.wave == TRUE) {
     formula <- paste(formula, "+", wave)
@@ -151,7 +151,8 @@ prepare_lme4_formula <- function(formula, pf, data, use.wave, wave, id,
   
   # I need to escape non-syntactic variables in the model formula
   formula <- formula_ticks(formula, c(within_ints, pf$varying,
-                                      unique(pf$v_info$meanvar), pf$constants))
+                                      unique(pf$v_info$meanvar), pf$constants,
+                                      dv))
   
   # See if the formula has 3 parts
   if (pf$conds > 2) {
@@ -180,7 +181,7 @@ prepare_lme4_formula <- function(formula, pf, data, use.wave, wave, id,
   # Lastly, I need to escape non-syntactic variables in the model formula again
   fin_formula <- formula_ticks(formula, c(within_ints, pf$varying,
                                           unique(pf$v_info$meanvar),
-                                          pf$constants))
+                                          pf$constants, dv))
   as.formula(fin_formula)
 }
 
@@ -278,7 +279,7 @@ formula_ticks <- function(formula, vars) {
     # that are preceded by whitespace (as opposed to the I function or 
     # something).
     regex_pattern <- paste0(
-      "(?<=(~|\\s|\\*|\\+|\\:)|\\s\\(|\\s\\(\\(|\\s\\(\\(\\(\\()",
+      "(?<=(~|\\s|\\*|\\+|\\:)|\\s\\(|\\s\\(\\(|\\s\\(\\(\\(\\(|^)",
       escapeRegex(var),
       "(?=(~|$|\\s|\\*|\\+|\\:)|\\))")
     backtick_name <- paste("`", var, "`", sep = "")
