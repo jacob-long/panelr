@@ -51,24 +51,11 @@ re_attribute <- function(new, old) {
   return(new)
 }
 
-##### tibble #################################################################
-
-#' @export
-`[.panel_data` <- function(x, i, j, drop = FALSE) {
-  reconstruct(NextMethod(), x)
-}
-
 ##### dplyr ##################################################################
 
 #' @export
 #' @importFrom dplyr mutate
 mutate.panel_data <- function(.data, ...) {
-  reconstruct(NextMethod(), .data)
-}
-
-#' @export
-#' @importFrom dplyr transmute
-transmute.panel_data <- function(.data, ...) {
   reconstruct(NextMethod(), .data)
 }
 
@@ -91,12 +78,6 @@ filter.panel_data <- function(.data, ...) {
 #' @export
 #'
 dplyr::filter
-
-#' @export
-#' @importFrom dplyr arrange
-arrange.panel_data <- function(.data, ...) {
-  reconstruct(NextMethod(), .data)
-}
 
 #' @export
 #' @importFrom dplyr distinct

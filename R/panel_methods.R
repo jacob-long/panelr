@@ -29,7 +29,7 @@ summary.panel_data <- function(object, ..., by.wave = TRUE, by.id = FALSE) {
     msg_wrap("Get better summaries of panel_data frames by installing the 
              skimr package. Falling back to default summary.data.frame...")
     return(summary.data.frame(suppressMessages({
-      panel_data %>% select(UQS(vars))
+      panel_data %>% select(!!! vars)
     })))
   }
   
@@ -79,28 +79,89 @@ describe <- function(.data, ...) {
 # force the key variables to ride along.
 select.panel_data <- function(.data, ...) {
   # Get args
-  dots <- as.character(enexprs(...))
-  
+  dots <- enexprs(...)
   # Get name of wave variable
   wave <- get_wave(.data)
-  if (wave %nin% dots) { # Check if it wasn't selected
-    # Add id to the args
-    dots <- c(wave, dots)
-    msg_wrap("Adding missing wave variable: ", wave, brk = "")
-  }
-  
   # Get name of id variable
   id <- get_id(.data)
-  if (id %nin% dots) { # Check if it wasn't selected
-    # Add id to the args
-    dots <- c(id, dots)
-    msg_wrap("Adding missing id variable: ", id, brk = "")
-  }
-  
-  # Switch back from character to names
-  dots <- lapply(dots, parse_expr)
+  # Add them in (it's okay if they're already there)
+  dots <- c(sym(id), sym(wave), dots)
   # Go ahead and select
-  NextMethod(generic = "select", .data, UQS(dots))
+  NextMethod(generic = "select", .data, !!! dots)
+}
+
+#' @export
+#' @importFrom dplyr transmute
+transmute.panel_data <- function(.data, ...) {
+  # Get args
+  dots <- enexprs(...)
+  # Get name of wave variable
+  wave <- get_wave(.data)
+  # Add it in there if it's not already included (id is automatically added)
+  if (wave %nin% names(dots)) {
+    onames <- names(dots)
+    dots <- c(sym(wave), dots)
+    names(dots) <- c(wave, onames)
+  }
+  reconstruct(NextMethod(generic = "transmute", .data, !!! dots), .data)
+}
+
+#' @export
+#' @importFrom dplyr arrange
+arrange.panel_data <- function(.data, ..., .by_group = TRUE) {
+  # Get args
+  dots <- enexprs(...)
+  # Get name of wave variable
+  wave <- get_wave(.data)
+  # Basically saying you get a warning if you do anything but arrange by time
+  if (!all(unlist(as.character(dots)) == wave)) {
+    warn_wrap("Arranging panel_data frames by something other than the wave
+              variable may cause incorrect results when using time-based 
+              functions like lag() and lead().")
+  } else if (.by_group == FALSE) {
+    warn_wrap("Arranging panel_data frames with '.by_group = FALSE' may cause
+              incorrect results when using time-based  functions like lag() and
+              lead().")
+  }
+  reconstruct(NextMethod(generic = "arrange", .data, !!! dots,
+                         .by_group = .by_group), .data)
+}
+
+#' @export
+`[.panel_data` <- function(x, i, j, drop = FALSE) {
+  # have to differentiate between x[i] and x[i,]
+  if (!missing(i) & missing(j) & "" %nin% as.character(sys.call())) {
+    if (is.numeric(i)) {
+      id <- which(names(x) == get_id(x))
+      wave <- which(names(x) == get_wave(x))
+      if (wave %nin% i) i <- c(wave, i)
+      if (id %nin% i) i <- c(id, i)
+    } else if (is.character(i)) {
+      if (get_wave(x) %nin% i) i <- c(get_wave(x), i)
+      if (get_id(x) %nin% i) i <- c(get_id(x), i)
+    } else if (is.logical(i)) {
+      id <- which(names(x) == get_id(x))
+      wave <- which(names(x) == get_wave(x))
+      i[c(id, wave)] <- TRUE
+    }
+  }
+  # more straightforward is j is defined
+  if (!missing(j)) {
+    if (is.numeric(j)) {
+      id <- which(names(x) == get_id(x))
+      wave <- which(names(x) == get_wave(x))
+      if (wave %nin% j) j <- c(wave, j)
+      if (id %nin% j) j <- c(id, j)
+    } else if (is.character(j)) {
+      if (get_wave(x) %nin% j) j <- c(get_wave(x), j)
+      if (get_id(x) %nin% j) j <- c(get_id(x), j)
+    } else if (is.logical(j)) {
+      id <- which(names(x) == get_id(x))
+      wave <- which(names(x) == get_wave(x))
+      j[c(id, wave)] <- TRUE
+    }
+  }
+  reconstruct(NextMethod(), x)
 }
 
 #' @rdname panel_data

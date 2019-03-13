@@ -157,8 +157,7 @@ complete_data <- function(data, ..., formula = NULL, vars = NULL,
   d <- d[complete.cases(d),]
 
   # Using the table to count up how many obs. of each person
-  t <- table(d[id])
-
+  t <- table(d[[id]])
 
   if (min.waves == "all") {
     min.waves <- max(t) # Whoever has the most observations has all the waves
@@ -301,16 +300,13 @@ set_constants <- function(data, vars) {
   
 }
 
-
 set_constant <- function(data, var) {
-  
   var <- enquo(var)
   var_name <- quo_name(var)
-  suppressMessages({
-    transmute(data, !! var_name := uniq_nomiss(!! var)) %>%
-      deframe()
-  })
-  
+  transmute(data, !! var_name := uniq_nomiss(!! var)) %>%
+    unpanel() %>%
+    select(!! var_name) %>%
+    deframe()
 }
 
 ## This is my way of grabbing the lone non-NA value from the group
@@ -392,7 +388,7 @@ complete_cases <- function(data, min.waves = "all") {
   data <- data[complete.cases(data),]
   
   # Using the table to count up how many obs. of each person
-  t <- table(data[id])
+  t <- table(data[[id]])
   
   
   if (min.waves == "all") {

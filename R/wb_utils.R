@@ -6,10 +6,11 @@ wb_formula_parser <- function(formula, dv, data) {
   conds <- length(formula)[2]
   
   # Deal with non-numeric variables
-  if (any(!sapply(data[all.vars(get_rhs(formula))], is.numeric))) {
+  if (any(!sapply(all.vars(get_rhs(formula)), function(x) is.numeric(data[[x]])))) {
     # Find the time-varying non-numeric vars 
     vars <- 
-      names(sapply(data[all.vars(get_rhs(formula))], is.numeric) %just% FALSE)
+      names(sapply(all.vars(get_rhs(formula)),
+                   function(x) is.numeric(data[[x]])) %just% FALSE)
     # Expand these factors into 0/1 variables in the data
     data <- expand_factors(vars, data)
     # Now create a formula that does the same
