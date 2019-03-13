@@ -82,7 +82,7 @@ can manage these situations. However, they tend to be some combination of
 confusing, inflexible, or too general to be easily used for these purposes by
 non-experts.
 
-## `long_panel()`
+## From wide to long
 
 In my experience, survey contractors (i.e., the people you pay to carry out 
 panel surveys) like to provide the data in wide format. As a general rule, the
@@ -285,7 +285,7 @@ Now it rightly ignores `Consent` as a variable that lacks a time indicator.
 In general, `long_panel()` tries to protect you from having to use or even 
 know how to use regular expressions, but sometimes there's no way around it.
 
-## `widen_panel()`
+## From long to wide
 
 `widen_panel()`, as you might expect, does the opposite of `long_panel()`. This
 is generally an easier operation, thankfully. 
