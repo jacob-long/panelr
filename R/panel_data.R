@@ -131,27 +131,27 @@ complete_data <- function(data, ..., formula = NULL, vars = NULL,
   # Handling case of no selected vars --- I want to assume a selection
   # of none means selection of all rather than default select behavior
   # (which is to return nothing)
-  cols <- as.character(enexprs(...))
+  cols <- enexprs(...)
   if (length(cols) == 0 & is.null(formula) & is.null(vars)) {
     
     cols <- names(data)
     cols <- sapply(cols, backtick_name) # Avoid parsing non-syntactic names
     cols <- lapply(cols, parse_expr)
-    cols <- c(sym(id), sym(wave), cols)
-    d <- select(data, UQS(cols))
+    # cols <- c(sym(id), sym(wave), cols)
+    d <- select(data, !!! cols)
     
   } else if (length(cols) > 0) {
     
-    cols <- lapply(cols, parse_expr)
-    cols <- c(sym(id), sym(wave), cols)
-    d <- select(data, UQS(cols))
+    # cols <- lapply(cols, parse_expr)
+    # cols <- c(sym(id), sym(wave), cols)
+    d <- select(data, !!! cols)
     
   } else {
     
     if (!is.null(formula)) {
-      d <- data[c(id, wave, all.vars(formula))]
+      d <- data[all.vars(formula)]
     } else if (!is.null(vars)) {
-      d <- data[c(id, wave, vars)]
+      d <- data[vars]
     } else {
       d <- data
     }
@@ -173,9 +173,7 @@ complete_data <- function(data, ..., formula = NULL, vars = NULL,
   keeps <- names(t)[keeps]
 
   data <- data[data[[id]] %in% keeps,]
-  
   data <- reconstruct(data, old)
-
   return(data)
 
 }
@@ -298,11 +296,9 @@ is_varying_individual <- function(data, variable) {
 ## measured in W2. 
 
 set_constants <- function(data, vars) {
-  
   constants <- lapply(syms(vars), set_constant, data = data)
   data[vars] <- constants
   return(data)
-  
 }
 
 set_constant <- function(data, var) {
@@ -371,9 +367,9 @@ unpanel <- function(panel) {
 }
 
 #' @title Retrieve panel_data metadata
-#' @description `get_id` and `get_wave` are extractor functions that can be
-#'   used to retrieve the names of the id and wave variables of a `panel_data`
-#'   frame.
+#' @description `get_id()`, `get_wave()`, and `get_periods()` are extractor
+#'  functions that can be used to retrieve the names of the id and wave
+#'  variables or time periods of a `panel_data` frame.
 #' @param data A `panel_data` frame
 #' @return A `panel_data` frame
 #' @rdname get_wave
