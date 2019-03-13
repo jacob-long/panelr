@@ -7,6 +7,9 @@ navbar:
   left:
     - icon: fa-home
       href: index.html
+    - icon: fa-arrows
+      text: "Reshaping Tutorial"
+      href: articles/reshape.html
     - icon: fa-file-code-o
       text: "Documentation"
       href: reference/index.html
@@ -16,10 +19,7 @@ navbar:
 #    - icon: fa-book
 #      text: "Vignettes"
 #      menu:
-#      -  text: Tools for summarizing and visualizing regression models
-#         href: articles/summ.html
-#      -  text: Exploring interactions with continuous predictors in regression models
-#         href: articles/interactions.html
+#      text: "Reshaping panel data with `long_panel()` and `widen_panel()`"
   right:
     - icon: fa-github fa-lg
       text: "Github"
