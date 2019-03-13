@@ -16,26 +16,25 @@ Depends: R (>= 3.4.0),
       lme4
 Imports: crayon, 
       dplyr,
-      tibble,
-      purrr,
+      Formula,
+      ggplot2,
+      jtools (>= 2.0.0), 
       lmerTest,
       magrittr,
       methods,
-      stringr,
+      purrr,
       rlang (>= 0.3.0),
-      jtools (>= 2.0.0), 
-      ggplot2,
-      Formula
-Suggests: 
-    brms,
+      stringr,
+      tibble
+Suggests: brms,
     broom,
     plm,
     skimr,
     tidyr (>= 0.8.3),
-    testthat,
-    covr,
-    knitr,
-    rmarkdown
+      testthat,
+      covr,
+      knitr,
+      rmarkdown
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
