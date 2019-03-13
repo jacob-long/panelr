@@ -202,6 +202,7 @@ detrend <- function(data, pf, dt_order, balance_correction, dt_random) {
   # Define detrending function
   dt_model <- function(data, var, order = dt_order) {
     
+    var <- bt(var)
     the_formula <- as.formula(paste(var, "~ poly(", wave, ",", order,
                                     ", raw = TRUE)"))
     tryCatch({
@@ -213,6 +214,7 @@ detrend <- function(data, pf, dt_order, balance_correction, dt_random) {
   # Define between-person function
   b_model <- function(data, var, order = dt_order, bc = balance_correction) {
       
+    var <- bt(var)
     if (bc == TRUE) {  
       
       the_formula <- as.formula(paste(var, "~ poly(", wave, ",",
@@ -221,7 +223,7 @@ detrend <- function(data, pf, dt_order, balance_correction, dt_random) {
         coef(mod <- lm(formula = the_formula, data = data,
                        na.action = na.exclude))["(Intercept)"]
       }, error = function(x) {NA})
-      rep(out, times = length(resid(mod)))
+      rep(out, times = nrow(data))
       
     } else {
     
@@ -237,7 +239,7 @@ detrend <- function(data, pf, dt_order, balance_correction, dt_random) {
   # are included... e.g., imean(lag(x)) and imean(x). I want whichever is 
   # the most recent (or covering the most waves in the case of there being
   # leads)
-  v_info <- set_meanvars(pf)
+  v_info <- set_meanvars(pf, return.subset = TRUE)
     
   # Iterate through the varying variables
   for (v in v_info$term) {
@@ -266,8 +268,36 @@ detrend <- function(data, pf, dt_order, balance_correction, dt_random) {
   if (dt_random == TRUE) {
     # Unnest the data if it was nested
     data <- tidyr::unnest(data)
+    data <- panel_data(data, id = !! sym(id), wave = !! sym(wave))
+    # The unnesting process generates extra nuisance variables for those
+    # included in the detrending (e.g., x1). I add "-" to tell select to
+    # drop them
+    drop_vars <- paste0("-`", v_info$term, "1`")
+    data <- select(data, !!! parse_exprs(drop_vars))
   }
-  return(panel_data(data, id = !! sym(id), wave = !! sym(wave)))
+  
+  # See if there were any multi-lagged vars
+  if (any(dim(pf$v_info) != dim(v_info))) {
+    for (term in pf$v_info$term %not% v_info$term) {
+      other_terms <-
+        which(pf$v_info$root == pf$v_info$root[pf$v_info$term == term])
+      other_terms <- other_terms %not% which(pf$v_info$term == term)
+      others <- pf$v_info[other_terms,]
+      if (any(others$lag == 0)) {
+        term_expr <- term
+      } else {
+        low_term <- others$term[which(others$lag == min(others$lag))]
+        new_lag <- pf$v_info$lag[pf$v_info$term == term] - 
+          others$lag[others$term == low_term]
+        term_expr <- paste0("lag(`", low_term, "`, n = ", new_lag, ")")
+      }
+      data <- mutate(data, 
+                     # I need to get the lag of the *new* root variable
+                     !! term := !! parse_expr(term_expr)
+      )
+    }
+  }
+  return(data)
   
 }
 
@@ -489,7 +519,7 @@ get_interactions <- function(formula) {
   }
 }
 
-set_meanvars <- function(pf) {
+set_meanvars <- function(pf, return.subset = FALSE) {
   v_subset <- pf$v_info
   # If no duplicate root terms, nothing to do here
   if (any(duplicated(v_subset$root))) {
@@ -501,7 +531,7 @@ set_meanvars <- function(pf) {
         # Drop the others
         v_subset <- filter(v_subset, term == !! var | root != !! var)
       } else { # find the minimum lag
-        min_lag <- which(min(filter(v_subset, root == !!var)$lag))
+        min_lag <- min(filter(v_subset, root == !!var)$lag)
         # Drop the others
         v_subset <- filter(v_subset, root != !! var | 
                              (root == !! var & lag == !! min_lag))
@@ -511,7 +541,7 @@ set_meanvars <- function(pf) {
       pf$v_info$meanvar[pf$v_info$root == var] <- 
         v_subset$meanvar[v_subset$root == var]
     }
-    return(pf$v_info)
+    if (return.subset == TRUE) return(v_subset) else return(pf$v_info)
   } else {return(pf$v_info)}
 }
 

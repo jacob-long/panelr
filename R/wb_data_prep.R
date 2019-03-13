@@ -34,13 +34,6 @@ wb_prepare_data <- function(formula, data, id = NULL, wave = NULL,
     # Pass to helper function
     pf <- wb_formula_parser(formula, dv, data)
     
-    # Need to do detrending before lags, etc.
-    if (detrend == TRUE) {
-      data <- detrend(pf$data, pf, dt_order, balance_correction, dt_random)
-    } else {
-      data <- pf$data
-    }
-    
     # models that don't use constants
     within_only <- c("within", "fixed")
     if (model %in% within_only) {
@@ -73,7 +66,7 @@ wb_prepare_data <- function(formula, data, id = NULL, wave = NULL,
                      end_form, collapse = ""
     )
     # Escape non-syntactic variables that are in the data
-    mf_form <- formula_ticks(mf_form, names(data))
+    mf_form <- formula_ticks(mf_form, names(pf$data))
     
     # Add weights to keep it in the DF
     if (!is.null(weights)) {
@@ -88,7 +81,11 @@ wb_prepare_data <- function(formula, data, id = NULL, wave = NULL,
     # Pass to special model_frame function that respects tibble groupings
     data <- model_frame(update(as.formula(mf_form),
                                as.formula(paste("~ . -", id, "-", wave))), 
-                        data = data)
+                        data = pf$data)
+    
+    if (detrend == TRUE) {
+      data <- detrend(data, pf, dt_order, balance_correction, dt_random)
+    } 
     
     # Now I fix any back-ticked names saved in this pf object
     pf$v_info$meanvar <- un_bt(pf$v_info$meanvar)
