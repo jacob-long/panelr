@@ -520,7 +520,8 @@ print.summary.wbm <- function(x, ...) {
 
   cat(x$mod_fit)
 
-  if (x$est_name != "between" & !is.null(x$within_table)) {
+  if (x$est_name != "between" & !is.null(x$within_table) && 
+      nrow(x$within_table) > 0) {
 
     if (x$est_name != "within") {
       cat(bold("WITHIN EFFECTS:\n"))
@@ -532,14 +533,16 @@ print.summary.wbm <- function(x, ...) {
 
   }
 
-  if (x$est_name != "contextual" & !is.null(x$between_table)) {
+  if (x$est_name != "contextual" & !is.null(x$between_table) && 
+      nrow(x$between_table) > 0) {
 
     cat(bold("BETWEEN EFFECTS:\n"))
     print(md_table(x$between_table, digits = x$digits, sig.digits = FALSE,
                    format = getOption("panelr.table.format", "markdown")))
     cat("\n")
 
-  } else if (x$est_name == "contextual" & !is.null(x$between_table)) {
+  } else if (x$est_name == "contextual" & !is.null(x$between_table) && 
+             nrow(x$between_table) > 0) {
     
     cat(bold("CONTEXTUAL EFFECTS:\n"))
     print(md_table(x$between_table, digits = x$digits, sig.digits = FALSE,
@@ -556,7 +559,7 @@ print.summary.wbm <- function(x, ...) {
     cat("\n")
   }
 
-  if (!is.null(x$ints_table)) {
+  if (!is.null(x$ints_table) && nrow(x$ints_table) > 0) {
 
     cat(bold("CROSS-LEVEL INTERACTIONS:\n"))
     print(md_table(x$ints_table, digits = x$digits, sig.digits = FALSE,
