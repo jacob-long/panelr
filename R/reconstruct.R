@@ -19,13 +19,12 @@ reconstruct.panel_data <- function(new, old) {
   }
   
   if (id %nin% names(new)) {
-    # warning("The panel_data object no longer has the id variable. ",
-    #         "Returning as a ", class(new)[1], " object instead.")
+    if ("panel_data" %in% class(new)) class(new) <- class(new) %not% "panel_data"
     return(new)
   }
+  
   if (wave %nin% names(new)) {
-    # warning("The panel_data object no longer has the wave variable. ",
-    #         "Returning as a ", class(new)[1], " object instead.")
+    if ("panel_data" %in% class(new)) class(new) <- class(new) %not% "panel_data"
     return(new)
   }
   
