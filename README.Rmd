@@ -7,7 +7,7 @@ output: github_document
 ```{r, echo = FALSE}
 knitr::opts_chunk$set(
   collapse = FALSE,
-  comment = "#>",
+  comment = "",
   fig.path = "README-"
 )
 options("panelr.table.format" = "multiline")

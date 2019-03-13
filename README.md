@@ -46,8 +46,10 @@ data("WageData")
 colnames(WageData)
 ```
 
-    #>  [1] "exp"   "wks"   "occ"   "ind"   "south" "smsa"  "ms"    "fem"  
-    #>  [9] "union" "ed"    "blk"   "lwage" "t"     "id"
+``` 
+ [1] "exp"   "wks"   "occ"   "ind"   "south" "smsa"  "ms"    "fem"  
+ [9] "union" "ed"    "blk"   "lwage" "t"     "id"   
+```
 
 The two key variables here are `t` and `id`. `t` is the wave of the
 survey the row of the data refers to while `id` is the survey
@@ -60,22 +62,22 @@ wages <- panel_data(WageData, id = id, wave = t)
 wages
 ```
 
-    #> # Panel data:    4,165 x 14
-    #> # entities:      id [595]
-    #> # wave variable: t
-    #>    id        t   exp   wks   occ   ind south  smsa    ms   fem union    ed
-    #>    <fct> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
-    #>  1 1         1     3    32     0     0     1     0     1     0     0     9
-    #>  2 1         2     4    43     0     0     1     0     1     0     0     9
-    #>  3 1         3     5    40     0     0     1     0     1     0     0     9
-    #>  4 1         4     6    39     0     0     1     0     1     0     0     9
-    #>  5 1         5     7    42     0     1     1     0     1     0     0     9
-    #>  6 1         6     8    35     0     1     1     0     1     0     0     9
-    #>  7 1         7     9    32     0     1     1     0     1     0     0     9
-    #>  8 2         1    30    34     1     0     0     0     1     0     0    11
-    #>  9 2         2    31    27     1     0     0     0     1     0     0    11
-    #> 10 2         3    32    33     1     1     0     0     1     0     1    11
-    #> # ... with 4,155 more rows, and 2 more variables: blk <dbl>, lwage <dbl>
+    # Panel data:    4,165 x 14
+    # entities:      id [595]
+    # wave variable: t [1, 2, 3, ... (7 waves)]
+       id        t   exp   wks   occ   ind south  smsa    ms   fem union    ed
+       <fct> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
+     1 1         1     3    32     0     0     1     0     1     0     0     9
+     2 1         2     4    43     0     0     1     0     1     0     0     9
+     3 1         3     5    40     0     0     1     0     1     0     0     9
+     4 1         4     6    39     0     0     1     0     1     0     0     9
+     5 1         5     7    42     0     1     1     0     1     0     0     9
+     6 1         6     8    35     0     1     1     0     1     0     0     9
+     7 1         7     9    32     0     1     1     0     1     0     0     9
+     8 2         1    30    34     1     0     0     0     1     0     0    11
+     9 2         2    31    27     1     0     0     0     1     0     0    11
+    10 2         3    32    33     1     1     0     0     1     0     1    11
+    # ... with 4,155 more rows, and 2 more variables: blk <dbl>, lwage <dbl>
 
 We have to tell `panel_data()` which column refers to the unique
 identifiers for respondents/entities (the latter when you have something
@@ -133,54 +135,54 @@ model <- wbm(lwage ~ lag(union) + wks | blk | blk * wks + (lag(union) | id),
 summary(model)
 ```
 
-    #> MODEL INFO:
-    #> Entities: 595
-    #> Time periods: 2-7
-    #> Dependent variable: lwage
-    #> Model type: Linear mixed effects
-    #> Specification: within-between
-    #> 
-    #> MODEL FIT:
-    #> AIC = 1427.04, BIC = 1495.03
-    #> Pseudo-R² (fixed effects) = 0.05
-    #> Pseudo-R² (total) = 0.75
-    #> Entity ICC = 0.73
-    #> 
-    #> WITHIN EFFECTS:
-    #> ---------------------------------------------------------
-    #>                     Est.   S.E.   t val.      d.f.      p
-    #> ---------------- ------- ------ -------- --------- ------
-    #> lag(union)          0.04   0.04     1.24     88.17   0.22
-    #> wks                -0.00   0.00    -1.51   2948.04   0.13
-    #> ---------------------------------------------------------
-    #> 
-    #> BETWEEN EFFECTS:
-    #> ---------------------------------------------------------------
-    #>                            Est.   S.E.   t val.     d.f.      p
-    #> ----------------------- ------- ------ -------- -------- ------
-    #> (Intercept)                6.20   0.24    25.89   571.98   0.00
-    #> imean(lag(union))          0.03   0.04     0.72   593.27   0.47
-    #> imean(wks)                 0.01   0.01     2.30   571.29   0.02
-    #> blk                       -0.35   0.06    -5.65   591.87   0.00
-    #> ---------------------------------------------------------------
-    #> 
-    #> CROSS-LEVEL INTERACTIONS:
-    #> ------------------------------------------------------
-    #>                  Est.   S.E.   t val.      d.f.      p
-    #> ------------- ------- ------ -------- --------- ------
-    #> wks:blk         -0.00   0.00    -1.06   2956.56   0.29
-    #> ------------------------------------------------------
-    #> 
-    #> p values calculated using Satterthwaite d.f.
-    #>  
-    #> RANDOM EFFECTS:
-    #> -------------------------------------
-    #>   Group      Parameter     Std. Dev. 
-    #> ---------- -------------- -----------
-    #>     id      (Intercept)     0.3785   
-    #>     id       lag(union)      0.24    
-    #>  Residual                   0.2291   
-    #> -------------------------------------
+    MODEL INFO:
+    Entities: 595
+    Time periods: 2-7
+    Dependent variable: lwage
+    Model type: Linear mixed effects
+    Specification: within-between
+    
+    MODEL FIT:
+    AIC = 1427.04, BIC = 1495.03
+    Pseudo-R² (fixed effects) = 0.05
+    Pseudo-R² (total) = 0.75
+    Entity ICC = 0.73
+    
+    WITHIN EFFECTS:
+    ---------------------------------------------------------
+                        Est.   S.E.   t val.      d.f.      p
+    ---------------- ------- ------ -------- --------- ------
+    lag(union)          0.04   0.04     1.24     88.17   0.22
+    wks                -0.00   0.00    -1.51   2948.04   0.13
+    ---------------------------------------------------------
+    
+    BETWEEN EFFECTS:
+    ---------------------------------------------------------------
+                               Est.   S.E.   t val.     d.f.      p
+    ----------------------- ------- ------ -------- -------- ------
+    (Intercept)                6.20   0.24    25.89   571.98   0.00
+    imean(lag(union))          0.03   0.04     0.72   593.27   0.47
+    imean(wks)                 0.01   0.01     2.30   571.29   0.02
+    blk                       -0.35   0.06    -5.65   591.87   0.00
+    ---------------------------------------------------------------
+    
+    CROSS-LEVEL INTERACTIONS:
+    ------------------------------------------------------
+                     Est.   S.E.   t val.      d.f.      p
+    ------------- ------- ------ -------- --------- ------
+    wks:blk         -0.00   0.00    -1.06   2956.56   0.29
+    ------------------------------------------------------
+    
+    p values calculated using Satterthwaite d.f.
+     
+    RANDOM EFFECTS:
+    -------------------------------------
+      Group      Parameter     Std. Dev. 
+    ---------- -------------- -----------
+        id      (Intercept)     0.3785   
+        id       lag(union)      0.24    
+     Residual                   0.2291   
+    -------------------------------------
 
 Note that `imean()` is an internal function that calculates the
 individual-level mean, which represents the between-subjects effects of
