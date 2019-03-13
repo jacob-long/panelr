@@ -3,11 +3,14 @@
 \name{get_wave}
 \alias{get_wave}
 \alias{get_id}
+\alias{get_periods}
 \title{Retrieve panel_data metadata}
 \usage{
 get_wave(data)
 
 get_id(data)
+
+get_periods(data)
 }
 \arguments{
 \item{data}{A \code{panel_data} frame}
@@ -16,7 +19,7 @@ get_id(data)
 A \code{panel_data} frame
 }
 \description{
-\code{get_id} and \code{get_wave} are extractor functions that can be
-used to retrieve the names of the id and wave variables of a \code{panel_data}
-frame.
+\code{get_id()}, \code{get_wave()}, and \code{get_periods()} are extractor
+functions that can be used to retrieve the names of the id and wave
+variables or time periods of a \code{panel_data} frame.
 }

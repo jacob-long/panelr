@@ -45,13 +45,17 @@ panel_data <- function(data, id = id, wave = wave, ...) {
     data[[wave]] <- factor(data[[wave]], ordered = TRUE)
     msg_wrap("Unordered factor wave variable was converted to ordered.
              You may wish to check that the order is correct.")
+    periods <- levels(data[[wave]])
   } else if (!is.ordered(data[[wave]]) & !is.numeric(data[[wave]])) {
     stop("The wave variable must be numeric or an ordered factor.")
+  } else {
+    periods <- sort(unique(data[[wave]]))
   }
   
   if (!is.ordered(wave) && 0 %in% data[[wave]]) {
     message("There cannot be a wave 0. Adding 1 to each wave.\n")
     data[[wave]] <- data[[wave]] + 1
+    periods <- periods + 1
   }
 
   # Ordering by wave and then group ensures lag functions work right
@@ -67,7 +71,8 @@ panel_data <- function(data, id = id, wave = wave, ...) {
                              id = id,
                              wave = wave,
                              subclass = c("panel_data", "grouped_df"),
-                             nrow = nrow(data))
+                             nrow = nrow(data),
+                             periods = periods)
 
   return(data)
 
@@ -332,9 +337,17 @@ print.panel_data <- function(x, ...) {
   names(print_tbl$summary)[[1]] <- "Panel data"
   
   # Panel metadata
+  periods <- get_periods(x)
+  if (length(periods) > 3) {
+    periods <- paste0(paste(periods[1:3], collapse = ", "), ", ... (", 
+                      n_distinct(periods), " waves)")
+  } else {
+    periods <- paste0(paste(periods, collapse = ", "), " (", 
+                      n_distinct(periods), " waves)")
+  }
   panel_meta <- c("entities" =
                     paste0(get_id(x), " [", n_distinct(x[[get_id(x)]]), "]"),
-                    "wave variable" = get_wave(x)
+                    "wave variable" = paste0(get_wave(x), " [", periods, "]")
                  )
   # Add panel metadata
   print_tbl$summary <- append(print_tbl$summary, panel_meta, after = 1)
@@ -375,6 +388,12 @@ get_wave <- function(data) {
 
 get_id <- function(data) {
   attr(data, "id")
+}
+
+#' @export
+#' @rdname get_wave
+get_periods <- function(data) {
+  attr(data, "periods")
 }
 
 ##### internal panel_data tools #############################################

@@ -48,6 +48,7 @@ re_attribute <- function(new, old) {
   attr(new, "constants") <- o$constants
   attr(new, "wave") <- get_wave(old)
   attr(new, "id") <- get_id(old)
+  attr(new, "periods") <- get_periods(old)
   return(new)
 }
 
