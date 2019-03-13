@@ -9,7 +9,18 @@ variables in line with the recommendations of [Giesselmann and Schmidt-Catran
 * `are_varying()` can now also assess individual-level variation, so using 
 the `type = "individual"` argument you can instead assess variables like age 
 that vary over time but change equally for every case.
-* `wbm()` can now handle transformed dependent variables (e.g. `log(y)`).
+* `wbm()` can now handle transformed dependent variables (e.g. `log(y)`). 
+Transformations on the right-hand side of the equation were always supported.
+* `panel_data` objects are now quite a bit more difficult to break by 
+accidentally subsetting the ID and wave columns out of existence. Now, 
+subsetting via `data[]`, `select()` and implicitly via `transmute()` will 
+never remove the ID and wave columns. You will also be warned if you `arrange()`
+a `panel_data` object since it will generally break `lag()` functions.
+* `panel_data` objects now store information about what the periods are for
+the data, which you can access with the `get_periods()` function. For example,
+if the waves in your data are the numbers 1 through 7, that's what you'll get.
+This is more useful when the periods are irregular, such as if the waves are
+the years of a biennial survey.
 
 Bugfixes:
 * The way lagged predictors are mean-centered is now consistent with the 
@@ -17,6 +28,8 @@ conventional fixed effects estimator. Results may change non-trivially
 due to this change. Previously, the mean used for mean-centering was based on
 all waves of data, but now it is based on all waves except the number of lags
 away from the latest wave. 
+* Detrending has also been tweaked to work comparably with the changes to 
+the mean-centering.
 * You now can add the `wave` variable to `wbm()` in the formula without
 running into cryptic errors.
 * Fixed a problem in which transformed variables (like `lag(x)`) could not be
