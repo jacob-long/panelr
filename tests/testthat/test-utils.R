@@ -10,7 +10,7 @@ test_that("dplyr functions return panel_data objects", {
   expect_s3_class(transmute(w, gender = fem), "panel_data")
   expect_s3_class(summarize(w, mean_wg = mean(lwage)), "tbl_df")
   expect_s3_class(filter(w, fem == 1), "panel_data")
-  expect_s3_class(arrange(w, lwage), "panel_data")
+  expect_warning(arrange(w, lwage))
   expect_s3_class(distinct(w, lwage), "tbl_df")
   suppressWarnings({
   expect_s3_class(full_join(w, summarize(w, mean_wg = mean(lwage), by = "id")),
