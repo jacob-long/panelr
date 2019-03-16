@@ -232,26 +232,29 @@ long_panel <- function(data, prefix = NULL, suffix = NULL, begin = NULL,
   # Programmatically building vector of regex patterns for each period
   patterns <- c()
   # Something I need if label is at beginning where I capture the entire varname
-  begin_patterns <- c()
+  replace_patterns <- c()
   if (label_location[1] == "beginning") {
     for (i in periods) {
       patterns <- c(patterns,
         paste0("(?<=^", pre_reg, escapeRegex(i), post_reg, ")(", match, ")")
       )
-      begin_patterns <- c(begin_patterns,
+      replace_patterns <- c(replace_patterns,
         paste0("^", pre_reg, "(", escapeRegex(i), ")(", post_reg, ")(", match, ")")
       )
     }
     sep <- suffix
-    sep <- prefix <- paste0(sep, prefix)
+    sep <- prefix <- paste0("__", sep, prefix)
     suffix <- NULL
   } else if (label_location[1] == "end") {
     for (i in periods) {
       patterns <- c(patterns,
         paste0("(", match, ")(?=", pre_reg, escapeRegex(i), post_reg, "$)")
       )
+      replace_patterns <- c(replace_patterns,
+        paste0("(", match, ")(", pre_reg, ")(", escapeRegex(i), ")(", post_reg, "$)")
+      )
     }
-    sep <- prefix
+    sep <- paste0("__", prefix)
   } else {stop("label_location must be 'beginning' or 'end'.")}
   
   # Using regex patterns to build up a list of variable names for 
@@ -266,29 +269,29 @@ long_panel <- function(data, prefix = NULL, suffix = NULL, begin = NULL,
     which_period <- as.character(periods[which(patterns == p)])
     stubs_by_period[[which_period]] <- stubs[matches]
     # Deal with the problem of there being no separator by adding it myself
-    if (no_sep == TRUE && label_location[1] == "end") {
-      replace <- "\\1__"
-      wvars <- str_replace(wvars, p, replace)
+    if (label_location[1] == "end") {
+      replace <- paste0("\\1", sep, "\\3") # this also deletes suffix
+      wvars <- str_replace(wvars, replace_patterns[which(patterns == p)], replace)
       names(data)[names(data) %nin% id] <- wvars
     }
     # If label is at beginning, I'm moving it to the end
     if (label_location[1] == "beginning") {
       # Notice that I omit match 2, which is the suffix 
       replace <- paste0("\\3", sep, "\\1")
-      wvars <- str_replace(wvars, begin_patterns[which(patterns == p)], replace)
+      wvars <- str_replace(wvars, replace_patterns[which(patterns == p)], replace)
       names(data)[names(data) %nin% id] <- wvars
     }
     # We have problems when there is a suffix at the very end,
     # so I'll delete it here
-    if (label_location[1] == "end" & !(is.null(suffix) || nchar(suffix) == 0)) {
-      the_match <- paste0("(?<=", pre_reg,
-                          escapeRegex(periods[which(patterns == p)]),
-                          ")", post_reg, "$")
-      # Need to use gsub instead of str_replace for the ability to do 
-      # non-fixed-width look-behind (with perl = TRUE)
-      wvars <- gsub(the_match, "", wvars, perl = TRUE)
-      names(data)[names(data) %nin% id] <- wvars
-    }
+    # if (label_location[1] == "end" & !(is.null(suffix) || nchar(suffix) == 0)) {
+    #   the_match <- paste0("(?<=", pre_reg,
+    #                       escapeRegex(periods[which(patterns == p)]),
+    #                       ")", post_reg, "$")
+    #   # Need to use gsub instead of str_replace for the ability to do 
+    #   # non-fixed-width look-behind (with perl = TRUE)
+    #   wvars <- gsub(the_match, "", wvars, perl = TRUE)
+    #   names(data)[names(data) %nin% id] <- wvars
+    # }
     varying_by_period[[which_period]] <-  wvars[matches]
   }
   
@@ -302,7 +305,7 @@ long_panel <- function(data, prefix = NULL, suffix = NULL, begin = NULL,
       for (period in periods) { # Iterate through periods
         if (var %nin% stubs_by_period[[period]]) { # If stub missing in period
           # Build variable name (all suffixes are deleted by now)
-          vname <- paste0(var, prefix, period)
+          vname <- paste0(var, sep, period)
           # Create column in data with empty values
           data[vname] <- rep(NA, times = nrow(data))
           # Add to var list (has to be done this way to preserve time order)

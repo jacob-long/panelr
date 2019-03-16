@@ -230,6 +230,31 @@ test_that("long_panel works (beginning/no separators/character periods)", {
                panel_data(l))
 })
 
+w <- tibble::tribble(
+  ~qW2W1, ~qW2W2, ~qW2W12,
+  1,     2,      3,
+  5,     7,      9,
+  11,    15,     19
+)
+
+l <- panel_data(tibble::tribble(
+  ~id,  ~wave,  ~qW2,
+    1,      1,     1,
+    1,      2,     2,
+    1,     12,     3,
+    2,      1,     5,
+    2,      2,     7, 
+    2,     12,     9,
+    3,      1,    11, 
+    3,      2,    15,
+    3,     12,    19
+))
+
+test_that("long_panel works (redundant match in varname, ambiguous waves)", {
+  expect_equal(long_panel(w, prefix = "W", label_location = "end", 
+                          periods = c(1, 2, 12)), l)
+})
+
 context("tibble printing")
 
 test_that("print.panel_data works", {
