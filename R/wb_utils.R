@@ -203,9 +203,13 @@ detrend <- function(data, pf, dt_order, balance_correction, dt_random) {
   # Define detrending function
   dt_model <- function(data, var, order = dt_order) {
     
-    var <- bt(var)
-    the_formula <- as.formula(paste(var, "~ poly(", wave, ",", order,
-                                    ", raw = TRUE)"))
+    varbt <- bt(var)
+    if (is.numeric(data[[wave]])) {
+      the_formula <- as.formula(paste(varbt, "~ poly(", wave, ",", order,
+                                      ", raw = TRUE)"))
+    } else {
+      the_formula <- as.formula(paste(varbt, "~", wave))
+    }
     tryCatch({
       resid(lm(formula = the_formula, data = data, na.action = na.exclude))
     }, error = function(x) {rep(NA, times = nrow(data))})
@@ -218,8 +222,13 @@ detrend <- function(data, pf, dt_order, balance_correction, dt_random) {
     var <- bt(var)
     if (bc == TRUE) {  
       
-      the_formula <- as.formula(paste(var, "~ poly(", wave, ",",
-                                      order, ", raw = TRUE)"))
+      varbt <- bt(var)
+      if (is.numeric(data[[wave]])) {
+        the_formula <- as.formula(paste(varbt, "~ poly(", wave, ",", order,
+                                        ", raw = TRUE)"))
+      } else {
+        the_formula <- as.formula(paste(varbt, "~", wave))
+      }
       out <- tryCatch({
         coef(mod <- lm(formula = the_formula, data = data,
                        na.action = na.exclude))["(Intercept)"]
