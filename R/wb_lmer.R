@@ -44,9 +44,28 @@
 #'   package. 
 #' @param weights If using weights, either the name of the column in the data
 #'   that contains the weights or a vector of the weights.
+#'   
 #' @inheritParams lme4::glmer
+#' 
 #' @param ... Additional arguments provided to [lme4::lmer()],
 #'   [lme4::glmer()], or [lme4::glmer.nb()].
+#'   
+#' @param interaction.style The best way to calculate interactions in within
+#'  models is in some dispute. The conventional way (`"demean"`) is to first
+#'  calculate the product of the variables involved in the interaction before
+#'  those variables have their means subtracted and then subtract the mean of 
+#'  the product from the product term (see Schunk and Perales (2017)). 
+#'  Giesselmann and Schmidt-Catran (2018) show this method carries 
+#'  between-entity differences that within models are designed to model out.
+#'  They suggest an alternate method (`"double-demean"`) in which the product
+#'  term is first calculated using the de-meaned lower-order variables and 
+#'  then the subject means are subtracted from this product term. Another 
+#'  option is to simply use the product term of the de-meaned variables
+#'  (`"raw"`), but Giesselmann and Schmidt-Catran (2018) show this method 
+#'  biases the results towards zero effect. The default is `"double-demean"`
+#'  but if emulating other software is the goal, `"demean"` might be 
+#'  preferred.
+#'     
 #'
 #' @inheritParams jtools::scale_mod
 #' @inheritParams jtools::summ.merMod
@@ -75,16 +94,16 @@
 #'
 #' `lwage ~ union | blk`
 #'
-#' We put time-varying variables before the first `|` and time-invariant
+#' Put time-varying variables before the first `|` and time-invariant
 #' variables afterwards. You can specify lags like `lag(union)` for time-varying
 #' variables; for more than 1 lag, include the number: `lag(union, 2)`.
 #'
 #' After the first `|` go the time-invariant variables. Note that if you put a
-#' time-varying variable here, only the first wave measure will be used — in
-#' some cases this will be what you want. You may also take a time-varying
-#' variable --- let's say weeks worked (`wks`) --- and use `imean(wks)` to
-#' include the individual's mean across all waves as a predictor while omitting
-#' the per-wave measures.
+#' time-varying variable here, what you get is the observed value rather than
+#' one adjusted to isolate within-entity effects. You may also take a 
+#' time-varying variable --- let's say weeks worked (`wks`) --- and use
+#' `imean(wks)` to include the individual's mean across all waves as a 
+#' predictor while omitting the per-wave measures.
 #'
 #' There is also a place for a second `|`. Here you can specify cross-level
 #' interactions (within-level interactions can be specified here as well).
@@ -101,17 +120,11 @@
 #' syntax:
 #'
 #' `lwage ~ union | blk | (union | id)`
-#'
-#' Note that if your random slope term has non-alphanumeric characters (like
-#' if you want a random slope for `lag(union)`, then *for the random effect
-#' specification only*, you need to put that term in backticks. For example,
-#'
-#' ```
-#' lwage ~ lag(union) | blk | (`lag(union)` | id)
-#' ```
-#'
-#' This is just a limitation of the way the formulas are dealt with by
-#' `panelr`.
+#' 
+#' You can also include the wave variable in a random effects term to 
+#' specify a latent growth curve model:
+#' 
+#' `lwage ~ union | blk + t | (t | id)`
 #'
 #' One last thing to know: If you want to use the second `|` but not the first,
 #' put a 1 or 0 after the first, like this:
@@ -124,7 +137,7 @@
 #' **Models**
 #'
 #' As a convenience, `wbm` does the heavy lifting for specifying the
-#' within-between model correctly. Of course, as a side effect it only
+#' within-between model correctly. As a side effect it only
 #' takes a few easy tweaks to specify the model slightly differently. You
 #' can change this behavior with the `model` argument.
 #'
@@ -156,19 +169,6 @@
 #' variables will be de-meaned, but the individual-level mean is not included
 #' in the model.
 #'
-#' Another option is what I'm calling `"stability"`, which is a non-standard
-#' term. This is another convenience, this being one you could do yourself
-#' through the formula syntax. The idea is that while the within effect and
-#' predicting change is great, sometimes you want to really drill down on how
-#' people that are *generally* high or low on the construct differ from each
-#' other. The "stability" specification creates interaction terms with the
-#' individual level means and the time variable, giving you something like a
-#' growth curve model but with the particular question of whether the growth
-#' trend depends on the average level of a time-varying variable. This can be
-#' particularly informative when you are concerned that your time-varying
-#' variable changes so infrequently that there just isn't enough variation
-#' to glean anything from the within effect.
-#'
 #' @examples
 #' data("WageData")
 #' wages <- panel_data(WageData, id = id, wave = t)
@@ -191,6 +191,16 @@
 #' and between-person effects in longitudinal models of change.
 #' *Annual Review of Psychology*, *62*, 583–619.
 #' https://doi.org/10.1146/annurev.psych.093008.100356
+#' 
+#' Giesselmann, M., & Schmidt-Catran, A. (2018). Interactions in fixed effects
+#' regression models (Discussion Papers of DIW Berlin No. 1748). 
+#' *DIW Berlin, German Institute for Economic Research*. 
+#' Retrieved from https://ideas.repec.org/p/diw/diwwpp/dp1748.html
+#'
+#' Schunck, R., & Perales, F. (2017). Within- and between-cluster effects in
+#' generalized linear mixed models: A discussion of approaches and the 
+#' `xthybrid` command. *The Stata Journal*, *17*, 89–115. 
+#' https://doi.org/10.1177/1536867X1701700106
 #'
 #' @export
 #' @import jtools
@@ -204,7 +214,8 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
                 wave.factor = FALSE, min.waves = 2, family = gaussian,
                 balance_correction = FALSE, dt_random = TRUE, dt_order = 1,
                 pR2 = TRUE, pvals = TRUE, t.df = "Satterthwaite", 
-                weights = NULL, offset = NULL,
+                weights = NULL, offset = NULL, 
+                interaction.style = c("double-demean", "demean", "raw"),
                 scale = FALSE, scale.response = FALSE, n.sd = 1, ...) {
   
   the_call <- match.call()
@@ -219,6 +230,8 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
   }
   
   formula <- Formula::Formula(formula)
+  interaction.style <- match.arg(interaction.style,
+                                 c("double-demean", "demean", "raw"))
   
   # Send to helper function for data prep
   prepped <- wb_prepare_data(formula = formula, data = data, id = id,
@@ -227,8 +240,10 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
                              min.waves = min.waves,
                              balance_correction = balance_correction,
                              dt_random = dt_random, dt_order = dt_order,
-                             weights = UQ(enquo(weights)),
-                             offset = UQ(enquo(offset)))
+                             weights = !! enquo(weights),
+                             offset = !! enquo(offset), 
+                             demean.ints = interaction.style == "double-demean",
+                             old.ints = interaction.style == "demean")
   
   e <- prepped$e
   pf <- prepped$pf
@@ -255,22 +270,8 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
 
   # Use helper function to generate formula to pass to lme4
   fin_formula <-  prepare_lme4_formula(e$fin_formula, pf, data, use.wave, wave,
-                                       id, e$within_ints, dv)  
-
-  # Get the model frame so I can get the expanded factor variable names
-  mm <- suppressWarnings(model.matrix(fin_formula, data = data))
-  # Find the interaction terms (which may be expanded if factors are involved)
-  int_indices <- which(attr(terms(fin_formula), "order") >= 2)
-  if (length(int_indices) > 0) {
-    keeps <- sapply(get_interactions(fin_formula), function(x) {
-      any(un_bt(x) %in% pf$varying)
-    })
-    int_indices <- int_indices[keeps]
-  }
-  # Grab those names from the model matrix
-  ints <- colnames(mm)[attr(mm, "assign") %in% int_indices]
-  # Save some memory
-  rm(mm)
+                                       id, c(e$int_means, e$within_ints),
+                                       e$cross_ints, dv)  
   
   if (!is.null(offset)) {
     offset[!is.finite(offset)] <- NA
@@ -278,20 +279,14 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
 
   # Conditionally choose lme4 function based on family argument
   if (as.character(substitute(family))[1] == "gaussian") {
-
       fit <- lme4::lmer(fin_formula, data = data, weights = weights,
                         offset = offset, ...)
-
   } else if (as.character(substitute(family))[1] == "negbinomial") {
-
       fit <- lme4::glmer.nb(fin_formula, data = data, weights = weights,
                             offset = offset, ...)
-
   } else {
-
       fit <- lme4::glmer(fin_formula, data = data, family = family,
                           weights = weights, offset = offset, ...)
-
   }
 
   # Getting jtools summary info so it isn't re-run every time summary()
@@ -310,9 +305,7 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
   # check if pseudo-R2 calculation failed
   if (is.na(attr(j, "rsqs")[1])) pR2 <- FALSE
   
-  ints <- ints[ints %nin% e$stab_terms]
-  unbt_ints <- gsub("`", "", ints, fixed = TRUE)
-  ints <- ints[unbt_ints %nin% e$stab_terms]
+  ints <- e$cross_ints
 
   j2 <- attributes(j)
   # Drop redundant model from the summ object
@@ -339,7 +332,6 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
               num_distinct = prepped$num_distinct,
               varying = c(pf$varying, e$within_ints), constants = pf$constants,
               meanvars = pf$meanvars, model = model,
-              stab_terms = e$stab_terms,
               max_wave = prepped$maxwave, min_wave = prepped$minwave,
               ints = ints, pvals = pvals, pR2 = pR2, env = the_env,
               mf_form = prepped$mf_form,
@@ -432,21 +424,13 @@ summary.wbm <- function(object, ...) {
     x2$ints <- NULL
   }
 
-  coefs <- as.data.frame(coefs)
+  coefs <- as.data.frame(coefs, make.names = FALSE)
   rows <- rownames(coefs)
 
   if (length(varying) > 0 & est_name != "between") {
-
     within_table <- coefs[rownames(coefs) %in% varying,]
     coefs <- coefs[rownames(coefs) %nin% varying,]
     rows <- rows %not% varying
-
-    if (length(x2$stab_terms) > 0) {
-      stabs <- coefs[rownames(coefs) %in% x2$stab_terms, ]
-      coefs <- coefs[rownames(coefs) %nin% x2$stab_terms, ]
-      rows <- rows %not% x2$stab_terms
-    }
-    
   } else {
     within_table <- NULL
   }
@@ -465,41 +449,27 @@ summary.wbm <- function(object, ...) {
     between_table <- NULL
   }
 
-  if (x2$model == "stability") {
-    time_trends <- stabs
-  } else {
-    time_trends <- NULL
-  }
-
   if (lme4::isLMM(x) == TRUE & j2$pvals == TRUE) {
 
     if (j2$p_calc == "k-r") {
-
       df_msg <- italic(str_wrap("p values calculated using Kenward-Roger
                                 standard errors and d.f."), "\n")
-
     } else if (j2$p_calc == "s") {
-      
       df_msg <- italic("p values calculated using Satterthwaite d.f.\n")
-      
     } else {
-
       df_msg <- italic(
         paste("p values calculated using df =", round(j2$df, digits), "\n")
       )
-
     }
 
   } else {
-
     df_msg <- NULL
-
   }
   
   ranef_table <- as.data.frame(j$rcoeftable)
   ranef_table[, 3] <- as.numeric(as.character(ranef_table[, 3]))
 
-  out <- list(ranef_table = ranef_table, time_trends = time_trends,
+  out <- list(ranef_table = ranef_table,
               within_table = within_table, between_table = between_table,
               entity_icc = entity_icc, mod_info = mod_info, mod_fit = mod_fit,
               model = x2$model, est_name = est_name,
@@ -549,14 +519,6 @@ print.summary.wbm <- function(x, ...) {
                    format = getOption("panelr.table.format", "markdown")))
     cat("\n")
 
-  }
-
-  if (x$model == "stability") {
-
-    cat(bold("BETWEEN-ENTITY TIME TRENDS:\n"))
-    print(md_table(x$time_trends, digits = x$digits, sig.digits = FALSE,
-                   format = getOption("panelr.table.format", "markdown")))
-    cat("\n")
   }
 
   if (!is.null(x$ints_table) && nrow(x$ints_table) > 0) {
@@ -670,5 +632,7 @@ tidy.wbm <- function(x, conf.int = FALSE, conf.level = .95,
 #' }
 glance.wbm <- function(x, ...) {
   sum <- summary(x)
-  return(tibble::as_tibble(sum$mod_info_list))
+  mod_info_list <- sum$mod_info_list
+  mod_info_list[sapply(mod_info_list, is.null)] <- NA
+  return(tibble::as_tibble(mod_info_list))
 }

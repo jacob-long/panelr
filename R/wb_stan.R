@@ -54,6 +54,7 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
                    fit_model = TRUE, balance_correction = FALSE,
                    dt_random = TRUE, dt_order = 1,
                    chains = 3, iter = 2000, scale = FALSE, save_ranef = FALSE,
+                   interaction.style = c("double-demean", "demean", "raw"),
                    weights = NULL, offset = NULL, ...) {
 
   if (!requireNamespace("brms")) {
@@ -72,6 +73,8 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
   }
   
   formula <- Formula::Formula(formula)
+  interaction.style <- match.arg(interaction.style,
+                                 c("double-demean", "demean", "raw"))
   
   # Send to helper function for data prep
   prepped <- wb_prepare_data(formula = formula, data = data, id = id,
@@ -81,7 +84,9 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
                              balance_correction = balance_correction,
                              dt_random = dt_random, dt_order = dt_order,
                              weights = UQ(enquo(weights)),
-                             offset = UQ(enquo(offset)))
+                             offset = UQ(enquo(offset)), 
+                             demean.ints = interaction.style == "double-demean",
+                             old.ints = interaction.style == "demean")
   
   e <- prepped$e
   pf <- prepped$pf
@@ -96,14 +101,16 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
     data[wave] <- as.factor(data[wave])
   }
 
-  fin_formula <- formula_esc(e$fin_formula, c(e$within_ints, pf$v_info$meanvar,
+  fin_formula <- formula_esc(e$fin_formula, c(e$int_means, e$within_ints,
+                                              e$cross_ints, pf$v_info$meanvar,
                                               pf$varying, pf$constants, dv))
 
   names(data) <- make.names(names(data))
   
   # Use helper function to generate formula to pass to lme4
   fin_formula <- prepare_lme4_formula(fin_formula, pf, data, use.wave, wave,
-                                      id, e$within_ints, dv)  
+                                      id, c(e$int_means, e$within_ints),
+                                      e$cross_ints, dv)  
 
   # TODO: test this
   # Give brms the weights in the desired formula syntax
@@ -116,25 +123,8 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
   }
 
   fin_formula <- as.formula(fin_formula)
-
-  # Get the model frame so I can get the expanded factor variable names
-  mm <- suppressWarnings(model.matrix(fin_formula, data = data))
-  # Find the interaction terms (which may be expanded if factors are involved)
-  int_indices <- which(attr(terms(fin_formula), "order") >= 2)
-  if (length(int_indices) > 0) {
-    keeps <- sapply(get_interactions(fin_formula), function(x) {
-      any(x %in% pf$varying)
-    })
-    int_indices <- int_indices[keeps]
-  }
-  # Grab those names from the model matrix
-  ints <- colnames(mm)[attr(mm, "assign") %in% int_indices]
-  # Save some memory
-  rm(mm)
   
-  ints <- ints[!(ints %in% e$stab_terms)]
-  unbt_ints <- gsub("`", "", ints, fixed = TRUE)
-  ints <- ints[!(unbt_ints %in% e$stab_terms)]
+  ints <- e$cross_ints
 
   cor_form <- as.formula(paste("~", wave, "|", id))
 

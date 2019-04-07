@@ -9,6 +9,7 @@ wbm(formula, data, id = NULL, wave = NULL, model = "w-b",
   min.waves = 2, family = gaussian, balance_correction = FALSE,
   dt_random = TRUE, dt_order = 1, pR2 = TRUE, pvals = TRUE,
   t.df = "Satterthwaite", weights = NULL, offset = NULL,
+  interaction.style = c("double-demean", "demean", "raw"),
   scale = FALSE, scale.response = FALSE, n.sd = 1, ...)
 }
 \arguments{
@@ -79,6 +80,22 @@ that contains the weights or a vector of the weights.}
     terms can be included in the formula instead or as well, and if more
     than one is specified their sum is used.  See \code{\link{model.offset}}.}
 
+\item{interaction.style}{The best way to calculate interactions in within
+models is in some dispute. The conventional way (\code{"demean"}) is to first
+calculate the product of the variables involved in the interaction before
+those variables have their means subtracted and then subtract the mean of
+the product from the product term (see Schunk and Perales (2017)).
+Giesselmann and Schmidt-Catran (2018) show this method carries
+between-entity differences that within models are designed to model out.
+They suggest an alternate method (\code{"double-demean"}) in which the product
+term is first calculated using the de-meaned lower-order variables and
+then the subject means are subtracted from this product term. Another
+option is to simply use the product term of the de-meaned variables
+(\code{"raw"}), but Giesselmann and Schmidt-Catran (2018) show this method
+biases the results towards zero effect. The default is \code{"double-demean"}
+but if emulating other software is the goal, \code{"demean"} might be
+preferred.}
+
 \item{scale}{If \code{TRUE}, reports standardized regression
 coefficients. Default is \code{FALSE}.}
 
@@ -119,16 +136,16 @@ like this:
 
 \code{lwage ~ union | blk}
 
-We put time-varying variables before the first \code{|} and time-invariant
+Put time-varying variables before the first \code{|} and time-invariant
 variables afterwards. You can specify lags like \code{lag(union)} for time-varying
 variables; for more than 1 lag, include the number: \code{lag(union, 2)}.
 
 After the first \code{|} go the time-invariant variables. Note that if you put a
-time-varying variable here, only the first wave measure will be used — in
-some cases this will be what you want. You may also take a time-varying
-variable --- let's say weeks worked (\code{wks}) --- and use \code{imean(wks)} to
-include the individual's mean across all waves as a predictor while omitting
-the per-wave measures.
+time-varying variable here, what you get is the observed value rather than
+one adjusted to isolate within-entity effects. You may also take a
+time-varying variable --- let's say weeks worked (\code{wks}) --- and use
+\code{imean(wks)} to include the individual's mean across all waves as a
+predictor while omitting the per-wave measures.
 
 There is also a place for a second \code{|}. Here you can specify cross-level
 interactions (within-level interactions can be specified here as well).
@@ -146,13 +163,10 @@ syntax:
 
 \code{lwage ~ union | blk | (union | id)}
 
-Note that if your random slope term has non-alphanumeric characters (like
-if you want a random slope for \code{lag(union)}, then \emph{for the random effect
-specification only}, you need to put that term in backticks. For example,\preformatted{lwage ~ lag(union) | blk | (`lag(union)` | id)
-}
+You can also include the wave variable in a random effects term to
+specify a latent growth curve model:
 
-This is just a limitation of the way the formulas are dealt with by
-\code{panelr}.
+\code{lwage ~ union | blk + t | (t | id)}
 
 One last thing to know: If you want to use the second \code{|} but not the first,
 put a 1 or 0 after the first, like this:
@@ -165,7 +179,7 @@ all.
 \strong{Models}
 
 As a convenience, \code{wbm} does the heavy lifting for specifying the
-within-between model correctly. Of course, as a side effect it only
+within-between model correctly. As a side effect it only
 takes a few easy tweaks to specify the model slightly differently. You
 can change this behavior with the \code{model} argument.
 
@@ -196,19 +210,6 @@ To fit a fixed effects model, use either \code{"within"} or \code{"fixed"}. Any
 between-subjects terms in the formula will be ignored. The time-varying
 variables will be de-meaned, but the individual-level mean is not included
 in the model.
-
-Another option is what I'm calling \code{"stability"}, which is a non-standard
-term. This is another convenience, this being one you could do yourself
-through the formula syntax. The idea is that while the within effect and
-predicting change is great, sometimes you want to really drill down on how
-people that are \emph{generally} high or low on the construct differ from each
-other. The "stability" specification creates interaction terms with the
-individual level means and the time variable, giving you something like a
-growth curve model but with the particular question of whether the growth
-trend depends on the average level of a time-varying variable. This can be
-particularly informative when you are concerned that your time-varying
-variable changes so infrequently that there just isn't enough variation
-to glean anything from the within effect.
 }
 \examples{
 data("WageData")
@@ -232,6 +233,16 @@ Curran, P. J., & Bauer, D. J. (2011). The disaggregation of within-person
 and between-person effects in longitudinal models of change.
 \emph{Annual Review of Psychology}, \emph{62}, 583–619.
 https://doi.org/10.1146/annurev.psych.093008.100356
+
+Giesselmann, M., & Schmidt-Catran, A. (2018). Interactions in fixed effects
+regression models (Discussion Papers of DIW Berlin No. 1748).
+\emph{DIW Berlin, German Institute for Economic Research}.
+Retrieved from https://ideas.repec.org/p/diw/diwwpp/dp1748.html
+
+Schunck, R., & Perales, F. (2017). Within- and between-cluster effects in
+generalized linear mixed models: A discussion of approaches and the
+\code{xthybrid} command. \emph{The Stata Journal}, \emph{17}, 89–115.
+https://doi.org/10.1177/1536867X1701700106
 }
 \seealso{
 \code{\link[=wbm_stan]{wbm_stan()}} for a Bayesian estimation option.
