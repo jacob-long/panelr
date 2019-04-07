@@ -291,19 +291,28 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
 
   # Getting jtools summary info so it isn't re-run every time summary()
   # is called
-  if (as.character(substitute(family))[1] == "gaussian" & isREML(fit) == FALSE) {
+  dont_use_satterthwaite <- 
+    as.character(substitute(family))[1] == "gaussian" &&
+      (isREML(fit) == FALSE | check_lmerModTest(fit)) 
+  if (dont_use_satterthwaite == TRUE & t.df == "Satterthwaite") {
     t.df <- "residual"
-  } else {t.df <- NULL}
+    sfit <- fit
+  } else {
+    if (lme4::isLMM(fit) & t.df == "Satterthwaite") {
+      t.df <- NULL
+      sfit <- lmerTest::as_lmerModLmerTest(fit)
+    } else sfit <- fit
+  }
   t0 <- Sys.time()
   j <- suppressMessages(
-    jtools::j_summ(fit, pvals = pvals, r.squared = pR2, t.df = t.df))
+    jtools::j_summ(sfit, pvals = pvals, r.squared = pR2, t.df = t.df))
   t1 <- Sys.time()
   if (t1 - t0 > 5) {
     msg_wrap("If wbm is taking too long to run, you can try setting 
              pvals = FALSE.")
   }
   # check if pseudo-R2 calculation failed
-  if (is.na(attr(j, "rsqs")[1])) pR2 <- FALSE
+  if (is.na(attr(j, "rsqs")[1]) | length(attr(j, "rsqs")) == 0) pR2 <- FALSE
   
   ints <- e$cross_ints
 

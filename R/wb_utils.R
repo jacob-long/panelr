@@ -707,3 +707,31 @@ set_meanvars <- function(pf, return.subset = FALSE) {
 escapeRegex <- function(string) {
   gsub('([.|()\\^{}+$*?]|\\[|\\])', '\\\\\\1', string)
 }
+
+### Use this to anticipate if lmerModTest will fail
+check_lmerModTest <- function(model) {
+  if (!inherits(model, "lmerMod")) 
+    stop("model not of class 'lmerMod': cannot coerce to class 'lmerModLmerTest")
+  mc <- getCall(model)
+  args <- c(as.list(mc), devFunOnly = TRUE)
+  if (!"control" %in% names(as.list(mc))) 
+    args$control <- lme4::lmerControl(check.rankX = "silent.drop.cols")
+  Call <- as.call(c(list(quote(lme4::lmer)), args[-1]))
+  ff <- environment(formula(model))
+  pf <- parent.frame()
+  sf <- sys.frames()[[1]]
+  ff2 <- environment(model)
+  devfun <- tryCatch(eval(Call, envir = pf), error = function(e) {
+    tryCatch(eval(Call, envir = ff), error = function(e) {
+      tryCatch(eval(Call, envir = ff2), error = function(e) {
+        tryCatch(eval(Call, envir = sf), error = function(e) {
+          "error"
+        })
+      })
+    })
+  })
+  if ((is.character(devfun) && devfun == "error") || !is.function(devfun) || 
+      names(formals(devfun)[1]) != "theta") 
+    TRUE
+  else FALSE
+}
