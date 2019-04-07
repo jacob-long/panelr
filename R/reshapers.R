@@ -134,6 +134,11 @@ widen_panel <- function(data, separator = "_", ignore.attributes = FALSE,
 #'   start with a digit, for instance, and you might use `"\\d.*"` instead.
 #' @param use.regex Should the `begin` and `end` arguments be treated as 
 #'   regular expressions? Default is FALSE.
+#' @param check.varying Should the function check to make sure that every 
+#'   variable in the wide data with a wave indicator is actually time-varying?
+#'   Default is TRUE, meaning that a constant like "race_W1" only measured in 
+#'   wave 1 will be defined in each wave in the long data. With very large
+#'   datasets, however, sometimes setting this to FALSE can save memory.
 #' @return Either a `data.frame` or `panel_data` frame.
 #' @details 
 #' 
@@ -178,7 +183,7 @@ long_panel <- function(data, prefix = NULL, suffix = NULL, begin = NULL,
                        end = NULL, id = "id", wave = "wave", periods = NULL,
                        label_location = c("end", "beginning"),
                        as_panel_data = TRUE, match = ".*", 
-                       use.regex = FALSE) {
+                       use.regex = FALSE, check.varying = TRUE) {
   
   if (is.numeric(begin) & is.null(periods)) { # Handle numeric period labels
     if (!is.numeric(end)) {stop("begin and end must be the same type.")}
@@ -281,17 +286,6 @@ long_panel <- function(data, prefix = NULL, suffix = NULL, begin = NULL,
       wvars <- str_replace(wvars, replace_patterns[which(patterns == p)], replace)
       names(data)[names(data) %nin% id] <- wvars
     }
-    # We have problems when there is a suffix at the very end,
-    # so I'll delete it here
-    # if (label_location[1] == "end" & !(is.null(suffix) || nchar(suffix) == 0)) {
-    #   the_match <- paste0("(?<=", pre_reg,
-    #                       escapeRegex(periods[which(patterns == p)]),
-    #                       ")", post_reg, "$")
-    #   # Need to use gsub instead of str_replace for the ability to do 
-    #   # non-fixed-width look-behind (with perl = TRUE)
-    #   wvars <- gsub(the_match, "", wvars, perl = TRUE)
-    #   names(data)[names(data) %nin% id] <- wvars
-    # }
     varying_by_period[[which_period]] <-  wvars[matches]
   }
   
@@ -321,6 +315,7 @@ long_panel <- function(data, prefix = NULL, suffix = NULL, begin = NULL,
   out <- reshape(as.data.frame(data), timevar = wave,
                  idvar = id, times = periods, sep = sep, direction = "long",
                  varying = unlist(varying_by_period))
+                 # v.names = unique(unname(unlist(stubs_by_period))))
   # Remove reshape's saved attributes
   attributes(out)$reshapeWide <- NULL
   attributes(out)$reshapeLong <- NULL
@@ -336,18 +331,25 @@ long_panel <- function(data, prefix = NULL, suffix = NULL, begin = NULL,
   # Create panel_data object to use for these checks
   tmp_pd <- panel_data(out, id = !!sym(id), wave = !!sym(wave))
   # Check whether the variables really are varying
-  varying <- are_varying(tmp_pd, !!! syms(v.names))
-  if (any(varying == FALSE)) {
-    # Loop through the non-varying vars and make them constant by returning the
-    # sole non-NA value.
-    for (var in names(varying)[!varying]) {
-      tmp_pd <- mutate(tmp_pd, !! var := uniq_nomiss(!! sym(var)))
+  if (check.varying) {
+    varying <- are_varying(tmp_pd, !!! syms(v.names))
+    if (any(varying == FALSE)) {
+      # Loop through the non-varying vars and make them constant by returning the
+      # sole non-NA value.
+      for (var in names(varying)[!varying]) {
+        tmp_pd <- mutate(tmp_pd, !! un_bt(var) := uniq_nomiss(!! sym(un_bt(var))))
+      }
     }
+    constants <- varying[!varying]
+    varying <- varying[varying]
+  } else {
+    varying <- unlist(stubs_by_period)
+    constants <- names(out) %not% varying
   }
   if (as_panel_data == TRUE) { # Return panel_data object if requested
     out <- panel_data(tmp_pd, id = !! sym(id), wave = !! sym(wave),
-                      reshaped = TRUE, varying = names(varying)[varying], 
-                      constants = names(varying)[!varying])
+                      reshaped = TRUE, varying = un_bt(names(varying)), 
+                      constants = un_bt(names(constants)))
   } else { # Otherwise unpanel
     out <- unpanel(tmp_pd)
   }

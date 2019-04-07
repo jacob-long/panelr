@@ -7,7 +7,7 @@
 long_panel(data, prefix = NULL, suffix = NULL, begin = NULL,
   end = NULL, id = "id", wave = "wave", periods = NULL,
   label_location = c("end", "beginning"), as_panel_data = TRUE,
-  match = ".*", use.regex = FALSE)
+  match = ".*", use.regex = FALSE, check.varying = TRUE)
 }
 \arguments{
 \item{data}{The wide data frame.}
@@ -50,6 +50,12 @@ start with a digit, for instance, and you might use \code{"\\d.*"} instead.}
 
 \item{use.regex}{Should the \code{begin} and \code{end} arguments be treated as
 regular expressions? Default is FALSE.}
+
+\item{check.varying}{Should the function check to make sure that every
+variable in the wide data with a wave indicator is actually time-varying?
+Default is TRUE, meaning that a constant like "race_W1" only measured in
+wave 1 will be defined in each wave in the long data. With very large
+datasets, however, sometimes setting this to FALSE can save memory.}
 }
 \value{
 Either a \code{data.frame} or \code{panel_data} frame.
