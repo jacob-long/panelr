@@ -42,14 +42,14 @@ getCall.wbm <- function(x, ...) {
 #'  indicates a `merMod`-style newdata, with all of the extra columns 
 #'  created by `wbm`. 
 #' @importFrom stats predict na.pass
-#' @inheritParams lme4::predict.merMod
-#' @inheritParams lme4::simulate.merMod
+#' @inheritParams jtools::predict_merMod
 #' @export
 #' @rdname predict.wbm 
 
-predict.wbm <- function(object, newdata = NULL, raw = FALSE, newparams = NULL,
-        re.form = NULL, terms = NULL, type = c("link", "response"),
-        allow.new.levels = FALSE, na.action = na.pass, ...) {
+predict.wbm <- function(object, newdata = NULL, se.fit = FALSE,
+                        raw = FALSE, use.re.var = FALSE,
+                        re.form = NULL, type = c("link", "response"), 
+                        allow.new.levels = FALSE, na.action = na.pass, ...) {
   
   if (!is.null(newdata) & raw == FALSE) {
     mf_form <- object@call_info$mf_form
@@ -63,10 +63,26 @@ predict.wbm <- function(object, newdata = NULL, raw = FALSE, newparams = NULL,
                      object@call_info$dt_random)
       newdata <- dto
     }
-    
+    ## Revisit
     newdata <- wb_model(object@call_info$model, pf, dv, newdata,
-                        object@call_info$detrend)$data
+                        object@call_info$detrend, old.ints = FALSE, 
+                        demean.ints = TRUE)$data
     
+  }
+  
+  if (raw == TRUE & !is.null(newdata)) {
+    ints <- attr(object@frame, "interactions")
+    if (!is.null(ints)) {
+      ints <- gsub(":", "*", ints)
+      ints <- gsub("(^.*)(?=\\*)", "`\\1`", ints, perl = TRUE)
+      ints <- gsub("(?<=\\*)(.*$)", "`\\1`", ints, perl = TRUE)
+      demean <- attr(object@frame, "interaction.style") == "double-demean"
+      if (object@call_info$model %in% c("between", "contextual", "random")) {
+        demean <- FALSE
+      }
+      p <- process_interactions(ints, data = newdata, demean.ints = demean)
+      newdata <- p$data
+    }
   }
   
   if (is.null(attr(attr(object@frame, "terms"), "varnames.fixed"))) {
@@ -74,15 +90,15 @@ predict.wbm <- function(object, newdata = NULL, raw = FALSE, newparams = NULL,
       c(object@call_info$varying, object@call_info$constants,
         object@call_info$meanvars)
   }
-
+  
   if (isLMM(object)) {
     object <- as(object, "lmerMod")
   } else {
     object <- as(object, "glmerMod")
   }
   
-  predict(object, newdata = newdata, newparams = newparams,
-          re.form = re.form, terms = terms, type = type,
+  jtools::predict_merMod(object, newdata = newdata, se.fit = se.fit, 
+          re.form = re.form, type = type[1], use.re.var = use.re.var,
           allow.new.levels = allow.new.levels, na.action = na.action, ...)
   
 }
@@ -148,10 +164,25 @@ simulate.wbm <- function(object, nsim = 1, seed = NULL, use.u = FALSE,
 
 nobs.wbm <- function(object, entities = TRUE, ...) {
   if (entities == TRUE) {
-    dplyr::n_groups(object@frame)
+    dplyr::n_groups(panel_data(object@frame, id = !! fit@call_info$id,
+                               wave = !! fit@call_info$wave))
   } else {
     nrow(object@frame)
   }
+}
+
+#' @export
+df.residual.wbm <- function(object, ...) {
+  nobs(object, entities = FALSE) - npar.wbm(object)
+}
+
+npar.wbm <- function(object) {
+  n <- length(object@beta) + length(object@theta) + 
+    object@devcomp[["dims"]][["useSc"]]
+  if (grepl("Negative Binomial", family(object)$family)) {
+    n <- n + 1
+  }
+  return(n)
 }
 
 #' @title Retrieve model formulas from `wbm` objects
@@ -182,7 +213,174 @@ terms.wbm <- function(x, fixed.only = TRUE, random.only = FALSE, ...) {
 #' @importFrom jtools make_predictions
 #' @export
 
-make_predictions.wbm <- function(model, ...) {
-  model <- to_merMod(model)
-  NextMethod("make_predictions", model)
+make_predictions.wbm <- function(model, pred, pred.values = NULL, at = NULL,
+  data = NULL, center = TRUE, interval = TRUE,  
+  int.type = c("confidence", "prediction"), int.width = .95, 
+  outcome.scale = "response", re.form = ~0, add.re.variance = FALSE, 
+  boot = FALSE, sims = 1000, progress = "txt", set.offset = NULL, 
+  new_data = NULL, return.orig.data = FALSE, partial.residuals = FALSE, 
+  message = TRUE, raw = TRUE, ...) {
+  
+  # Check if user provided own new_data
+  if (is.null(new_data)) {
+    # Get the data ready with make_new_data()
+    pm <- jtools::make_new_data(model, pred, pred.values = pred.values, at = at, 
+                        data = data, center = center, set.offset = set.offset)
+  } else {pm <- new_data}
+  
+  resp <- jtools::get_response_name(model)
+  link_or_lm <- ifelse(family(model)$link == "identity",
+                       yes = "response", no = "link")
+  
+  if (interval == TRUE && boot == FALSE && message == TRUE) {
+    msg_wrap("Confidence intervals for wbm models is an experimental
+              feature. The intervals reflect only the variance of the
+              fixed effects, not the random effects.")
+  }
+  
+  # Do the predictions using built-in prediction method if robust is FALSE
+  if (interval == FALSE & is.null(model.offset(model.frame(model)))) {
+    predicted <- as.data.frame(predict(model, newdata = pm,
+                                       type = link_or_lm,
+                                       re.form = re.form,
+                                       allow.new.levels = FALSE,
+                                       raw = raw))
+    
+    pm[[get_response_name(model)]] <- predicted[[1]]
+    
+  } else { # Use my custom predictions function
+    
+    if (interactive() & boot == TRUE & progress != "none") {
+      cat("Bootstrap progress:\n")
+    }
+    predicted <- predict(model, newdata = pm, use.re.var = add.re.variance,
+                         se.fit = TRUE, allow.new.levels = TRUE, 
+                         type = link_or_lm, re.form = re.form,
+                         boot = boot, sims = sims, prog.arg = progress, 
+                         raw = raw, ...)
+    
+    if (boot == TRUE) {
+      raw_boot <- predicted
+      
+      ## Convert the confidence percentile to a number of S.E. to multiply by
+      intw <- 1 - ((1 - int.width) / 2)
+      # Set the predicted values at the median
+      fit <- sapply(as.data.frame(raw_boot), median)
+      upper <- sapply(as.data.frame(raw_boot), quantile, probs = intw)
+      lower <- sapply(as.data.frame(raw_boot), quantile, probs = 1 - intw)
+      
+      # Add to predicted frame
+      pm[[resp]] <- fit
+      pm[["ymax"]] <- upper
+      pm[["ymin"]] <- lower
+      
+      # Drop the cases that should be missing if I had done it piecewise
+      pm <- pm[complete.cases(pm),]
+    } else {
+      ## Convert the confidence percentile to a number of S.E. to multiply by
+      intw <- 1 - ((1 - int.width)/2)
+      ## Try to get the residual degrees of freedom to get the critical value
+      r.df <- try({
+        df.residual(model)
+      }, silent = TRUE)
+      if (is.numeric(r.df)) {
+        ses <- qt(intw, r.df)
+      } else {
+        message(wrap_str("Could not find residual degrees of freedom for this
+                       model. Using confidence intervals based on normal
+                       distribution instead."))
+        ses <- qnorm(intw, 0, 1)
+      }
+      pm[[get_response_name(model)]] <- predicted[[1]]
+      pm[["ymax"]] <-
+        pm[[get_response_name(model)]] + (predicted[["se.fit"]]) * ses
+      pm[["ymin"]] <-
+        pm[[get_response_name(model)]] - (predicted[["se.fit"]]) * ses
+    }
+  }
+  
+  
+  # Back-convert the predictions to the response scale
+  if (outcome.scale == "response") {
+    pm[[resp]] <- family(model)$linkinv(pm[[resp]])
+    if (interval == TRUE) {
+      pm[["ymax"]] <- family(model)$linkinv(pm[["ymax"]])
+      pm[["ymin"]] <- family(model)$linkinv(pm[["ymin"]])
+    }
+  }
+  
+  if (return.orig.data == FALSE & partial.residuals == FALSE) {
+    o <- tibble::as_tibble(pm)
+  } else {
+    if (return.orig.data == TRUE & partial.residuals == FALSE) {
+      o <- list(predictions = tibble::as_tibble(pm), data = 
+                  suppressMessages(d <- tibble::as_tibble(get_data(model))))
+      # If left-hand side is transformed, make new column in original data for
+      # the transformed version and evaluate it
+      if (is_lhs_transformed(as.formula(formula(model)))) {
+        o[[2]][get_response_name(model)] <- 
+          eval(get_lhs(as.formula(formula(model))), o[[2]])
+      }
+    } else {
+      o <- list(predictions = tibble::as_tibble(pm), data = 
+                  suppressMessages(
+                    partialize(model, vars = pred, at = at, data = data,
+                               center = center, set.offset = set.offset)
+                  )
+      )
+    }
+  }
+  return(o)
+}
+
+#' @export 
+partialize.wbm <- function(model, vars = NULL, data = NULL, at = NULL,
+                          center = TRUE, scale = c("response", "link"),
+                          set.offset = 1, ...) {
+  # Get the original data if new data are not provided
+  if (is.null(data)) {
+    data <- fit@frame
+  }
+  if (isLMM(model)) {
+    model <- as(model, "lmerMod")
+  } else {
+    model <- as(model, "glmerMod")
+  }
+  partialize(model, vars = vars, data = data, at = at, 
+             center = center, scale = scale, set.offset = set.offset, ...)
+}
+
+#### jtools helpers ##########################################################
+is_lhs_transformed <- function(x) {
+  final <- as.character(deparse(get_lhs(x)))
+  bare_vars <- all.vars(get_lhs_j(x))
+  any(final != bare_vars)
+}
+
+get_lhs_j <- function(x) {
+  if (two_sided(x) == TRUE) {
+    x[[2]] 
+  } else if(one_sided(x)) {
+    NULL   
+  } else {
+    stop_wrap(x, "does not appear to be a one- or two-sided formula.")
+  }
+}
+
+one_sided <- function(x, ...) {
+  # from operator.tools::operators()
+  operators <- c("::", ":::", "@", "$", "[", "[[", ":", "+", "-", "*", "/", "^",
+                 "%%", "%/%", "<", "<=", ">", ">=", "==", "!=", "%in%", "%!in%",
+                 "!", "&", "&&", "|", "||", "~", "<-", "<<-", "=", "?", "%*%",
+                 "%x%", "%o%", "%>%", "%<>%", "%T>%")
+  is.name(x[[1]]) && deparse(x[[1]]) %in% operators && length(x) == 2
+}
+
+two_sided <- function(x, ...) {
+  # from operator.tools::operators()
+  operators <- c("::", ":::", "@", "$", "[", "[[", ":", "+", "-", "*", "/", "^",
+                 "%%", "%/%", "<", "<=", ">", ">=", "==", "!=", "%in%", "%!in%",
+                 "!", "&", "&&", "|", "||", "~", "<-", "<<-", "=", "?", "%*%",
+                 "%x%", "%o%", "%>%", "%<>%", "%T>%")
+  is.name(x[[1]]) && deparse(x[[1]]) %in% operators && length(x) == 3
 }

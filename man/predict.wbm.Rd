@@ -5,8 +5,8 @@
 \alias{simulate.wbm}
 \title{Predictions and simulations from within-between models}
 \usage{
-\method{predict}{wbm}(object, newdata = NULL, raw = FALSE,
-  newparams = NULL, re.form = NULL, terms = NULL, type = c("link",
+\method{predict}{wbm}(object, newdata = NULL, se.fit = FALSE,
+  raw = FALSE, use.re.var = FALSE, re.form = NULL, type = c("link",
   "response"), allow.new.levels = FALSE, na.action = na.pass, ...)
 
 \method{simulate}{wbm}(object, nsim = 1, seed = NULL, use.u = FALSE,
@@ -20,20 +20,20 @@
 \item{newdata}{data frame for which to evaluate
     predictions.}
 
+\item{se.fit}{Include standard errors with the predictions? Note that
+these standard errors by default include only fixed effects variance.
+See details for more info. Default is FALSE.}
+
 \item{raw}{Is \code{newdata} a \code{merMod} model frame or \code{panel_data}? TRUE
 indicates a \code{merMod}-style newdata, with all of the extra columns
 created by \code{wbm}.}
 
-\item{newparams}{new parameters to use in evaluating predictions,
-    specified as in the \code{start} parameter for \code{\link{lmer}}
-    or \code{\link{glmer}} -- a list with components \code{theta} and/or
-    (for GLMMs) \code{beta}.}
+\item{use.re.var}{If \code{se.fit} is TRUE, include random effects variance in
+standard errors? Default is FALSE.}
 
 \item{re.form}{formula for random effects to condition on.  If \code{NULL},
     include all random effects; if \code{NA} or \code{~0},
     include no random effects.}
-
-\item{terms}{a \code{\link{terms}} object - unused at present.}
 
 \item{type}{character string - either \code{"link"}, the default, or
     \code{"response"} indicating the type of prediction object returned.}
@@ -48,20 +48,8 @@ created by \code{wbm}.}
     with missing values for fixed effects in \code{newdata}.
     The default is to predict \code{NA}: see \code{\link{na.pass}}.}
 
-\item{...}{optional additional parameters.  None are used at present.}
-
-\item{nsim}{positive integer scalar - the number of responses to simulate.}
-
-\item{seed}{an optional seed to be used in \code{\link{set.seed}}
-    immediately before the simulation so as to generate a reproducible sample.}
-
-\item{use.u}{(logical) if \code{TRUE}, generate a simulation
-    conditional on the current random-effects estimates; if \code{FALSE}
-    generate new Normally distributed random-effects values. (Redundant
-    with \code{re.form}, which is preferred: \code{TRUE} corresponds to
-    \code{re.form = NULL} (condition on all random effects), while
-    \code{FALSE} corresponds to \code{re.form = ~0} (condition on none
-    of the random effects).)}
+\item{...}{When \code{boot} and \code{se.fit} are TRUE, any additional arguments are
+passed to \code{lme4::bootMer()}.}
 }
 \description{
 These methods facilitate fairly straightforward predictions

@@ -18,7 +18,7 @@ Imports: crayon,
       dplyr,
       Formula,
       ggplot2,
-      jtools (>= 2.0.0), 
+      jtools (>= 2.0.1), 
       lmerTest,
       magrittr,
       methods,
@@ -41,3 +41,4 @@ LazyData: true
 RoxygenNote: 6.1.1
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr
+Remotes: jacob-long/jtools
