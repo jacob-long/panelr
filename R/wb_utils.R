@@ -262,7 +262,7 @@ detrend <- function(data, pf, dt_order, balance_correction, dt_random) {
   # save id and wave 
   id <- get_id(data)
   wave <- get_wave(data)
-  
+  periods <- length(get_periods(data))
   # If random slopes, nest the data
   if (dt_random == TRUE) {
     # Nest the data for efficient fitting of the lms
@@ -319,40 +319,81 @@ detrend <- function(data, pf, dt_order, balance_correction, dt_random) {
   # the most recent (or covering the most waves in the case of there being
   # leads)
   v_info <- set_meanvars(pf, return.subset = TRUE)
-    
-  # Iterate through the varying variables
-  for (v in v_info$term) {
-        
-    # De-trend
-    # Note that b_model differs depending on balance_correction 
-    mean_var <- pf$v_info$meanvar[pf$v_info$term == v]
-    if (dt_random == TRUE) {
-      data <-  dplyr::mutate(data,
-                             !! mean_var :=
-                               purrr::map(data, b_model, var = v),
-                             !! v :=
-                               purrr::map(data, dt_model, var = v)
-                            )
-    } else {
-      
-      data <-  dplyr::mutate(data,
-                             !! mean_var := b_model(data, var = v),
-                             !! v := dt_model(data, var = v)
-      )
-      
-    }
-      
+  if (periods - max(v_info$lag) <= 2) {
+    stop_wrap("'detrend' cannot be used with only two waves of data for
+              any of the variables.")
+  }
+  if (!is.null(pf$cint_labs) | !is.null(pf$wint_labs)) {
+    ints <- c(pf$cint_labs, pf$wint_labs)
+    new_tab <- tibble::tibble(
+      term = un_bt(names(ints)), root = un_bt(names(ints)), 
+      lag = 0, meanvar = paste0("imean(", bt(un_bt(names(ints))), ")")
+    )
+    v_info <- dplyr::bind_rows(v_info, new_tab)
+    pf$v_info <- dplyr::bind_rows(pf$v_info, new_tab)
   }
   
   if (dt_random == TRUE) {
+    # Iterate through the varying variables
+    for (v in v_info$term) {
+          
+      # De-trend
+      # Note that b_model differs depending on balance_correction 
+      mean_var <- pf$v_info$meanvar[pf$v_info$term == v]
+      data <- dplyr::mutate(data,
+                             !! un_bt(mean_var) :=
+                               purrr::map(data, b_model, var = v),
+                             !! un_bt(v) :=
+                               purrr::map(data, dt_model, var = v)
+      )
+        
+    }
+  } else {
+    # Iterate through the varying variables
+    for (v in v_info$term) {
+      data <- panel_data(dplyr::mutate(unpanel(data),
+                                       !! un_bt(v) := dt_model(data, var = v)
+      ), !! sym(id), !! sym(wave))
+      if (balance_correction == FALSE) {
+        mean_var <- pf$v_info$meanvar[pf$v_info$term == v]
+        v_term <- paste(bt(un_bt(v)), "-", bt(un_bt(mean_var)))
+        data <- dplyr::mutate(data, 
+                              !! un_bt(mean_var) :=
+                                !! parse_expr(un_bt(mean_var)),
+                              !! un_bt(v) := !! parse_expr(v_term))
+      }
+    }
+    
+    if (balance_correction == TRUE) {
+      for (v in v_info$term) {
+        # Need to nest the data
+        data <- tidyr::nest(data)
+        mean_var <- pf$v_info$meanvar[pf$v_info$term == v]
+        v_term <- paste(bt(un_bt(v)), "-", bt(un_bt(mean_var)))
+        data <- dplyr::mutate(data, 
+                              !! un_bt(mean_var) := 
+                                purrr::map(data, b_model, var = v)
+        )
+        data <- panel_data(tidyr::unnest(data),
+                           id = !! sym(id), wave = !! sym(wave))
+        data <- dplyr::mutate(data,  !! un_bt(v) := !! parse_expr(v_term))
+      }
+    } 
+  }
+  
+  if (dt_random == TRUE | balance_correction == TRUE) {
     # Unnest the data if it was nested
     data <- tidyr::unnest(data)
     data <- panel_data(data, id = !! sym(id), wave = !! sym(wave))
     # The unnesting process generates extra nuisance variables for those
     # included in the detrending (e.g., x1). I add "-" to tell select to
     # drop them
-    drop_vars <- paste0("-`", v_info$term, "1`")
-    data <- select(data, !!! parse_exprs(drop_vars))
+    drop_vars <- paste0(c(v_info$term, v_info$meanvar), "1")
+    drop_vars <- drop_vars %just% names(data)
+    if (length(drop_vars) > 0) {
+      drop_vars <- paste0("-`", drop_vars, "`")
+      data <- select(data, !!! parse_exprs(drop_vars))
+    }
   }
   
   # See if there were any multi-lagged vars
