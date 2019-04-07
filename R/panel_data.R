@@ -223,26 +223,28 @@ is_varying <- function(data, variable) {
 
 are_varying <- function(data, ..., type = "time") {
   
-  class(data) <- class(data)[class(data) %nin% "panel_data"]
+  # class(data) <- class(data)[class(data) %nin% "panel_data"]
   dots <- quos(...)
   if (length(dots) == 0) {
-    reserved_names <- c(get_id(data), get_wave(data))
-    dnames <- names(data)[names(data) %nin% reserved_names]
+    dnames <- names(data) %not% c(get_id(data), get_wave(data))
     dots <- syms(as.list(dnames))
   } else {
-    dnames <- as.character(exprs(...))
-  }
-  if (any(str_detect(dnames, "`"))) {
-    dnames <- stringr::str_replace_all(dnames, "^`|`$", "")
+    data <- dplyr::select(data, ...)
+    dots <- syms(
+      as.list(names(data) %not% c(get_id(data), get_wave(data)))
+    )
   }
   # Get time variation
   if ("time" %in% type) {
-    outt <- map_lgl(dots, function(x, d) is_varying(!! x, data = d), d = data)
+    outt <- map_lgl(dots, function(x, d) {
+      is_varying(!! x, data = select(d, !! x))
+    }, d = data)
   } 
   # Get individual variation
   if ("individual" %in% type) {
-    outi <- map_lgl(dots, function(x, d) is_varying_individual(!! x, data = d),
-                    d = data)
+    outi <- map_lgl(dots, function(x, d) {
+      is_varying_individual(!! x, data = select(d, !! x))
+      }, d = data)
     # If both, rbind them into a d.f.
     if (exists("outt")) {
       out <- as.data.frame(rbind(outt, outi))
@@ -250,11 +252,11 @@ are_varying <- function(data, ..., type = "time") {
     } else {out <- outi}
   }
   # If not both, make time the out object
-  if (!exists("out")) {
+  if (!exists("out", inherits = FALSE)) {
     out <- outt
   }
   
-  names(out) <- dnames
+  names(out) <- as.character(unlist(dots))
   out
 }
 
