@@ -95,6 +95,17 @@ wb_formula_parser <- function(formula, dv, data) {
     })
   }
   
+  # Try to check for non-varying variables in varying part of formula
+  for (var in varying %just% names(data)) {
+    if (!(are_varying(data, !! sym(var)))) {
+      varying <- varying %not% var
+      constants <- c(constants, var)
+      msg_wrap(var, " was included in the time-varying part of the formula 
+               but does not vary over time. It is being treated as a constant
+               instead.")
+    }
+  }
+  
   # Retain list of all variables to go into final model
   allvars <- c(dv, varying, constants)
 
