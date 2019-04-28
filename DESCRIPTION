@@ -28,6 +28,7 @@ Imports: crayon,
       tibble
 Suggests: brms,
     broom,
+    car,
     clubSandwich,
     nlme,
     plm,
