@@ -10,6 +10,26 @@ backtick_name <- function(x) {
   if (make.names(x) != x) {paste0("`", x, "`")} else {x}
 }
 
+make_names <- function(names, int = FALSE) {
+  # Ensure valid leading character
+  names <- sub('^[^A-Za-z\\.]+', '.', names)
+  # See where dots were originally
+  dots <- lapply(names, function(x) which(strsplit(x, NULL)[[1]] == "."))
+  if (int == TRUE) {
+    names <- gsub(":|\\*", "_by_", names)
+  }
+  # Use make.names
+  names <- make.names(names, allow_ = TRUE)
+  # substitute _ for .
+  names <- gsub( '\\.', '_', names )
+  # Now add the original periods back in
+  mapply(names, dots, FUN = function(x, y) {
+    x <- strsplit(x, NULL)[[1]]
+    x[y] <- "."
+    paste0(x, collapse = "")
+  })
+}
+
 #' @import jtools
 
 
@@ -383,4 +403,8 @@ two_sided <- function(x, ...) {
                  "!", "&", "&&", "|", "||", "~", "<-", "<<-", "=", "?", "%*%",
                  "%x%", "%o%", "%>%", "%<>%", "%T>%")
   is.name(x[[1]]) && deparse(x[[1]]) %in% operators && length(x) == 3
+}
+
+need_package <- function(x) {
+  stop_wrap("You must have '", x, "' installed to use this function.")
 }
