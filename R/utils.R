@@ -63,9 +63,9 @@ getCall.wbm <- function(x, ...) {
 #'  created by `wbm`. 
 #' @importFrom stats predict na.pass
 #' @inheritParams jtools::predict_merMod
+#' @inheritParams lme4::simulate.merMod
 #' @export
 #' @rdname predict.wbm 
-
 predict.wbm <- function(object, newdata = NULL, se.fit = FALSE,
                         raw = FALSE, use.re.var = FALSE,
                         re.form = NULL, type = c("link", "response"), 
@@ -183,7 +183,7 @@ predict.wbgee <- function(object, newdata = NULL, se.fit = FALSE,
 
 simulate.wbm <- function(object, nsim = 1, seed = NULL, use.u = FALSE,
                          newdata = NULL, raw = FALSE,
-                         newparams = NULL, re.form = NA, terms = NULL,
+                         newparams = NULL, re.form = NA,
                          type = c("link", "response"),
                          allow.new.levels = FALSE, na.action = na.pass, ...) {
   
@@ -215,12 +215,12 @@ simulate.wbm <- function(object, nsim = 1, seed = NULL, use.u = FALSE,
   if (!is.na(re.form)) {
     simulate(object, nsim = nsim, seed = seed,
              newdata = newdata, newparams = newparams, re.form = re.form,
-             terms = terms, type = type, allow.new.levels = allow.new.levels,
+             terms = NULL, type = type, allow.new.levels = allow.new.levels,
              na.action = na.action, ...)
   } else {
     simulate(object, nsim = nsim, seed = seed,
              newdata = newdata, newparams = newparams, use.u = use.u,
-             terms = terms, type = type, allow.new.levels = allow.new.levels,
+             terms = NULL, type = type, allow.new.levels = allow.new.levels,
              na.action = na.action, ...)
   }
   
@@ -238,8 +238,8 @@ simulate.wbm <- function(object, nsim = 1, seed = NULL, use.u = FALSE,
 
 nobs.wbm <- function(object, entities = TRUE, ...) {
   if (entities == TRUE) {
-    dplyr::n_groups(panel_data(object@frame, id = !! fit@call_info$id,
-                               wave = !! fit@call_info$wave))
+    dplyr::n_groups(panel_data(object@frame, id = !! object@call_info$id,
+                               wave = !! object@call_info$wave))
   } else {
     nrow(object@frame)
   }
@@ -285,6 +285,7 @@ terms.wbm <- function(x, fixed.only = TRUE, random.only = FALSE, ...) {
 }
 
 #' @importFrom jtools make_predictions
+#' @importFrom stats quantile df.residual qnorm model.offset
 #' @export
 
 make_predictions.wbm <- function(model, pred, pred.values = NULL, at = NULL,
@@ -393,7 +394,7 @@ make_predictions.wbm <- function(model, pred, pred.values = NULL, at = NULL,
       # the transformed version and evaluate it
       if (is_lhs_transformed(as.formula(formula(model)))) {
         o[[2]][get_response_name(model)] <- 
-          eval(get_lhs(as.formula(formula(model))), o[[2]])
+          eval(get_lhs_j(as.formula(formula(model))), o[[2]])
       }
     } else {
       o <- list(predictions = tibble::as_tibble(pm), data = 
@@ -413,7 +414,7 @@ partialize.wbm <- function(model, vars = NULL, data = NULL, at = NULL,
                           set.offset = 1, ...) {
   # Get the original data if new data are not provided
   if (is.null(data)) {
-    data <- fit@frame
+    data <- model@frame
   }
   if (isLMM(model)) {
     model <- as(model, "lmerMod")
@@ -486,7 +487,7 @@ make_predictions.wbgee <- function(model, pred, pred.values = NULL, at = NULL,
 
 #### jtools helpers ##########################################################
 is_lhs_transformed <- function(x) {
-  final <- as.character(deparse(get_lhs(x)))
+  final <- as.character(deparse(get_lhs_j(x)))
   bare_vars <- all.vars(get_lhs_j(x))
   any(final != bare_vars)
 }

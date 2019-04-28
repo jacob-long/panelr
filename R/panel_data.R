@@ -265,7 +265,7 @@ are_varying <- function(data, ..., type = "time") {
 #' @importFrom tibble deframe
 #' @import dplyr 
 #' @import rlang
-
+#' @importFrom stats var
 is_varying_individual <- function(data, variable) {
   
   variable <- enquo(variable)

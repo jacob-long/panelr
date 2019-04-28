@@ -11,8 +11,8 @@
 
 \method{simulate}{wbm}(object, nsim = 1, seed = NULL, use.u = FALSE,
   newdata = NULL, raw = FALSE, newparams = NULL, re.form = NA,
-  terms = NULL, type = c("link", "response"),
-  allow.new.levels = FALSE, na.action = na.pass, ...)
+  type = c("link", "response"), allow.new.levels = FALSE,
+  na.action = na.pass, ...)
 }
 \arguments{
 \item{object}{a fitted model object}
@@ -50,6 +50,25 @@ standard errors? Default is FALSE.}
 
 \item{...}{When \code{boot} and \code{se.fit} are TRUE, any additional arguments are
 passed to \code{lme4::bootMer()}.}
+
+\item{nsim}{positive integer scalar - the number of responses to simulate.}
+
+\item{seed}{an optional seed to be used in \code{\link{set.seed}}
+    immediately before the simulation so as to generate a reproducible sample.}
+
+\item{use.u}{(logical) if \code{TRUE}, generate a simulation
+    conditional on the current random-effects estimates; if \code{FALSE}
+    generate new Normally distributed random-effects values. (Redundant
+    with \code{re.form}, which is preferred: \code{TRUE} corresponds to
+    \code{re.form = NULL} (condition on all random effects), while
+    \code{FALSE} corresponds to \code{re.form = ~0} (condition on none
+    of the random effects).)}
+
+\item{newparams}{new parameters to use in evaluating predictions,
+    specified as in the \code{start} parameter for \code{\link{lmer}} or
+    \code{\link{glmer}} -- a list with components \code{theta} and
+    \code{beta} and (for LMMs or GLMMs that estimate a scale parameter)
+    \code{sigma}}
 }
 \description{
 These methods facilitate fairly straightforward predictions

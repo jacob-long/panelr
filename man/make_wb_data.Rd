@@ -22,7 +22,7 @@ individual id column as a string. Otherwise, leave as NULL, the default.}
 panel wave column as a string. Otherwise, leave as NULL, the default.}
 
 \item{model}{One of \code{"w-b"}, \code{"within"}, \code{"between"},
-\code{"contextual"}, or \code{"stability"}. See details for more on these options.}
+\code{"contextual"}. See details for more on these options.}
 
 \item{detrend}{Adjust within-subject effects for trends in the predictors?
 Default is FALSE, but some research suggests this is a better idea
@@ -39,17 +39,11 @@ have participated in to be included in the analysis? Default is \code{2} and
 any valid number is accepted. \code{"all"} is also acceptable if you want to
 include only complete panelists.}
 
-\item{balance_correction}{Correct between-subject effects for unbalanced
-panels following the procedure in Curran and Bauer (2011)? Default is
-FALSE.}
+\item{balance_correction}{Deprecated. Equivalent to \code{balance.correction}.}
 
-\item{dt_random}{Should the detrending procedure be performed with a
-random slope for each entity? Default is TRUE but for short panels
-FALSE may be better, fitting a trend for all entities.}
+\item{dt_random}{Deprecated. Equivalent to \code{dt.random}.}
 
-\item{dt_order}{If detrending using \code{detrend}, what order polynomial
-would you like to specify for the relationship between time and the
-predictors? Default is 1, a linear model.}
+\item{dt_order}{Deprecated. Equivalent to \code{dt.order}.}
 
 \item{weights}{If using weights, either the name of the column in the data
 that contains the weights or a vector of the weights.}
