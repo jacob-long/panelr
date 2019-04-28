@@ -1,18 +1,13 @@
 data("WageData")
 
-
-# Setup -------------------------------------------------------------------
-context("Setup")
+# Defaults ----------------------------------------------------------------
+context("wbm defaults")
 wages <- WageData
 wages <- wages[8:210,] # Reduce runtime
 # Add arbitrary weights for testing
 wages$wts <- runif(nrow(wages), 0.3, 3)
 # Make it a panel data frame
 wages <- panel_data(wages, id = id, wave = t)
-
-
-# Defaults ----------------------------------------------------------------
-context("wbm defaults")
 wb <- wbm(wks ~ union + lwage | blk, data = wages)
 
 test_that("wbm defaults work", {
@@ -202,7 +197,7 @@ wb <- wbm(wks ~ lag(union) + lag(lwage) | blk, data = wagesm)
 test_that("wbm with defaults works", {
   expect_s4_class(wb, "wbm")
 })
-test_that("wbm summary works (as negbinomial glm)", {
+test_that("wbm summary works", {
   expect_s3_class(swb <- summary(wb), "summary.wbm")
   expect_output(print(swb))
 })
