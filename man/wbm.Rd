@@ -2,15 +2,17 @@
 % Please edit documentation in R/wb_lmer.R
 \name{wbm}
 \alias{wbm}
-\title{Panel regression models}
+\title{Panel regression models fit via multilevel modeling}
 \usage{
 wbm(formula, data, id = NULL, wave = NULL, model = "w-b",
   detrend = FALSE, use.wave = FALSE, wave.factor = FALSE,
-  min.waves = 2, family = gaussian, balance_correction = FALSE,
-  dt_random = TRUE, dt_order = 1, pR2 = TRUE, pvals = TRUE,
+  min.waves = 2, family = gaussian, balance.correction = FALSE,
+  dt.random = TRUE, dt.order = 1, pR2 = TRUE, pvals = TRUE,
   t.df = "Satterthwaite", weights = NULL, offset = NULL,
   interaction.style = c("double-demean", "demean", "raw"),
-  scale = FALSE, scale.response = FALSE, n.sd = 1, ...)
+  scale = FALSE, scale.response = FALSE, n.sd = 1,
+  dt_random = dt.random, dt_order = dt.order,
+  balance_correction = balance.correction, ...)
 }
 \arguments{
 \item{formula}{Model formula. See details for crucial
@@ -25,7 +27,7 @@ individual id column as a string. Otherwise, leave as NULL, the default.}
 panel wave column as a string. Otherwise, leave as NULL, the default.}
 
 \item{model}{One of \code{"w-b"}, \code{"within"}, \code{"between"},
-\code{"contextual"}, or \code{"stability"}. See details for more on these options.}
+\code{"contextual"}. See details for more on these options.}
 
 \item{detrend}{Adjust within-subject effects for trends in the predictors?
 Default is FALSE, but some research suggests this is a better idea
@@ -45,15 +47,15 @@ include only complete panelists.}
 \item{family}{Use this to specify GLM link families. Default is \code{gaussian},
 the linear model.}
 
-\item{balance_correction}{Correct between-subject effects for unbalanced
+\item{balance.correction}{Correct between-subject effects for unbalanced
 panels following the procedure in Curran and Bauer (2011)? Default is
 FALSE.}
 
-\item{dt_random}{Should the detrending procedure be performed with a
+\item{dt.random}{Should the detrending procedure be performed with a
 random slope for each entity? Default is TRUE but for short panels
 FALSE may be better, fitting a trend for all entities.}
 
-\item{dt_order}{If detrending using \code{detrend}, what order polynomial
+\item{dt.order}{If detrending using \code{detrend}, what order polynomial
 would you like to specify for the relationship between time and the
 predictors? Default is 1, a linear model.}
 
@@ -105,6 +107,12 @@ is \code{FALSE}.}
 \item{n.sd}{How many standard deviations should you divide by for
 standardization? Default is 1, though some prefer 2.}
 
+\item{dt_random}{Deprecated. Equivalent to \code{dt.random}.}
+
+\item{dt_order}{Deprecated. Equivalent to \code{dt.order}.}
+
+\item{balance_correction}{Deprecated. Equivalent to \code{balance.correction}.}
+
 \item{...}{Additional arguments provided to \code{\link[lme4:lmer]{lme4::lmer()}},
 \code{\link[lme4:glmer]{lme4::glmer()}}, or \code{\link[lme4:glmer.nb]{lme4::glmer.nb()}}.}
 }
@@ -113,7 +121,7 @@ A \code{wbm} object, which inherits from \code{merMod}.
 }
 \description{
 Fit "within-between" and several other regression variants
-for panel data in a multi-level modeling framework.
+for panel data in a multilevel modeling framework.
 }
 \details{
 \strong{Formula syntax}

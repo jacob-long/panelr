@@ -1,6 +1,6 @@
-#' @title Panel regression models
+#' @title Panel regression models fit via multilevel modeling
 #' @description Fit "within-between" and several other regression variants
-#'   for panel data in a multi-level modeling framework.
+#'   for panel data in a multilevel modeling framework.
 #' @param formula Model formula. See details for crucial
 #'   info on `panelr`'s formula syntax.
 #' @param data The data, either a `panel_data` object or `data.frame`.
@@ -9,7 +9,7 @@
 #' @param wave If `data` is not a `panel_data` object, then the name of the
 #'   panel wave column as a string. Otherwise, leave as NULL, the default.
 #' @param model One of `"w-b"`, `"within"`, `"between"`,
-#'   `"contextual"`, or `"stability"`. See details for more on these options.
+#'   `"contextual"`. See details for more on these options.
 #' @param detrend Adjust within-subject effects for trends in the predictors?
 #'   Default is FALSE, but some research suggests this is a better idea 
 #'   (see Curran and Bauer (2011) reference).
@@ -23,13 +23,13 @@
 #'   include only complete panelists.
 #' @param family Use this to specify GLM link families. Default is `gaussian`,
 #'   the linear model.
-#' @param balance_correction Correct between-subject effects for unbalanced 
+#' @param balance.correction Correct between-subject effects for unbalanced 
 #'   panels following the procedure in Curran and Bauer (2011)? Default is 
 #'   FALSE.
-#' @param dt_random Should the detrending procedure be performed with a
+#' @param dt.random Should the detrending procedure be performed with a
 #'   random slope for each entity? Default is TRUE but for short panels
 #'   FALSE may be better, fitting a trend for all entities.
-#' @param dt_order If detrending using `detrend`, what order polynomial 
+#' @param dt.order If detrending using `detrend`, what order polynomial 
 #'   would you like to specify for the relationship between time and the
 #'   predictors? Default is 1, a linear model.
 #' @param pR2 Calculate a pseudo R-squared? Default is TRUE, but in some cases
@@ -44,6 +44,10 @@
 #'   package. 
 #' @param weights If using weights, either the name of the column in the data
 #'   that contains the weights or a vector of the weights.
+#'   
+#' @param dt_random Deprecated. Equivalent to `dt.random`.
+#' @param dt_order Deprecated. Equivalent to `dt.order`.
+#' @param balance_correction Deprecated. Equivalent to `balance.correction`.
 #'   
 #' @inheritParams lme4::glmer
 #' 
@@ -212,11 +216,13 @@
 wbm <- function(formula, data, id = NULL, wave = NULL,
                 model = "w-b", detrend = FALSE, use.wave = FALSE,
                 wave.factor = FALSE, min.waves = 2, family = gaussian,
-                balance_correction = FALSE, dt_random = TRUE, dt_order = 1,
+                balance.correction = FALSE, dt.random = TRUE, dt.order = 1,
                 pR2 = TRUE, pvals = TRUE, t.df = "Satterthwaite", 
                 weights = NULL, offset = NULL, 
                 interaction.style = c("double-demean", "demean", "raw"),
-                scale = FALSE, scale.response = FALSE, n.sd = 1, ...) {
+                scale = FALSE, scale.response = FALSE, n.sd = 1,
+                dt_random = dt.random, dt_order = dt.order,
+                balance_correction = balance.correction, ...) {
   
   the_call <- match.call()
   the_call[[1]] <- substitute(wbm)
@@ -229,6 +235,13 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
     }
   }
   
+  # Deal with deprecated arguments
+  if (dt_random != dt.random) dt.random <- dt_random
+  if (dt_order != dt.order) dt.order <- dt_order
+  if (balance_correction != balance.correction) {
+    balance.correction <- balance_correction
+  }
+  
   formula <- Formula::Formula(formula)
   interaction.style <- match.arg(interaction.style,
                                  c("double-demean", "demean", "raw"))
@@ -238,8 +251,8 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
                              wave = wave, model = model, detrend = detrend,
                              use.wave = use.wave, wave.factor = wave.factor,
                              min.waves = min.waves,
-                             balance_correction = balance_correction,
-                             dt_random = dt_random, dt_order = dt_order,
+                             balance_correction = balance.correction,
+                             dt_random = dt.random, dt_order = dt.order,
                              weights = !! enquo(weights),
                              offset = !! enquo(offset), 
                              demean.ints = interaction.style == "double-demean",
@@ -293,7 +306,7 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
   # is called
   dont_use_satterthwaite <- 
     as.character(substitute(family))[1] == "gaussian" &&
-      (isREML(fit) == FALSE | check_lmerModTest(fit)) 
+      (lme4::isREML(fit) == FALSE | check_lmerModTest(fit)) 
   if (dont_use_satterthwaite == TRUE & t.df == "Satterthwaite") {
     t.df <- "residual"
     sfit <- fit
@@ -584,11 +597,10 @@ tidy.wbm <- function(x, conf.int = FALSE, conf.level = .95,
   sum <- summary(x)
   # Getting their rownames before they are dropped by dplyr
   terms <- c(rownames(sum$within_table), rownames(sum$between_table),
-             rownames(sum$trends_table), rownames(sum$ints_table))
+             rownames(sum$ints_table))
   # Binding these tables together but saving their category to the .id variable
   params <- dplyr::bind_rows(within = sum$within_table, 
-                             between = sum$between_table, 
-                             time_trends = sum$trends_table, 
+                             between = sum$between_table,  
                              interactions = sum$ints_table, .id = "group")
   # Adding those rownames as a column
   params$term <- terms
