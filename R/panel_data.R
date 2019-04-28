@@ -52,11 +52,11 @@ panel_data <- function(data, id = id, wave = wave, ...) {
     periods <- sort(unique(data[[wave]]))
   }
   
-  if (!is.ordered(wave) && 0 %in% data[[wave]]) {
-    message("There cannot be a wave 0. Adding 1 to each wave.\n")
-    data[[wave]] <- data[[wave]] + 1
-    periods <- periods + 1
-  }
+  # if (!is.ordered(wave) && 0 %in% data[[wave]]) {
+  #   message("There cannot be a wave 0. Adding 1 to each wave.\n")
+  #   data[[wave]] <- data[[wave]] + 1
+  #   periods <- periods + 1
+  # }
 
   # Ordering by wave and then group ensures lag functions work right
   data <- arrange(data, !!sym(wave), .by_group = TRUE)
