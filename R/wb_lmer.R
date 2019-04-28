@@ -377,7 +377,7 @@ summary.wbm <- function(object, ...) {
 
   dots <- list(...)
   if ("digits" %in% names(dots)) {
-    digits <- digits
+    digits <- dots$digits
   } else {
     digits <- getOption("jtools-digits", 2)
   }
