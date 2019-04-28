@@ -40,9 +40,7 @@ wb_formula_parser <- function(formula, dv, data) {
     # Now create a formula that does the same
     for (var in vars) {
       forms <- expand_formula(formula, var, data)
-      if (length(forms) > 1) {
-        forms <- paste(sapply(forms, to_char), collapse = "|")
-      } else forms <- to_char(forms)
+      forms <- paste(sapply(forms, to_char), collapse = "|")
       new_form <- Formula::Formula(as.formula(paste("~", forms)))
       attr(formula, "rhs") <- attr(new_form, "rhs")
     }
@@ -213,7 +211,7 @@ wb_formula_parser <- function(formula, dv, data) {
   out <- list(conds = conds, allvars = allvars, varying = varying, 
               constants = constants, v_info = v_info,
               data = data, wint_labs = wint_labs, cint_labs = cint_labs,
-              ranefs = ranefs)
+              bint_labs = bint_labs, ranefs = ranefs)
   return(out)
 
 }
@@ -225,16 +223,6 @@ prepare_lme4_formula <- function(formula, pf, data, use.wave, wave, id, ...) {
   }
   # By default, assume no random effects have been added
   add <- FALSE
-  
-  # Now I sort the names in the data from longest to shortest.
-  # The point is to escape composite variables like interaction terms before
-  # the shorter parts are fed to the escape function.
-  # dat_names <- names(data)
-  # dat_names_char <- nchar(dat_names)
-  # names(dat_names_char) <- dat_names
-  # dat_names_char <- sort(dat_names_char, decreasing = TRUE)
-  # # I need to escape non-syntactic variables in the model formula
-  # formula <- formula_ticks(formula, names(dat_names_char))
   
   # See if the formula has 3 parts
   if (pf$conds > 2) {
@@ -260,9 +248,7 @@ prepare_lme4_formula <- function(formula, pf, data, use.wave, wave, id, ...) {
   if (add == FALSE) {
     formula <- paste0(formula, " + (1 | ", id, ")")
   }
-  # Lastly, I need to escape non-syntactic variables in the model formula again
-  # fin_formula <- formula_ticks(formula, names(dat_names_char))
-  
+
   as.formula(formula)
 }
 
@@ -728,6 +714,8 @@ expand_interactions <- function(x) {
 }
 
 set_meanvars <- function(pf, return.subset = FALSE) {
+  # for CRAN getting confused by NSE
+  term <- root <- NULL
   v_subset <- pf$v_info
   # If no duplicate root terms, nothing to do here
   if (any(duplicated(v_subset$root))) {
@@ -737,11 +725,11 @@ set_meanvars <- function(pf, return.subset = FALSE) {
     for (var in multi_vars) {
       if (any(v_subset$term == var)) { # that means no lag
         # Drop the others
-        v_subset <- filter(v_subset, term == !! var | root != !! var)
+        v_subset <- dplyr::filter(v_subset, term == !! var | root != !! var)
       } else { # find the minimum lag
-        min_lag <- min(filter(v_subset, root == !!var)$lag)
+        min_lag <- min(dplyr::filter(v_subset, root == !!var)$lag)
         # Drop the others
-        v_subset <- filter(v_subset, root != !! var | 
+        v_subset <- dplyr::filter(v_subset, root != !! var | 
                              (root == !! var & lag == !! min_lag))
       }
       # Now assign this mean variable to all instances of that root term in
