@@ -123,6 +123,60 @@ predict.wbm <- function(object, newdata = NULL, se.fit = FALSE,
   
 }
 
+#' @title Predictions and simulations from within-between GEE models
+#' @description These methods facilitate fairly straightforward predictions
+#'  from `wbgee` models.
+#' @param raw Is `newdata` a `geeglm` model frame or `panel_data`? TRUE
+#'  indicates a `geeglm`-style newdata, with all of the extra columns 
+#'  created by `wbgee`. 
+#' @importFrom stats predict na.pass
+#' @inheritParams stats::predict.lm
+#' @export
+#' @rdname predict.wbgee
+
+predict.wbgee <- function(object, newdata = NULL, se.fit = FALSE,
+                        raw = FALSE, type = c("link", "response"), ...) {
+  
+  if (!is.null(newdata) & raw == FALSE) {
+    mf_form <- object$call_info$mf_form
+    pf <- object$call_info$pf
+    newdata <- model_frame(mf_form, newdata)
+    dv <- object$call_info$dv
+    
+    if (object$call_info$detrend == TRUE) {
+      dto <- detrend(newdata, pf, object$call_info$dt_order,
+                     object$call_info$balance_correction,
+                     object$call_info$dt_random)
+      newdata <- dto
+    }
+    ## Revisit
+    newdata <- wb_model(object$call_info$model, pf, dv, newdata,
+                        object$call_info$detrend, old.ints = FALSE, 
+                        demean.ints = TRUE)$data
+    
+  }
+  
+  if (raw == TRUE & !is.null(newdata)) {
+    ints <- attr(object$frame, "interactions")
+    if (!is.null(ints)) {
+      ints <- gsub(":", "*", ints)
+      ints <- gsub("(^.*)(?=\\*)", "`\\1`", ints, perl = TRUE)
+      ints <- gsub("(?<=\\*)(.*$)", "`\\1`", ints, perl = TRUE)
+      demean <- attr(object$frame, "interaction.style") == "double-demean"
+      if (object$call_info$model %in% c("between", "contextual", "random")) {
+        demean <- FALSE
+      }
+      p <- process_interactions(ints, data = newdata, demean.ints = demean)
+      newdata <- p$data
+    }
+  }
+  
+  # class(object) <- c("geeglm", "gee", "glm", "lm")
+  predict_gee(object, newdata = newdata, se.fit = se.fit, type = type[1],
+          na.action = na.action, ...)
+  
+}
+
 #' @importFrom stats simulate na.pass 
 #' @rdname predict.wbm 
 #' @export
@@ -368,6 +422,66 @@ partialize.wbm <- function(model, vars = NULL, data = NULL, at = NULL,
   }
   partialize(model, vars = vars, data = data, at = at, 
              center = center, scale = scale, set.offset = set.offset, ...)
+}
+
+#' @importFrom jtools make_predictions
+#' @export
+make_predictions.wbgee <- function(model, pred, pred.values = NULL, at = NULL,
+  data = NULL, center = TRUE, interval = TRUE,
+  int.type = c("confidence", "prediction"), int.width = .95, 
+  outcome.scale = "response", set.offset = NULL, 
+  new_data = NULL, return.orig.data = FALSE, partial.residuals = FALSE,
+  message = TRUE, raw = TRUE, ...) {
+  
+  # Check if user provided own new_data
+  if (is.null(new_data)) {
+    # Get the data ready with make_new_data()
+    pm <- jtools::make_new_data(model, pred, pred.values = pred.values, at = at, 
+                                data = data, center = center,
+                                set.offset = set.offset)
+  } else {pm <- new_data}
+  
+  resp <- jtools::get_response_name(model)
+  link_or_lm <- ifelse(family(model)$link == "identity",
+                       yes = "response", no = "link")
+
+  predicted <- as.data.frame(predict(model, newdata = pm, type = link_or_lm,
+                                     raw = raw))
+    
+  pm[[get_response_name(model)]] <- predicted[[1]]
+  
+  
+  # Back-convert the predictions to the response scale
+  if (outcome.scale == "response") {
+    pm[[resp]] <- family(model)$linkinv(pm[[resp]])
+    if (interval == TRUE) {
+      pm[["ymax"]] <- family(model)$linkinv(pm[["ymax"]])
+      pm[["ymin"]] <- family(model)$linkinv(pm[["ymin"]])
+    }
+  }
+  
+  if (return.orig.data == FALSE & partial.residuals == FALSE) {
+    o <- tibble::as_tibble(pm)
+  } else {
+    if (return.orig.data == TRUE & partial.residuals == FALSE) {
+      o <- list(predictions = tibble::as_tibble(pm), data = 
+                  suppressMessages(d <- tibble::as_tibble(get_data(model))))
+      # If left-hand side is transformed, make new column in original data for
+      # the transformed version and evaluate it
+      if (is_lhs_transformed(as.formula(formula(model)))) {
+        o[[2]][get_response_name(model)] <- 
+          eval(get_lhs_j(as.formula(formula(model))), o[[2]])
+      }
+    } else {
+      o <- list(predictions = tibble::as_tibble(pm), data = 
+                  suppressMessages(
+                    partialize(model, vars = pred, at = at, data = data,
+                               center = center, set.offset = set.offset)
+                  )
+      )
+    }
+  }
+  return(o)
 }
 
 #### jtools helpers ##########################################################
