@@ -230,8 +230,10 @@ are_varying <- function(data, ..., type = "time") {
     dots <- syms(as.list(dnames))
   } else {
     data <- dplyr::select(data, ...)
+    dots <- as.character(enexprs(...))
+    is_wave <- if (get_wave(data) %in% dots) NULL else get_wave(data)
     dots <- syms(
-      as.list(names(data) %not% c(get_id(data), get_wave(data)))
+      as.list(names(data) %not% c(get_id(data), is_wave))
     )
   }
   # Get time variation
