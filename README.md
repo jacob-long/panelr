@@ -16,11 +16,18 @@ contacted/measured multiple times. `panelr` provides some useful
 infrastructure, like a `panel_data` object class, as well as automating
 some emerging methods for analyses of these data.
 
-It automates the “within-between” (also known as “between-within” and
-“hybrid”) specification that combines the desirable aspects of both
+`wbm()` automates the “within-between” (also known as “between-within”
+and “hybrid”) specification that combines the desirable aspects of both
 fixed effects and random effects econometric models and fits them using
 the `lme4` package in the backend. Bayesian estimation of these models
-is supported by interfacing with the `brms` package.
+is supported by interfacing with the `brms` package (`wbm_stan()`) and
+GEE estimation via `geepack` (`wbgee()`).
+
+It also automates the fairly new “asymmetric effects” specification
+described by [Allison
+(2019)](http://journals.sagepub.com/doi/10.1177/2378023119826441) and
+supports estimation via GLS for linear asymmetric effects models
+(`asym()`) and via GEE for non-Gaussian models (`asym_gee()`).
 
 ## Installation
 
@@ -126,12 +133,10 @@ logged wages (`lwage`) using two time-varying variables — lagged union
 membership (`union`) and contemporaneous weeks worked (`wks`) — along
 with a time-invariant predictor, a binary indicator for black race
 (`blk`). For demonstrative purposes, we’ll fit a random slope for
-`lag(union)` and a cross-level interaction between `blk` and
-`wks`.
+`lag(union)` and a cross-level interaction between `blk` and `wks`.
 
 ``` r
-model <- wbm(lwage ~ lag(union) + wks | blk | blk * wks + (lag(union) | id),
-             data = wages)
+model <- wbm(lwage ~ lag(union) + wks | blk | blk * wks + (lag(union) | id), data = wages)
 summary(model)
 ```
 
@@ -160,7 +165,7 @@ summary(model)
     ---------------------------------------------------------------
                                Est.   S.E.   t val.     d.f.      p
     ----------------------- ------- ------ -------- -------- ------
-    (Intercept)                6.20   0.24    25.89   571.98   0.00
+    (Intercept)                6.20   0.24    25.89   571.97   0.00
     imean(lag(union))          0.03   0.04     0.72   593.27   0.47
     imean(wks)                 0.01   0.01     2.30   571.29   0.02
     blk                       -0.35   0.06    -5.65   591.87   0.00
