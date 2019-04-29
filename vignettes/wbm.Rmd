@@ -243,7 +243,7 @@ calculates interactions via the double-demeaning method. You can change this
 via the `interaction.style` argument if you need your results to match other
 software.
 
-## `wbm()`
+## Fitting within-between models
 
 The workhorse function for within-between models is `wbm()`, which is built on 
 top of `lme4`'s `lmerMod()` and `glmerMod()`. It is not so hard to understand
@@ -366,7 +366,7 @@ summary(model)
 This can help declutter your output when you really just don't care about the
 between-subjects effects.
 
-## `wbgee()`
+## Using GEE to fit within-between models
 
 You don't have to estimate these models using multilevel models and in 
 fact you may get better inferences by avoiding some of the assumptions inherent

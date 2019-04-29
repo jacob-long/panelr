@@ -7,6 +7,9 @@ navbar:
   left:
     - icon: fa-home
       href: index.html
+    - icon: fa-book
+      text: "Package Introduction"
+      href: articles/wbm.html
     - icon: fa-arrows
       text: "Reshaping Tutorial"
       href: articles/reshape.html
@@ -16,11 +19,52 @@ navbar:
     - icon: fa-newspaper-o
       text: "News"
       href: news/index.html
-#    - icon: fa-book
-#      text: "Vignettes"
-#      menu:
-#      text: "Reshaping panel data with `long_panel()` and `widen_panel()`"
   right:
     - icon: fa-github fa-lg
       text: "Github"
       href: https://github.com/jacob-long/panelr
+
+reference:
+  - title: Regression models
+    contents:
+        - wbm
+        - wbgee
+        - fdm
+        - asym
+        - asym_gee
+        - wbm_stan
+  - title: Panel data wrangling
+    contents:
+        - panel_data
+        - widen_panel
+        - long_panel
+        - summary.panel_data
+        - complete_data
+        - model_frame
+        - unpanel
+        - is_panel
+        - as_panel_data
+  - title: Model utilities
+    contents:
+        - tidy.wbm
+        - tidy.wbgee
+        - tidy.fdm
+        - predict.wbm
+        - predict.wbgee
+        - formula.wbm
+        - nobs.wbm
+  - title: Other utilities
+    contents:
+        - are_varying
+        - make_wb_data
+        - make_diff_data
+        - get_wave
+        - line_plot
+        - heise
+  - title: Datasets
+    contents:
+        - WageData
+        - teen_poverty
+        - nlsy
+    
+    
