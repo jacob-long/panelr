@@ -1,6 +1,6 @@
 Package: panelr
 Title: Regression Models and Utilities for Repeated Measures and Panel Data
-Version: 0.6.0
+Version: 0.7.0
 Authors@R: person("Jacob A.", "Long", email = "long.1377@osu.edu", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-1582-6214"))
 Description: Provides an object type and associated tools for storing and 
   wrangling panel data. Implements several methods for creating regression
@@ -8,8 +8,15 @@ Description: Provides an object type and associated tools for storing and
   panel data. Among other capabilities, automates the "within-between" 
   (also known as "between-within" and "hybrid") panel regression specification
   that combines the desirable aspects of both fixed effects and random effects 
-  econometric models and fits them as multilevel models. Bayesian estimation is
-  (optionally) supported via Stan.
+  econometric models and fits them as multilevel models 
+  (Allison, 2009 <doi:10.4135/9781412993869.d33>; 
+  Bell & Jones, 2015 <doi:10.1017/psrm.2014.7>). These models can also be 
+  estimated via generalized estimating equations 
+  (GEE; McNeish, 2019 <doi:10.1080/00273171.2019.1602504>) and Bayesian 
+  estimation is (optionally) supported via Stan. 
+  Supports estimation of asymmetric effects models via first differences
+  (Allison, 2019 <doi:10.1177/2378023119826441>) as well as a generalized
+  linear model extension thereof using GEE. 
 URL: https://panelr.jacob-long.com
 BugReports: https://github.com/jacob-long/panelr
 Depends: R (>= 3.4.0),
@@ -43,7 +50,6 @@ Suggests: brms,
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.1.1
+RoxygenNote: 6.1.1.9000
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr
-Remotes: jacob-long/jtools
