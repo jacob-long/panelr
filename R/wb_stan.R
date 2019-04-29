@@ -51,8 +51,8 @@
 wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
                    detrend = FALSE, use.wave = FALSE, wave.factor = FALSE,
                    min.waves = 2, model.cor = FALSE, family = gaussian,
-                   fit_model = TRUE, balance_correction = FALSE,
-                   dt_random = TRUE, dt_order = 1,
+                   fit_model = TRUE, balance.correction = FALSE,
+                   dt.random = TRUE, dt.order = 1,
                    chains = 3, iter = 2000, scale = FALSE, save_ranef = FALSE,
                    interaction.style = c("double-demean", "demean", "raw"),
                    weights = NULL, offset = NULL, ...) {
@@ -60,12 +60,17 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
   if (!requireNamespace("brms")) {
     stop_wrap("You must have the brms package installed to use wbm_stan.")
   }
+  if (getOption("stan-warning", FALSE) == FALSE) {
+    msg_wrap("If model compilation fails, please run 'library(brms)' and 
+             try again.")
+    options("stan-warning" = TRUE)
+  }
   
   the_call <- match.call()
   the_call[[1]] <- substitute(wbm_stan)
   the_env <- parent.frame()
   
-  if (any(c(detrend, balance_correction))) {
+  if (any(c(detrend, balance.correction))) {
     if (!requireNamespace("tidyr") | !requireNamespace("purrr")) {
       stop_wrap("To use the 'detrend' or 'balance_correction' arguments, you 
                 must have the 'tidyr' and 'purrr' packages installed.")
@@ -81,8 +86,8 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
                              wave = wave, model = model, detrend = detrend,
                              use.wave = use.wave, wave.factor = wave.factor,
                              min.waves = min.waves,
-                             balance_correction = balance_correction,
-                             dt_random = dt_random, dt_order = dt_order,
+                             balance_correction = balance.correction,
+                             dt_random = dt_random, dt_order = dt.order,
                              weights = UQ(enquo(weights)),
                              offset = UQ(enquo(offset)), 
                              demean.ints = interaction.style == "double-demean",
@@ -98,7 +103,7 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
   offset <- prepped$offset
 
   if (wave.factor == TRUE) {
-    data[wave] <- as.factor(data[wave])
+    data[[wave]] <- as.factor(data[[wave]])
   }
 
   fin_formula <- formula_esc(e$fin_formula, c(e$int_means, e$within_ints,

@@ -7,8 +7,8 @@
 wbm_stan(formula, data, id = NULL, wave = NULL, model = "w-b",
   detrend = FALSE, use.wave = FALSE, wave.factor = FALSE,
   min.waves = 2, model.cor = FALSE, family = gaussian,
-  fit_model = TRUE, balance_correction = FALSE, dt_random = TRUE,
-  dt_order = 1, chains = 3, iter = 2000, scale = FALSE,
+  fit_model = TRUE, balance.correction = FALSE, dt.random = TRUE,
+  dt.order = 1, chains = 3, iter = 2000, scale = FALSE,
   save_ranef = FALSE, interaction.style = c("double-demean", "demean",
   "raw"), weights = NULL, offset = NULL, ...)
 }
@@ -53,11 +53,17 @@ the linear model.}
 \item{fit_model}{Fit the model? Default is TRUE. If FALSE, only the model
 code is returned.}
 
-\item{balance_correction}{Deprecated. Equivalent to \code{balance.correction}.}
+\item{balance.correction}{Correct between-subject effects for unbalanced
+panels following the procedure in Curran and Bauer (2011)? Default is
+FALSE.}
 
-\item{dt_random}{Deprecated. Equivalent to \code{dt.random}.}
+\item{dt.random}{Should the detrending procedure be performed with a
+random slope for each entity? Default is TRUE but for short panels
+FALSE may be better, fitting a trend for all entities.}
 
-\item{dt_order}{Deprecated. Equivalent to \code{dt.order}.}
+\item{dt.order}{If detrending using \code{detrend}, what order polynomial
+would you like to specify for the relationship between time and the
+predictors? Default is 1, a linear model.}
 
 \item{chains}{How many Markov chains should be used? Default is 3, to leave
 you with one unused thread if you're on a typical dual-core machine.}
