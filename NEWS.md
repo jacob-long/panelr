@@ -15,6 +15,8 @@ conditional logit.
 * `heise()` produces stability and reliability estimates via the popular 
 method described in Heise (1969).
 * Two new datasets have been added (`nlsy` and `teen_poverty`).
+* A new vignette gives a relatively detailed discussion of the models
+implemented in the package.
 
 # panelr 0.6.0
 
