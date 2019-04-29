@@ -1,0 +1,540 @@
+---
+title: "Introduction to the `panelr` package"
+author: "Jacob A. Long"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_document:
+    toc: true
+    toc_float: true
+vignette: >
+  %\VignetteIndexEntry{Introduction to the `panelr` package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = "",
+  message = FALSE
+)
+```
+
+
+The `panelr` package contributes two categories of things:
+
+1. A `panel_data` object and some tools to create/manipulate them.
+2. A series of regression modeling functions for panel data.
+
+# `panel_data` frames
+
+Check out the other vignette for a lot of detail on how to take your raw data
+and reshape it into a `panel_data` format. Here's a short version, using some
+example data provided by this package.
+
+```{r}
+library(panelr)
+data("teen_poverty")
+teen_poverty
+```
+
+These data come from a subset of young women surveyed as part of the 
+National Longitudinal Survey of Youth starting in 1979. The `teen_poverty`
+data come in "wide" format, meaning there is one row per respondent and 
+each of the repeated measures is in a separate column for each wave.
+
+We need to convert this to "long" format, in which you have one row for each
+respondent in each wave of the 5-wave survey. We'll use `long_panel()` for 
+that.
+
+```{r}
+teen <- long_panel(teen_poverty, begin = 1, end = 5, label_location = "end")
+teen
+```
+
+Now we have a `panel_data` object! It is a special version of a `tibble`, 
+which is itself a special kind of `data.frame`. `panel_data` objects 
+work very hard to make sure you never accidentally drop the variables that 
+are the identifiers for each respondent and the indicators for which wave the
+row corresponds to. `panel_data` objects also try to stay in order by ID and
+wave. 
+
+Note that if your raw data are already in long format, you can use the 
+`panel_data()` function to convert them to `panel_data` format.
+
+```{r}
+data("WageData")
+wages <- panel_data(WageData, id = id, wave = t)
+```
+
+
+`panel_data` frames are designed to work with `tidyverse` packages, 
+particularly `dplyr`. When used inside `mutate()`, functions like `lag()` work 
+properly by taking the previous value for the specific respondent. If you ever
+need to do something that is easier to do with a "regular" data frame, you can
+just use the `unpanel()` function to convert the `panel_data` frame back to 
+normal.
+
+# Regression models
+
+## Within-between models
+
+The original motivation to create this package was to automate the process of
+fitting "within-between" models, sometimes called "between-within" or 
+"hybrid" models (see Allison, 2009; Bell & Jones, 2015). These combine the
+benefits of what econometricians call "fixed effects" models — robustness to
+time-invariant confounding chief among them — as well as what they call
+"random effects" models, which allow the inclusion of time-invariant 
+coefficients. Within-between models include coefficients that are identical
+to the fixed effects equivalent, but the flexibility to also include the random
+effects and other time-invariant predictors (this was noticed by Mundlak, 1978). 
+They are fit via multilevel models which allow for some other nice possibilites
+like inclusion of random slopes and generalized linear model specifications.
+
+From here, I'll give a somewhat technical description of these models. If you
+just want to look at how to estimate them in R, skip ahead to the next 
+mini-section.
+
+Note that fixed effects models can be fit using individual demeaning. That is,
+you can subtract the entity's own mean for each predictor and the dependent 
+variable and fit a model via OLS that is equivalent to the so-called least 
+squares dummy variable approach (in which dummy variables for every entity ID 
+are included as predictors).
+
+Let's get a bit more technical. We have entities $i = 1, ..., n$ who are 
+measured at times $t = 1, ..., T$. We have as our dependent variable $y_{it}$,
+the variable $y$ for individual $i$ at time $t$. We have predictors that 
+vary over time $x_{it}$, variables that do not vary over time $z_i$, and
+variables we did not measure that do not vary over time $\alpha_i$ as well
+as random error $\epsilon_{it}$
+
+The fixed effects model, then, looks like this:
+
+$$
+y_{it} = \mu_t + \beta_1x_{it} + \gamma z_i + \alpha_i + \epsilon_{it}
+$$
+
+Although $\alpha_i$ is not observed, it can be estimated by including a dummy
+variable for each $i$. The $\gamma$ is undefined because the $z_i$ are perfectly
+collinear with the $\alpha_i$ dummy variables.
+
+
+The individual-mean-centered version of the fixed effects models is based on
+calculating a mean of $y$ and $x$ for each $i$ — so $\bar{y_i}$ and $\bar{x_i}$ 
+and subtracting it from each $y_{it}$ and $x_{it}$. The model can be 
+expressed like this, including $\bar{z_i}$ and $\bar{\alpha_i}$ for 
+demonstration:
+
+$$
+y_{it} - \bar{y_i} = \mu_t + \beta_1(x_{it} - \bar{x_i}) + 
+(z_i - \bar{z_i} = 0) + 
+(\alpha_i - \bar{\alpha_i} = 0) + (\epsilon_{it} - \bar{e_i})
+$$
+
+By de-meaning everything, all the time-invariant variables drop out:
+
+$$
+y_{it} - \bar{y_i} = \mu_t + \beta_1(x_{it} - \bar{x_i}) + (\epsilon_{it} - \bar{e_i})
+$$
+
+This is often called the "within" estimator. You can take these de-meaned
+variables and fit an OLS regression and get valid estimates (with some 
+adjustments to the standard errors).
+
+You can also do something slightly different and get the same results with
+multilevel models. Take this, for example:
+
+$$
+y_{it} = \beta_{0i} + \beta_1(x_{it} - \bar{x_i}) + (\epsilon_{it} - \bar{e_i})
+$$
+
+Where $\beta_{0i}$ is a random intercept estimated for each $i$. This is 
+equivalent to subtracting $\bar{y_i}$ in terms of the estimation of $\beta_1$.
+But in the multilevel modeling framework, we can include those time-invariant
+$z_i$ as well. Conceptually, they are basically being included in a model
+predicting $\beta_{0i}$:
+
+$$
+\beta_{0i} = \beta_0 + \gamma z_i + u_{0i}
+$$
+
+Where $u_{0i}$ is the random error of the model predicting $\beta_{0i}$.
+
+In fact, we can include the $\bar{x_i}$ in our multilevel model as well and 
+they are used just like the $z_i$:
+
+$$
+\beta_{0i} = \beta_0 + \beta_2 \bar{x_i} + \gamma z_i +  u_{0i}
+$$
+
+Now we can substitute into the previous multilevel equation and we have our
+within-between model:
+
+$$
+y_{it} = \beta_{0} + \beta_1(x_{it} - \bar{x_i})  
++ \beta_2 \bar{x_i} + \gamma z_i +  u_{0i} + \epsilon_{it}
+$$
+
+The $\beta_1$ has the same interpretation as in the fixed effects model, these
+are the effects of within-entity deviations of $x$ on within-entity deviations
+of $y$. The $\beta_2$ is basically predicting the $\bar{y_i}$, however, so 
+these coefficients are helpful for predicting differences in mean levels across
+entities. The same is true for the $z_i$.
+
+A similar model that I call the "contextual" model because this is how it is
+often interpreted (see, e.g., Raudenbush & Bryk, 2002). Here we do not demean
+the $x_i$:
+
+$$
+y_{it} = \beta_{0} + \beta_1 x_{it} 
++ \beta_2 \bar{x_i} + \gamma z_i +  u_{0i} + \epsilon_{it}
+$$
+
+Believe it or not, the $\beta_1$ is unchanged in this model; it is the $\beta_2$
+that changes. The interpretation of $\beta_2$ becomes a the *difference* 
+between the within- and between-entities effects. A significant coefficient for
+$\beta_2$ means significant differences between the within- and between-entity
+effects. For those who are familiar, this is like a variable-by-variable Hausman
+test. Substantively, $\beta_2$ is often interpreted as a *contextual* effect.
+
+From this framework, we can do cross-level interactions, random slopes, 
+generalized linear models, and all kinds of interesting stuff.
+
+### A note on interactions
+
+In the fixed effects framework, it is generally considered wrong to 
+operationalize an interaction between two time-varying variables (let's call
+them $w$ and $x$) by taking 
+the product of their individual-demeaned forms. That is, you are **not**
+supposed to generate the interaction term $xw_{it}$ by doing this:
+
+$$
+xw_{it} = (x_{it} - \bar{x_{i}}) \times (w_{it} - \bar{w_i})
+$$
+
+Instead, the conventional wisdom goes, you should first take the product of the
+observed variables and subtract the individual-level mean of that product,
+like so:
+
+$$
+xw_{it} = x_{it}w_{it} - \bar{xw}_i
+$$
+
+Where $\bar{xw}_i$ can also be expressed as $\frac{\sum_{t=1}^{T_i}{x_{it}w_{it}}}{T_i}$, the sum of all products for each
+$i$ divided by the number of time points for each $i$, $T_i$.
+
+[Giesselmann and Schmidt-Catran (2018)](https://ideas.repec.org/p/diw/diwwpp/dp1748.html)
+show that this conventional method for generating $xw_{it}$ does not have the
+unbiasedness that the individual terms do. I'll leave it to them to explain
+why exactly this is, but the solution is to start with the first, wrong 
+version of $xw_{it}$, which I'll call $xw_{it}^*$, and subtract *its* mean too:
+
+$$
+xw_{it}^* = (x_{it} - \bar{x_{i}}) \times (w_{it} - \bar{w_i})
+$$
+
+$$
+xw_{it} = xw_{it}^* - \bar{xw_i^*}
+$$
+
+I call this the "double-demeaning" approach to interactions, in contrast to 
+the one-time demeaning in the conventional approach. By default, `wbm()` 
+calculates interactions via the double-demeaning method. You can change this
+via the `interaction.style` argument if you need your results to match other
+software.
+
+## `wbm()`
+
+The workhorse function for within-between models is `wbm()`, which is built on 
+top of `lme4`'s `lmerMod()` and `glmerMod()`. It is not so hard to understand
+how to treat your data to estimate within-between models, but the programming
+can be a challenge to those who aren't skilled with R (or whatever else they
+might use) and is error-prone in any case.
+
+The main thing to know in order to use `wbm()` is how the model formula
+works, because it's a little different from your typical regression model.
+It is split into up to 3 parts, each for a different kind of variable. Each
+part is separated by a `|`. The pattern is like this:
+
+```
+dependent ~ time_varying | time_invariant | cross_lev_interactions + (random_slopes | id)
+```
+
+So you start with your dependent variable on the left-hand side like normal and
+then what comes next are variables that vary over time. You will only get 
+within-entity estimates for these variables. Next are time-invariant variables;
+the between-entity terms for the time-varying variables are added automatically
+so no need to try to include them here. Finally, in the third part you can
+specify cross-level interactions (i.e., within-entity by
+between-entity/time-invariant) as well as additional random effects terms 
+using the `lme4`-style syntax. By default, `(1 | id)` (or whatever the ID 
+variable is) is added internally for a random intercept so you do not need to
+include it yourself. 
+
+Let's walk through an example with the `wages` data we looked at briefly 
+earlier. We'll predict the logarithm of wages (`lwage`) using weeks worked
+(`wks`), union membership (`union`), marital status (`ms`), 
+blue (vs. white) collar job status (`occ`), black race (`blk`), and 
+female sex (`fem`).
+
+```{r}
+model <- wbm(lwage ~ wks + union + ms + occ | blk + fem, data = wages)
+summary(model)
+```
+
+As you can see, the output distinguishes within- and between-entity effects.
+When you see `imean()` around a variable, that is the between-entity effect
+represented as the individual mean.
+
+Here, we see there seems to be a wage penalty for switching from white collar
+to blue collar work (`occ`) and although married people earn more (`imean(ms)`),
+just becoming married (`ms`) coincides with a drop in earnings. We also see a
+boost in earnings from joining a union (`union`).
+
+Maybe we think the timing of the marriage effect is off and the true effect 
+occurs the time period after a person becomes married. We can ask for the 
+lagged effect using `lag()`.
+
+```{r}
+model <- wbm(lwage ~ wks + union + lag(ms) + occ | blk + fem, data = wages)
+summary(model)
+```
+
+Well that doesn't change the direction of the estimate, but it also moved 
+it sufficiently close to 0 that we can't say much about it one way or another.
+
+Keep in mind that you do not have to stick to linear models. Using the `family`
+argument (just like `glm()`), you can estimate logit (`family = binomial`),
+probit (`family = binomal(link = "probit")`), poisson (`family = poisson`), or
+other model families and links as needed.
+
+### Growth curves
+
+Now maybe we want to include an effect of time since wages tend to go up for 
+everyone, on average, over time. We can just include the time variable in the
+formula or set `use.wave` to `TRUE`.
+
+```{r}
+model <- wbm(lwage ~ wks + union + ms + occ | blk + fem, data = wages,
+             use.wave = TRUE)
+summary(model)
+```
+
+Including `t` wipes out some of those previously observed effects. Believe it
+or not, we just fit a growth curve model!
+
+Now, we might think people have different trajectories. We can include that as
+a random slope, which will go in the third part of the formula.
+
+```{r}
+model <- wbm(lwage ~ wks + union + ms + occ | blk + fem | (t | id),
+             use.wave = TRUE, data = wages)
+summary(model)
+```
+
+And now we have a latent growth curve model. The general effect on the other
+coefficients is more uncertainty and attenuated estimates. It's worth 
+keeping in mind that it is sometimes wrong to use a growth curve model like this
+if you think the variables in your model *cause* the time trend; if you think
+wages are going up because more people are moving into white collar work, then
+including the growth curve will make it harder for you to see the true effect
+of `occ`.
+
+### Contextual, within, and random effects specifications
+
+By default, `wbm()` does as the name suggests. But if you'd rather have the 
+contextual model described earlier, in which the means are not subtracted from
+the time varying variables, that's an option too.
+
+```{r}
+model <- wbm(lwage ~ wks + union + ms + occ | blk + fem, data = wages,
+             model = "contextual")
+summary(model)
+```
+
+Now the individual means have a new interpretation as the difference in effect
+compared to the within-entity estimates.
+
+If you don't want to use any of the time-invariant variables, you can also
+just ask for the "within" estimator:
+
+```{r}
+model <- wbm(lwage ~ wks + union + ms + occ, data = wages, model = "within")
+summary(model)
+```
+
+This can help declutter your output when you really just don't care about the
+between-subjects effects.
+
+## `wbgee()`
+
+You don't have to estimate these models using multilevel models and in 
+fact you may get better inferences by avoiding some of the assumptions inherent
+to multilevel modeling (see McNeish, 2019). You can use the semiparametric
+generalized estimating equations (GEE) approach to estimation, with the main
+tradeoff being that you can no longer use random slopes or anything like that.
+But if you only care about the average effects across all entities, GEE can
+be a better approach that doesn't require you to be right about the distribution
+of effects and several other assumptions.
+
+`wbgee()` builds on `geeglm()` from the `geepack` package and works just like
+`wbm()`.
+
+```{r}
+model <- wbgee(lwage ~ wks + union + ms + occ | blk + fem, data = wages)
+summary(model)
+```
+
+This gives us more conservative estimates, in general. Note that by default,
+`wbgee()` uses an AR-1 working error correlation structure in estimation. 
+This makes sense in general but at times it may make sense to use 
+"exchangeable" as the argument to `cor.str` which assumes all within-entity
+correlations are equal regardless of time lag. Other options include 
+"unstructured", which can be very computationally intensive, and "independence,"
+assuming no correlation within entities.
+
+Like `wbm()`, you can do generalized linear models via the `family` argument.
+It is for these generalized linear models that GEEs are likely to stand out the
+most in terms of added benefit above and beyond the multilevel models, although
+this is not a well-tested question to my knowledge.
+
+## Asymmetric effects
+
+Sometimes, theory may suggest that increases in a variable have a different
+effect than decreases in a variable. For instance, getting married and
+getting divorced are probably not equivalent (in the sense that one is the
+exact opposite of the other) in their effects on other outcomes. Allison (2019)
+described a method for estimating models with asymmetric effects based on
+first differences.
+
+First, you take first differences:
+
+$$
+y_{it} - y_{it-1} = (\mu_t - \mu_{t-1}) + \beta(x_{it} - x_{it -1}) +
+(\epsilon_{it} - \epsilon_{it-1})
+$$
+
+We need a slightly different model for asymmetric effects in which we 
+decompose the differences into positive and negative variables.
+
+Our asymmetric effects model will be:
+
+$$
+y_{it} - y_{it-1} = (\mu_t - \mu_{t-1}) + \beta^+x_{it}^+ + \beta^-x_{it}^- +
+(\epsilon_{it} - \epsilon_{it-1})
+$$
+
+Where 
+
+$$
+x_{it}^+ = x_{it} - x_{it -1} \text{ if } (x_{it} - x_{it -1}) > 0,
+\text{otherwise } 0 \\
+x_{it}^- = -(x_{it} - x_{it -1}) \text{ if } (x_{it} - x_{it -1}) < 0,
+\text{otherwise } 0
+
+$$
+
+In other words, if the difference is positive, it becomes part of the 
+$x_{it}^+$ and if it is negative, it is multiplied by -1 to be made positive 
+and is made part of the $x_{it}^-$ variable. 
+If the effects are symmetric, $\beta^+ = -\beta^-$. 
+
+After fitting the model via GLS, we can then do a test of the contrasts of 
+the $\beta^+$ and $\beta^-$ coefficients as a formal wawy to assess the presence
+of asymmetric effects.
+
+Here's how it works with the `panelr` function, `asym()`.
+
+```{r}
+model <- asym(lwage ~ ms + occ + union + wks, data = wages)
+summary(model)
+```
+
+As you can see, in a model comparable to our within-between model from earlier,
+the effects seem quite symmetric.
+
+Let's look at the `teen` data from earlier, where `spouse` indicates whether
+the respondent is living with a spouse, `inschool` indicates whether the 
+respondent is enrolled in school, and `hours` is the hours worked in the week
+of the survey.
+
+```{r}
+summary(asym(hours ~ spouse + inschool, data = teen))
+```
+
+Here we see an asymmetric effect of marriage: gaining a spouse corresponds with
+fewer hours worked, but there's no effect on work hours when a spouse is lost.
+You can see in the lower table that this differencee in coefficients is 
+associated with a fairly low *p* value. There is only weak evidence of an
+asymmetric effect for entering/leaving school.
+
+### Asymmetric effects for generalized linear models
+
+The downside to the first differences method is that it does not generalize
+to non-continuous dependent variables — you can't run a logit model with a 
+differenced binary outcome. Allison (2019) showed that you can do a modified
+form for such situations. 
+
+Instead of including the $x_{it}^+$ and $x_{it}^-$ as predictors, you instead
+create new variables $z_{it}^+$ and $z_{it}^-$ that are the cumulative sum
+of all differences prior to time $t$. 
+
+$$
+z_{it}^+ = \sum_{s = 1}^{t}{x_{is}^+} \\
+z_{it}^- = \sum_{s = 1}^{t}{x_{is}^-} \\
+$$
+
+Note that at $t = 1$, both are set to 0. I'll leave the details as to *why*
+this works to the manuscript, but he shows that we're left with the following
+equation:
+
+$$
+y_{it} = \mu_t + \beta^+ z_{it}^+ + \beta^-z_{it}^- + \alpha_i + \epsilon_{it}
+$$
+
+So we can treat this like a fixed effects model in which we just need to address
+the $\alpha_i$. For situations like this that call for a conditional logit, as
+Allison used in his paper, another option is the GEE with logit link. 
+
+Let's try with the `teen` data, which also appears in Allison (2019). Here our
+outcome variable is `pov`, poverty, and there's a new predictor, `mother`, an
+indicator for whether the respondent has ever had any children.
+
+```{r message = TRUE}
+model <- asym_gee(pov ~ mother + spouse + inschool + hours, data = teen,
+                  family = binomial(link = "logit"), use.wave = TRUE, 
+                  wave.factor = TRUE)
+summary(model)
+```
+
+The results are broadly similar in terms of coefficient estimates to those 
+obtained by Allison. Unlike Allison, we do not have good evidence of an 
+asymmetric effect in the case of `spouse` but we do have one in the case of
+`hours`. Note that `mother` never goes down so the negative version of this
+variable is dropped from the model with a message. To match Allison, I also
+used `use.wave` to include the wave variable and `wave.factor` to make it 
+a factor variable.
+
+# References
+
+Allison, P. D. (2009). Fixed effects regression models. 
+Thousand Oaks, CA: SAGE Publications. 
+https://doi.org/10.4135/9781412993869.d33
+
+Allison, P. D. (2019). Asymmetric fixed-effects models for panel data. 
+*Socius*, *5*, 1–12. https://doi.org/10.1177/2378023119826441
+
+Bell, A., & Jones, K. (2015). Explaining fixed effects: Random effects 
+modeling of time-series cross-sectional and panel data. 
+*Political Science Research and Methods*, *3*, 133–153.
+https://doi.org/10.1017/psrm.2014.7
+
+Giesselmann, M., & Schmidt-Catran, A. (2018). Interactions in fixed effects
+regression models (Discussion Papers of DIW Berlin No. 1748). 
+DIW Berlin, German Institute for Economic Research. Retrieved from
+https://ideas.repec.org/p/diw/diwwpp/dp1748.html
+
+McNeish, D. (2019). Effect partitioning in cross-sectionally clustered data
+without multilevel models. *Multivariate Behavioral Research*, Advance online
+publication. https://doi.org/10.1080/00273171.2019.1602504
+
