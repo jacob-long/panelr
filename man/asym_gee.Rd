@@ -65,8 +65,7 @@ other arguments.
 \examples{
 data("WageData")
 wages <- panel_data(WageData, id = id, wave = t)
-model <- wbgee(lwage ~ lag(union) + wks | blk + fem | blk * lag(union),
-         data = wages)
+model <- asym_gee(lwage ~ lag(union) + wks, data = wages)
 summary(model)
 
 }

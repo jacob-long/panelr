@@ -14,8 +14,7 @@
 #' @examples
 #' data("WageData")
 #' wages <- panel_data(WageData, id = id, wave = t)
-#' model <- wbgee(lwage ~ lag(union) + wks | blk + fem | blk * lag(union),
-#'          data = wages)
+#' model <- asym_gee(lwage ~ lag(union) + wks, data = wages)
 #' summary(model)
 #'
 #' @references
@@ -248,6 +247,7 @@ print.asym_gee <- function(x, ...) {
   
 }
 
+#' @rdname wbgee_tidiers
 #' @rawNamespace 
 #' if (getRversion() >= "3.6.0") {
 #'   S3method(broom::tidy, asym_gee)
