@@ -52,7 +52,7 @@ wb_formula_parser <- function(formula, dv, data) {
         lhs <- splitted[[1]][[1]]
         rhs <- splitted[[1]][[2]]
         # Convert LHS to formula
-        lhs_form <- Formula::Formula(as.formula(paste("~", lhs)))
+        lhs_form <- Formula::Formula(as.formula(paste("~", bt(lhs))))
         # Find the time-varying non-numeric vars 
         vars <- names(sapply(all.vars(lhs_form), 
                              function(x) is.numeric(data[[x]])) %just% FALSE)
@@ -491,6 +491,11 @@ bt_ranefs <- function(ranefs, data) {
       lhs_form <- reformulate(term.labs)[[2]]
     } else {lhs_form <- (~1)[[2]]}
     lhs <- to_char(lhs_form)
+    # to_char drops ticks if there's only one term
+    if (lhs != "1" && 
+        length(attr(terms(reformulate(term.labs)), "term.labels")) < 2) {
+      lhs <- bt(lhs)
+    }
     # Convert back to a string format with expanded factors, if any
     paste0("(", lhs, ifelse(stringr::str_detect(x, "\\|\\|"),
                             yes = "||", no = "|"),  
