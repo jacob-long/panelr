@@ -126,7 +126,7 @@ summary(model)
 Note that `imean()` is an internal function that calculates the individual-level
 mean, which represents the between-subjects effects of the time-varying 
 predictors. The within effects are the time-varying predictors at the occasion 
-level with the individal-level mean subtracted. If you want the model specified
+level with the individual-level mean subtracted. If you want the model specified
 such that the occasion level predictors do not have the mean subtracted, use
 the `model = "contextual"` argument. The "contextual" label refers to the way 
 these terms are normally interpreted when it is specified that way. 

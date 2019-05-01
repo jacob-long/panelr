@@ -88,7 +88,7 @@ time-invariant confounding chief among them — as well as what they call
 coefficients. Within-between models include coefficients that are identical
 to the fixed effects equivalent, but the flexibility to also include the random
 effects and other time-invariant predictors (this was noticed by Mundlak, 1978). 
-They are fit via multilevel models which allow for some other nice possibilites
+They are fit via multilevel models which allow for some other nice possibilities
 like inclusion of random slopes and generalized linear model specifications.
 
 From here, I'll give a somewhat technical description of these models. If you
@@ -435,7 +435,7 @@ and is made part of the $x_{it}^-$ variable.
 If the effects are symmetric, $\beta^+ = -\beta^-$. 
 
 After fitting the model via GLS, we can then do a test of the contrasts of 
-the $\beta^+$ and $\beta^-$ coefficients as a formal wawy to assess the presence
+the $\beta^+$ and $\beta^-$ coefficients as a formal way to assess the presence
 of asymmetric effects.
 
 Here's how it works with the `panelr` function, `asym()`.
@@ -459,7 +459,7 @@ summary(asym(hours ~ spouse + inschool, data = teen))
 
 Here we see an asymmetric effect of marriage: gaining a spouse corresponds with
 fewer hours worked, but there's no effect on work hours when a spouse is lost.
-You can see in the lower table that this differencee in coefficients is 
+You can see in the lower table that this difference in coefficients is 
 associated with a fairly low *p* value. There is only weak evidence of an
 asymmetric effect for entering/leaving school.
 

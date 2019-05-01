@@ -44,7 +44,7 @@ that contains the weights or a vector of the weights.}
 useful for fixed effects estimation and/or generalized linear models?
 Default is FALSE.}
 
-\item{escape.names}{Return only synactically valid variable names?
+\item{escape.names}{Return only syntactically valid variable names?
 Default is FALSE.}
 
 \item{...}{Ignored.}

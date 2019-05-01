@@ -25,7 +25,7 @@
 #' @return A `wbm_stan` object, which is a list containing a `model` object
 #'   with the `brm` model and a `stan_code` object with the model code.
 #'
-#'   If `fit_model = FALSE`, insead a list is returned containing a `stan_code`
+#'   If `fit_model = FALSE`, instead a list is returned containing a `stan_code`
 #'   object and a `stan_data` object, leaving you with the tools you need to
 #'   run the model yourself using `rstan`.
 #'

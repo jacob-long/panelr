@@ -162,7 +162,7 @@ print.summary.fdm <- function(x, ...) {
 #' @param cumulative Return cumulative positive/negative differences, most
 #'  useful for fixed effects estimation and/or generalized linear models? 
 #'  Default is FALSE.
-#' @param escape.names Return only synactically valid variable names? 
+#' @param escape.names Return only syntactically valid variable names? 
 #'  Default is FALSE.
 #'  
 #' @export

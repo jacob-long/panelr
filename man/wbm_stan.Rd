@@ -113,7 +113,7 @@ specification of priors.}
 A \code{wbm_stan} object, which is a list containing a \code{model} object
 with the \code{brm} model and a \code{stan_code} object with the model code.
 
-If \code{fit_model = FALSE}, insead a list is returned containing a \code{stan_code}
+If \code{fit_model = FALSE}, instead a list is returned containing a \code{stan_code}
 object and a \code{stan_data} object, leaving you with the tools you need to
 run the model yourself using \code{rstan}.
 }
