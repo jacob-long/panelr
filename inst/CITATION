@@ -1,0 +1,11 @@
+citHeader("To cite panelr in publications use:")
+
+bibentry(
+  bibtype  = "Manual",
+  title    = "panelr: Regression Models and Utilities for Repeated Measures and Panel Data",
+  author   = person(c("Jacob", "A."), "Long", email = "long.1377@osu.edu", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-1582-6214")),
+  year     = "2019",
+  note     = "R package version 0.7.0",
+  url      = "https://cran.r-project.org/package=panelr",
+  key      = "panelr"
+)

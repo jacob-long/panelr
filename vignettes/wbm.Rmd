@@ -128,13 +128,13 @@ demonstration:
 $$
 y_{it} - \bar{y_i} = \mu_t + \beta_1(x_{it} - \bar{x_i}) + 
 (z_i - \bar{z_i} = 0) + 
-(\alpha_i - \bar{\alpha_i} = 0) + (\epsilon_{it} - \bar{e_i})
+(\alpha_i - \bar{\alpha_i} = 0) + (\epsilon_{it} - \bar{\epsilon_i})
 $$
 
 By de-meaning everything, all the time-invariant variables drop out:
 
 $$
-y_{it} - \bar{y_i} = \mu_t + \beta_1(x_{it} - \bar{x_i}) + (\epsilon_{it} - \bar{e_i})
+y_{it} - \bar{y_i} = \mu_t + \beta_1(x_{it} - \bar{x_i}) + (\epsilon_{it} - \bar{\epsilon_i})
 $$
 
 This is often called the "within" estimator. You can take these de-meaned
@@ -145,7 +145,8 @@ You can also do something slightly different and get the same results with
 multilevel models. Take this, for example:
 
 $$
-y_{it} = \beta_{0i} + \beta_1(x_{it} - \bar{x_i}) + (\epsilon_{it} - \bar{e_i})
+y_{it} = \beta_{0i} + \beta_1(x_{it} - \bar{x_i}) + (\epsilon_{it} -
+\bar{\epsilon_i})
 $$
 
 Where $\beta_{0i}$ is a random intercept estimated for each $i$. This is 
@@ -230,10 +231,7 @@ why exactly this is, but the solution is to start with the first, wrong
 version of $xw_{it}$, which I'll call $xw_{it}^*$, and subtract *its* mean too:
 
 $$
-xw_{it}^* = (x_{it} - \bar{x_{i}}) \times (w_{it} - \bar{w_i})
-$$
-
-$$
+xw_{it}^* = (x_{it} - \bar{x_{i}}) \times (w_{it} - \bar{w_i}) \\
 xw_{it} = xw_{it}^* - \bar{xw_i^*}
 $$
 
@@ -315,8 +313,7 @@ everyone, on average, over time. We can just include the time variable in the
 formula or set `use.wave` to `TRUE`.
 
 ```{r}
-model <- wbm(lwage ~ wks + union + ms + occ | blk + fem, data = wages,
-             use.wave = TRUE)
+model <- wbm(lwage ~ wks + union + ms + occ | blk + fem, data = wages, use.wave = TRUE)
 summary(model)
 ```
 
@@ -327,8 +324,7 @@ Now, we might think people have different trajectories. We can include that as
 a random slope, which will go in the third part of the formula.
 
 ```{r}
-model <- wbm(lwage ~ wks + union + ms + occ | blk + fem | (t | id),
-             use.wave = TRUE, data = wages)
+model <- wbm(lwage ~ wks + union + ms + occ | blk + fem | (t | id), use.wave = TRUE, data = wages)
 summary(model)
 ```
 
@@ -347,8 +343,7 @@ contextual model described earlier, in which the means are not subtracted from
 the time varying variables, that's an option too.
 
 ```{r}
-model <- wbm(lwage ~ wks + union + ms + occ | blk + fem, data = wages,
-             model = "contextual")
+model <- wbm(lwage ~ wks + union + ms + occ | blk + fem, data = wages, model = "contextual")
 summary(model)
 ```
 
@@ -501,9 +496,8 @@ outcome variable is `pov`, poverty, and there's a new predictor, `mother`, an
 indicator for whether the respondent has ever had any children.
 
 ```{r message = TRUE}
-model <- asym_gee(pov ~ mother + spouse + inschool + hours, data = teen,
-                  family = binomial(link = "logit"), use.wave = TRUE, 
-                  wave.factor = TRUE)
+model <- asym_gee(pov ~ mother + spouse + inschool + hours, data = teen, family = binomial(link = "logit"), 
+                  use.wave = TRUE, wave.factor = TRUE)
 summary(model)
 ```
 
