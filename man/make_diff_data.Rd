@@ -53,3 +53,10 @@ Default is FALSE.}
 This is an interface to the internal functions that process data for
 \code{\link[=fdm]{fdm()}}, \code{\link[=asym]{asym()}}, and \code{\link[=asym_gee]{asym_gee()}}.
 }
+\examples{
+
+data("WageData")
+wages <- panel_data(WageData, id = id, wave = t)
+make_diff_data(wks ~ lwage + union, data = wages)
+ 
+}

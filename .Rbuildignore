@@ -15,3 +15,4 @@
 ^docs$
 ^\_pkgdown\.yaml$
 ^_pkgdown\.yml$
+^CRAN-RELEASE$

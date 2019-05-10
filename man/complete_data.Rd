@@ -38,3 +38,10 @@ whichever you prefer/are comfortable with. \code{...} corresponds with the
 model formulas, and \code{vars} is a "standard" evaluation method for when you
 are working with strings.
 }
+\examples{
+
+data("WageData")
+wages <- panel_data(WageData, id = id, wave = t)
+complete_data(wages, wks, lwage, min.waves = 3)
+
+}

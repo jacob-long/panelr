@@ -34,13 +34,11 @@
 #'   and some other stuff.
 #' @examples
 #' \dontrun{
-#' if(interactive()){
 #'  data("WageData")
 #'  wages <- panel_data(WageData, id = id, wave = t)
 #'  model <- wbm_stan(lwage ~ lag(union) + wks | blk + fem | blk * lag(union),
 #'            data = wages, chains = 1, iter = 2000)
 #'  summary(model)
-#'  }
 #' }
 #' @export
 #' @rdname wbm_stan

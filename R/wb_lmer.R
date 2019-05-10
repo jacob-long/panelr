@@ -578,6 +578,13 @@ print.wbm <- function(x, ...) {
 #' @description `panelr` provides methods to access `wbm` data in a tidy format
 #' @rdname wbm_tidiers
 #' @inheritParams broom::lme4_tidiers
+#' @examples 
+#' data("WageData")
+#' wages <- panel_data(WageData, id = id, wave = t)
+#' model <- wbm(lwage ~ lag(union) + wks, data = wages)
+#' if (requireNamespace("broom")) {
+#'   broom::tidy(model)
+#' }
 #' @rawNamespace 
 #' if (getRversion() >= "3.6.0") {
 #'   S3method(broom::tidy, wbm)

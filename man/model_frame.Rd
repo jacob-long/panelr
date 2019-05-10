@@ -22,3 +22,10 @@ This is similar to model.frame, but is designed specifically
 for \code{\link[=panel_data]{panel_data()}} data frames. It's a workhorse in \code{\link[=wbm]{wbm()}}
 but may be useful in scripting use as well.
 }
+\examples{
+
+data("WageData")
+wages <- panel_data(WageData, id = id, wave = t)
+model_frame(lwage ~ wks + exp, data = wages)
+
+}

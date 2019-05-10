@@ -19,3 +19,9 @@ the number of entities.}
 This S3 method allows you to retrieve either the number of
 observations or number of entities in the data used to fit \code{wbm} objects.
 }
+\examples{
+data("WageData")
+wages <- panel_data(WageData, id = id, wave = t)
+model <- wbm(lwage ~ lag(union) + wks, data = wages)
+nobs(model)
+}

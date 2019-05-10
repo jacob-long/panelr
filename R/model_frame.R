@@ -8,6 +8,12 @@
 #' @param data A [panel_data()] frame.
 #' @return A [panel_data()] frame with only the columns needed to fit
 #'   a model as described by the formula.
+#' @examples 
+#' 
+#' data("WageData")
+#' wages <- panel_data(WageData, id = id, wave = t)
+#' model_frame(lwage ~ wks + exp, data = wages)
+#' 
 #' @import dplyr
 #' @rdname model_frame
 #' @export

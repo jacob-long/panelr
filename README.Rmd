@@ -83,6 +83,35 @@ or putting them out of time order.
 ([`tibble` package](http://tibble.tidyverse.org/)) that are grouped by entity 
 (i.e., the ID column).
 
+`panel_data` frames are meant to play nice with the 
+[`tidyverse`](tidyverse.org). Here's a quick sample of how a tidy workflow
+with `panelr` can work:
+
+```{r}
+library(dplyr)
+data("WageData")
+# Create `panel_data` object
+wages <- panel_data(WageData, id = id, wave = t) %>%
+  # Pass to mutate, which will calculate statistics groupwise when appropriate
+  mutate(
+    wage = exp(lwage), # reverse transform the log wage variable
+    mean_wage_individual = mean(wage), # means calculated separately by entity
+    lag_wage = lag(wage) # mutate() will calculate lagged values correctly
+  ) %>%
+  # Use `panelr`'s complete_data() to filter for entities that have
+  # enough observations
+  complete_data(wage, union, min.waves = 5) %>% # drop if there aren't 5 completions
+  # You can use unpanel() if you need to do rowwise or columnwise operations
+  unpanel() %>%
+  mutate(
+    mean_wage_grand = mean(wage)
+  ) %>%
+  # You'll need to convert back to panel_data if you want to keep using panelr functions
+  panel_data(id = id, wave = t)
+
+```
+
+
 ### `wbm()` --- the within-between model
 
 Anyone can fit a within-between model without the use of this package as it is

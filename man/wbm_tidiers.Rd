@@ -29,3 +29,11 @@ glance.wbm(x, ...)
 \description{
 \code{panelr} provides methods to access \code{wbm} data in a tidy format
 }
+\examples{
+data("WageData")
+wages <- panel_data(WageData, id = id, wave = t)
+model <- wbm(lwage ~ lag(union) + wks, data = wages)
+if (requireNamespace("broom")) {
+  broom::tidy(model)
+}
+}

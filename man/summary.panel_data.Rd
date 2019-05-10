@@ -24,3 +24,10 @@ the output will be massive.}
 \description{
 \code{summary} method for \code{panel_data} objects.
 }
+\examples{
+
+data("WageData")
+wages <- panel_data(WageData, id = id, wave = t)
+summary(wages, lwage, exp, wks)
+
+}

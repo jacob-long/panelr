@@ -9,7 +9,15 @@ unpanel(panel)
 \arguments{
 \item{panel}{A \code{panel_data} object.}
 }
+\value{
+An ungrouped \code{tibble}.
+}
 \description{
 This convenience function removes the special features of
 \code{panel_data}.
+}
+\examples{
+data("WageData") 
+wages <- panel_data(WageData, id = id, wave = t)
+wages_non_panel <- unpanel(wages)
 }

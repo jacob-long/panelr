@@ -64,6 +64,12 @@ getCall.wbm <- function(x, ...) {
 #' @importFrom stats predict na.pass
 #' @inheritParams jtools::predict_merMod
 #' @inheritParams lme4::simulate.merMod
+#' @examples 
+#' data("WageData")
+#' wages <- panel_data(WageData, id = id, wave = t)
+#' model <- wbm(lwage ~ lag(union) + wks, data = wages)
+#' # By default, assumes you're using the processed data for newdata
+#' predict(model)
 #' @export
 #' @rdname predict.wbm 
 predict.wbm <- function(object, newdata = NULL, se.fit = FALSE,
@@ -131,6 +137,12 @@ predict.wbm <- function(object, newdata = NULL, se.fit = FALSE,
 #'  created by `wbgee`. 
 #' @importFrom stats predict na.pass
 #' @inheritParams stats::predict.lm
+#' @examples 
+#' data("WageData")
+#' wages <- panel_data(WageData, id = id, wave = t)
+#' model <- wbgee(lwage ~ lag(union) + wks, data = wages)
+#' # By default, assumes you're using the processed data for newdata
+#' predict(model)
 #' @export
 #' @rdname predict.wbgee
 
@@ -234,6 +246,11 @@ simulate.wbm <- function(object, nsim = 1, seed = NULL, use.u = FALSE,
 #'  or the number of rows in the `panel_data` frame? Default is TRUE, returning
 #'  the number of entities.
 #' @importFrom stats nobs
+#' @examples 
+#' data("WageData")
+#' wages <- panel_data(WageData, id = id, wave = t)
+#' model <- wbm(lwage ~ lag(union) + wks, data = wages)
+#' nobs(model)
 #' @export
 
 nobs.wbm <- function(object, entities = TRUE, ...) {
@@ -266,6 +283,12 @@ npar.wbm <- function(object) {
 #' @param raw Return the formula used in the call to `lmerMod`/`glmerMod`?
 #'  Default is FALSE.
 #' @importFrom stats formula
+#' @examples 
+#' data("WageData")
+#' wages <- panel_data(WageData, id = id, wave = t)
+#' model <- wbm(lwage ~ lag(union) + wks, data = wages)
+#' # Returns the original model formula rather than the one sent to lme4
+#' formula(model)
 #' @export
 
 formula.wbm <- function(x, raw = FALSE, ...) {

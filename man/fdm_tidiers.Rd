@@ -25,3 +25,13 @@ to 0.95, which corresponds to a 95 percent confidence interval.}
 \code{panelr} provides methods to access \code{fdm} and \code{asym} data in a
 tidy format
 }
+\examples{
+
+data("WageData")
+wages <- panel_data(WageData, id = id, wave = t)
+model <- fdm(lwage ~ wks + union, data = wages)
+if (requireNamespace("broom")) {
+  broom::tidy(model)
+}
+
+}

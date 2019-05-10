@@ -13,7 +13,7 @@ Description: Provides an object type and associated tools for storing and
   Bell & Jones, 2015 <doi:10.1017/psrm.2014.7>). These models can also be 
   estimated via generalized estimating equations 
   (GEE; McNeish, 2019 <doi:10.1080/00273171.2019.1602504>) and Bayesian 
-  estimation is (optionally) supported via Stan. 
+  estimation is (optionally) supported via 'Stan'. 
   Supports estimation of asymmetric effects models via first differences
   (Allison, 2019 <doi:10.1177/2378023119826441>) as well as a generalized
   linear model extension thereof using GEE. 

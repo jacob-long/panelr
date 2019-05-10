@@ -18,3 +18,10 @@ Default is FALSE.}
 This S3 method allows you to retrieve the formula used to
 fit \code{wbm} objects.
 }
+\examples{
+data("WageData")
+wages <- panel_data(WageData, id = id, wave = t)
+model <- wbm(lwage ~ lag(union) + wks, data = wages)
+# Returns the original model formula rather than the one sent to lme4
+formula(model)
+}

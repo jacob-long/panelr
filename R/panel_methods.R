@@ -9,6 +9,12 @@
 #' @param by.id (if `skimr` is installed) Separate descriptives by entity?
 #'  Default is FALSE. Be careful if you have a large number of entities as
 #'  the output will be massive.
+#' @examples 
+#' 
+#' data("WageData")
+#' wages <- panel_data(WageData, id = id, wave = t)
+#' summary(wages, lwage, exp, wks)
+#' 
 #' @importFrom purrr when
 #' @importFrom rlang UQS UQ
 #' @export

@@ -116,6 +116,12 @@ is_panel <- function(x) {
 #' model formulas, and `vars` is a "standard" evaluation method for when you
 #' are working with strings.
 #' 
+#' @examples
+#' 
+#' data("WageData")
+#' wages <- panel_data(WageData, id = id, wave = t)
+#' complete_data(wages, wks, lwage, min.waves = 3)
+#' 
 #' @rdname complete_data
 #' @export
 #' @importFrom stats complete.cases as.formula
@@ -364,6 +370,11 @@ print.panel_data <- function(x, ...) {
 #' @description This convenience function removes the special features of 
 #'  `panel_data`.
 #' @param panel A `panel_data` object.
+#' @return An ungrouped `tibble`.
+#' @examples
+#' data("WageData") 
+#' wages <- panel_data(WageData, id = id, wave = t)
+#' wages_non_panel <- unpanel(wages)
 #' @export
 
 unpanel <- function(panel) {
@@ -376,6 +387,14 @@ unpanel <- function(panel) {
 #'  variables or time periods of a `panel_data` frame.
 #' @param data A `panel_data` frame
 #' @return A `panel_data` frame
+#' @examples 
+#' 
+#' data("WageData")
+#' wages <- panel_data(WageData, id = id, wave = t)
+#' get_wave(wages)
+#' get_id(wages)
+#' get_periods(wages)
+#' 
 #' @rdname get_wave
 #' @export
 

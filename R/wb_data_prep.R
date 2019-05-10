@@ -119,20 +119,26 @@ wb_prepare_data <- function(formula, data, id = NULL, wave = NULL,
 #'  
 #' @inheritParams wbm
 #' @return A `panel_data` object with the requested specification.
+#' @examples 
+#' 
+#' data("WageData")
+#' wages <- panel_data(WageData, id = id, wave = t)
+#' make_wb_data(lwage ~ wks + union | fem, data = wages)
+#' 
 #' @export
 
 make_wb_data <- function(formula, data, id = NULL, wave = NULL,
                     model = "w-b", detrend = FALSE, use.wave = FALSE,
                     wave.factor = FALSE, min.waves = 2,
-                    balance_correction = FALSE, dt_random = TRUE, dt_order = 1,
+                    balance.correction = FALSE, dt.random = TRUE, dt.order = 1,
                     weights = NULL, offset = NULL, ...) {
   
   d <- wb_prepare_data(formula = Formula::Formula(formula),
                        data, id = id, wave = id,
                        model = model, detrend = detrend, use.wave = use.wave,
                        wave.factor = wave.factor, min.waves = min.waves,
-                       balance_correction = balance_correction,
-                       dt_random = dt_random, dt_order = dt_order,
+                       balance_correction = balance.correction,
+                       dt_random = dt.random, dt_order = dt.order,
                        weights = weights, offset = offset)
   d$e$data
   

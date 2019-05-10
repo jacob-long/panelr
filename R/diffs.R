@@ -165,6 +165,12 @@ print.summary.fdm <- function(x, ...) {
 #' @param escape.names Return only syntactically valid variable names? 
 #'  Default is FALSE.
 #'  
+#' @examples 
+#' 
+#' data("WageData")
+#' wages <- panel_data(WageData, id = id, wave = t)
+#' make_diff_data(wks ~ lwage + union, data = wages)
+#'  
 #' @export
 make_diff_data <- function(formula, data, id = NULL, wave = NULL,
                            use.wave = FALSE, min.waves = 1, weights = NULL,
@@ -458,6 +464,15 @@ confint.fdm <- function(object, parm = NULL, level = .95, ...) {
 #'  `conf.int = TRUE`. Must be strictly greater than 0 and less than 1. Defaults
 #'  to 0.95, which corresponds to a 95 percent confidence interval.
 #' @param ... Ignored
+#' @examples 
+#' 
+#' data("WageData")
+#' wages <- panel_data(WageData, id = id, wave = t)
+#' model <- fdm(lwage ~ wks + union, data = wages)
+#' if (requireNamespace("broom")) {
+#'   broom::tidy(model)
+#' }
+#' 
 #' @rawNamespace 
 #' if (getRversion() >= "3.6.0") {
 #'   S3method(broom::tidy, fdm)

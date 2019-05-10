@@ -6,8 +6,8 @@
 \usage{
 make_wb_data(formula, data, id = NULL, wave = NULL, model = "w-b",
   detrend = FALSE, use.wave = FALSE, wave.factor = FALSE,
-  min.waves = 2, balance_correction = FALSE, dt_random = TRUE,
-  dt_order = 1, weights = NULL, offset = NULL, ...)
+  min.waves = 2, balance.correction = FALSE, dt.random = TRUE,
+  dt.order = 1, weights = NULL, offset = NULL, ...)
 }
 \arguments{
 \item{formula}{Model formula. See details for crucial
@@ -39,11 +39,17 @@ have participated in to be included in the analysis? Default is \code{2} and
 any valid number is accepted. \code{"all"} is also acceptable if you want to
 include only complete panelists.}
 
-\item{balance_correction}{Deprecated. Equivalent to \code{balance.correction}.}
+\item{balance.correction}{Correct between-subject effects for unbalanced
+panels following the procedure in Curran and Bauer (2011)? Default is
+FALSE.}
 
-\item{dt_random}{Deprecated. Equivalent to \code{dt.random}.}
+\item{dt.random}{Should the detrending procedure be performed with a
+random slope for each entity? Default is TRUE but for short panels
+FALSE may be better, fitting a trend for all entities.}
 
-\item{dt_order}{Deprecated. Equivalent to \code{dt.order}.}
+\item{dt.order}{If detrending using \code{detrend}, what order polynomial
+would you like to specify for the relationship between time and the
+predictors? Default is 1, a linear model.}
 
 \item{weights}{If using weights, either the name of the column in the data
 that contains the weights or a vector of the weights.}
@@ -64,4 +70,11 @@ A \code{panel_data} object with the requested specification.
 \description{
 This function allows users to make the changes to their data
 that occur in \code{\link[=wbm]{wbm()}} without having to fit the model.
+}
+\examples{
+
+data("WageData")
+wages <- panel_data(WageData, id = id, wave = t)
+make_wb_data(lwage ~ wks + union | fem, data = wages)
+
 }

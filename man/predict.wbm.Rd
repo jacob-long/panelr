@@ -74,3 +74,10 @@ passed to \code{lme4::bootMer()}.}
 These methods facilitate fairly straightforward predictions
 and simulations from \code{wbm} models.
 }
+\examples{
+data("WageData")
+wages <- panel_data(WageData, id = id, wave = t)
+model <- wbm(lwage ~ lag(union) + wks, data = wages)
+# By default, assumes you're using the processed data for newdata
+predict(model)
+}

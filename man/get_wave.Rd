@@ -23,3 +23,12 @@ A \code{panel_data} frame
 functions that can be used to retrieve the names of the id and wave
 variables or time periods of a \code{panel_data} frame.
 }
+\examples{
+
+data("WageData")
+wages <- panel_data(WageData, id = id, wave = t)
+get_wave(wages)
+get_id(wages)
+get_periods(wages)
+
+}
