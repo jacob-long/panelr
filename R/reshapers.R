@@ -324,7 +324,7 @@ long_panel <- function(data, prefix = NULL, suffix = NULL, begin = NULL,
     out[[wave]] <- ordered(out[[wave]], levels = periods)
   }
   # Dropping any rows that are all NA that are created for reasons unclear to me
-  out <- out[!is.na(out[[id]]),]
+  # out <- out[!is.na(out[[id]]),]
   # Now I check for variables that are only quasi-varying because of poor 
   # labeling in the long format (e.g., W1_race)
   v.names <- unique(unname(unlist(stubs_by_period))) 
