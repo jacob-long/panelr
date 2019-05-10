@@ -5,8 +5,9 @@
 \title{Plot trends in longitudinal variables}
 \usage{
 line_plot(data, var, id = NULL, wave = NULL, overlay = TRUE,
-  show.points = TRUE, subset.ids = NULL, n.random.subset = 8,
-  add.mean = FALSE, mean.function = "lm", line.size = 0.5)
+  show.points = TRUE, subset.ids = FALSE, n.random.subset = 9,
+  add.mean = FALSE, mean.function = "lm", line.size = 1, alpha = if
+  (overlay) 0.5 else 1)
 }
 \arguments{
 \item{data}{Either a \code{panel_data} frame or another data frame.}
@@ -39,6 +40,10 @@ Cannot be combined with \code{overlay}.}
 \code{"loess"}.}
 
 \item{line.size}{The thickness of the plotted lines. Default: 0.5}
+
+\item{alpha}{The transparency for the lines and points. When
+\code{overlay = TRUE}, it is set to 0.5, otherwise 1, which means
+non-transparent.}
 }
 \value{
 The \code{ggplot} object.
@@ -46,4 +51,11 @@ The \code{ggplot} object.
 \description{
 \code{line_plot} allows for flexible visualization of repeated
 measures variables from \code{panel_data} frames.
+}
+\examples{
+
+data("WageData")
+wages <- panel_data(WageData, id = id, wave = t)
+line_plot(wages, lwage, add.mean = TRUE, subset.ids = TRUE, overlay = FALSE)
+
 }
