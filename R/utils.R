@@ -184,8 +184,7 @@ predict.wbgee <- function(object, newdata = NULL, se.fit = FALSE,
   }
   
   # class(object) <- c("geeglm", "gee", "glm", "lm")
-  predict_gee(object, newdata = newdata, se.fit = se.fit, type = type[1],
-          na.action = na.action, ...)
+  predict_gee(object, newdata = newdata, se.fit = se.fit, type = type[1], ...)
   
 }
 
