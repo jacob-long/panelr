@@ -152,8 +152,8 @@ inefficient to create the necessary variables.
 
 `wbm()` is the primary model-fitting function that you’ll use from this
 package and it fits within-between models for you, utilizing
-[`lme4`](https://cran.r-project.org/web/packages/lme4/index.html) as a
-backend for estimation.
+[`lme4`](https://cran.r-project.org/package=lme4) as a backend for
+estimation.
 
 A three-part model syntax is used that goes like this:
 
