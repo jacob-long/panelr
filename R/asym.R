@@ -89,10 +89,16 @@ asym <- function(formula, data, id = NULL, wave = NULL, use.wave = FALSE,
                       data = data)
   coef_table <- as.data.frame(clubSandwich::coef_test(gls_mod, vcov = the_vcov,
                                         test = "naive-t", cluster = data[[id]]))
-  names(coef_table) <- c("estimate", "std.error", "p.value")
-  coef_table["statistic"] <- coef_table$estimate / coef_table$std.error
-  rownames(coef_table) <- gsub("plus__", "\\+", rownames(coef_table))
-  rownames(coef_table) <- gsub("minus__", "\\-", rownames(coef_table))
+  coef_table <- as.data.frame(coef_table)
+  if ("tstat" %nin% names(coef_table)) { # old version of clubSandwich
+    names(coef_table) <- c("estimate", "std.error", "p.value")
+    coef_table["statistic"] <- coef_table$estimate / coef_table$std.error
+  } else {
+    names(coef_table) <- c("estimate", "std.error", "statistic", "p.value")
+    coef_table["term"] <- rownames(coef_table)
+  }
+  coef_table$term <- gsub("plus__", "\\+", coef_table$term)
+  coef_table$term <- gsub("minus__", "\\-", coef_table$term)
   
   if (length(e$asym_list) > 0) {
     asym_diffs <- test_asyms(gls_mod, e$asym_list, the_vcov)
@@ -172,7 +178,14 @@ summary.asym <- function(object, ...) {
                         BIC = x$mod_info$BIC)
   
   coef_table <- x$coef_table
-  names(coef_table) <- c("Est.", "S.E.", "p", "t val.")
+  names(coef_table) <- sapply(names(coef_table), function(x) {switch(x,
+    "estimate" = "Est.",
+    "std.error" = "S.E.",
+    "p.value" = "p",
+    "statistic" = "t val.",
+    x
+  )})
+  rownames(coef_table) <- coef_table$term
   # rownames(coef_table) <- coef_table$term
   coef_table <- coef_table[c("Est.", "S.E.", "t val.", "p")]
   

@@ -73,8 +73,14 @@ fdm <- function(formula, data, id = NULL, wave = NULL, use.wave = FALSE,
                       data = data)
   coef_table <- clubSandwich::coef_test(gls_mod, vcov = the_vcov,
                                         test = "naive-t", cluster = data[[id]])
-  names(coef_table) <- c("estimate", "std.error", "p.value")
-  coef_table["statistic"] <- coef_table$estimate / coef_table$std.error
+  coef_table <- as.data.frame(coef_table)
+  if ("tstat" %nin% names(coef_table)) { # old version of clubSandwich
+    names(coef_table) <- c("estimate", "std.error", "p.value")
+    coef_table["statistic"] <- coef_table$estimate / coef_table$std.error
+  } else {
+    names(coef_table) <- c("estimate", "std.error", "statistic", "p.value")
+    coef_table["term"] <- rownames(coef_table)
+  }
   
   mod_info <- list(dv = dv, min.wave = prepped$minwave, 
                    max.wave = prepped$maxwave, 
@@ -131,9 +137,15 @@ summary.fdm <- function(object, ...) {
                         variance = x$mod_info$variance, AIC = x$mod_info$AIC,
                         BIC = x$mod_info$BIC)
   
-  coef_table <- as.data.frame(x$coef_table)
-  names(coef_table) <- c("Est.", "S.E.", "p", "t val.")
-  # rownames(coef_table) <- coef_table$term
+  coef_table <- x$coef_table
+  names(coef_table) <- sapply(names(coef_table), function(x) {switch(x,
+    "estimate" = "Est.",
+    "std.error" = "S.E.",
+    "p.value" = "p",
+    "statistic" = "t val.",
+    x
+  )})
+  rownames(coef_table) <- coef_table$term
   coef_table <- coef_table[c("Est.", "S.E.", "t val.", "p")]
       
   out <- list(mod_info = mod_info, coef_table = coef_table, digits = digits,
@@ -143,6 +155,7 @@ summary.fdm <- function(object, ...) {
   out
 }
 
+#' @export 
 print.summary.fdm <- function(x, ...) {
   cat(x$mod_info, "\n\n")
   cat(x$mod_fit, "\n")
@@ -449,7 +462,7 @@ vcov.fdm <- function(object, ...) {
 }
 
 #' @export
-confint.fdm <- function(object, parm = NULL, level = .95, ...) {
+confint.fdm <- function(object, parm, level = .95, ...) {
   confint.wbgee(object, parm = parm, level = level, ...)
 }
 
@@ -487,7 +500,7 @@ tidy.fdm <- function(x, conf.int = FALSE, conf.level = .95, ...) {
   }
   
   params <- x$coef_table
-  params$term <- rownames(params)
+  # params$term <- rownames(params)
   
   # Getting confidence intervals if requested
   if (conf.int == TRUE) {
