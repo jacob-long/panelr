@@ -218,10 +218,10 @@ observed variables and subtract the individual-level mean of that product,
 like so:
 
 $$
-xw_{it} = x_{it}w_{it} - \bar{xw}_i
+xw_{it} = x_{it}w_{it} - \overline{xw}_i
 $$
 
-Where $\bar{xw}_i$ can also be expressed as $\frac{\sum_{t=1}^{T_i}{x_{it}w_{it}}}{T_i}$, the sum of all products for each
+Where $\overline{xw}_i$ can also be expressed as $\frac{\sum_{t=1}^{T_i}{x_{it}w_{it}}}{T_i}$, the sum of all products for each
 $i$ divided by the number of time points for each $i$, $T_i$.
 
 [Giesselmann and Schmidt-Catran (2018)](https://ideas.repec.org/p/diw/diwwpp/dp1748.html)
@@ -232,7 +232,7 @@ version of $xw_{it}$, which I'll call $xw_{it}^*$, and subtract *its* mean too:
 
 $$
 xw_{it}^* = (x_{it} - \bar{x_{i}}) \times (w_{it} - \bar{w_i}) \\
-xw_{it} = xw_{it}^* - \bar{xw_i^*}
+xw_{it} = xw_{it}^* - \overline{xw_i^*}
 $$
 
 I call this the "double-demeaning" approach to interactions, in contrast to 
@@ -426,7 +426,6 @@ x_{it}^+ = x_{it} - x_{it -1} \text{ if } (x_{it} - x_{it -1}) > 0,
 \text{otherwise } 0 \\
 x_{it}^- = -(x_{it} - x_{it -1}) \text{ if } (x_{it} - x_{it -1}) < 0,
 \text{otherwise } 0
-
 $$
 
 In other words, if the difference is positive, it becomes part of the 
