@@ -206,10 +206,22 @@ test_that("wbm summary works", {
 # Custom random effects ---------------------------------------------------
 context("Custom random effects")
 
-wb <- wbm(wks ~ union + lag(lwage) | blk | (union | id),
-          data = wages, pvals = TRUE)
+wb <- wbm(wks ~ union + lag(lwage) | blk | (union | id), data = wages)
 
 test_that("wbm works", {
+  expect_s4_class(wb, "wbm")
+})
+test_that("wbm summary works", {
+  expect_s3_class(swb <- summary(wb), "summary.wbm")
+  expect_output(print(swb))
+})
+
+# Multiple random effects
+test_that("wbm works with multiple random effects", {
+  suppressWarnings({
+    wb <- wbm(wks ~ union + lag(lwage) | blk | (union | id) + (lag(lwage) | id),
+            data = wages)
+  })
   expect_s4_class(wb, "wbm")
 })
 test_that("wbm summary works", {

@@ -1,3 +1,10 @@
+# panelr 0.7.1
+
+Bugfixes: 
+
+* Multi-part random effects specification is supported in `wbm()` (#14; thanks
+@strengejacke). 
+
 # panelr 0.7.0
 
 Lots of new stuff! CRAN coming soon as well.

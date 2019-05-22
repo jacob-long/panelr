@@ -68,11 +68,6 @@ wb_formula_parser <- function(formula, dv, data) {
                                 yes = "||", no = "|"),  
                rhs, ")")
       })
-      ranef_forms <- paste(ranef_forms, collapse = " + ")
-      new_3 <- 
-        paste("~", to_char(get_rhs(formula, which = 3)), "+", ranef_forms)
-      attr(formula, "rhs")[[3]] <- as.formula(new_3)[[2]]
-      # if (!is.null(ranefs)) ranefs <- paste0("(", ranefs, ")")
     }
   }
   
@@ -123,6 +118,13 @@ wb_formula_parser <- function(formula, dv, data) {
     
     # Add them onto the allvars vector as long as they aren't redundant
     allvars <- unique(c(allvars, int_vars))
+  }
+  
+  if (!is.null(ranefs)) {
+    ranef_forms <- paste(ranef_forms, collapse = " + ")
+    new_3 <- 
+      paste("~", to_char(get_rhs(formula, which = 3)), "+", ranef_forms)
+    attr(formula, "rhs")[[3]] <- as.formula(new_3)[[2]]
   }
   
   # Now I want to expand all interactions into their constituent terms in 
