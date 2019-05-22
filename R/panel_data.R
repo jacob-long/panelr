@@ -178,7 +178,7 @@ complete_data <- function(data, ..., formula = NULL, vars = NULL,
   keeps <- which(t >= min.waves)
   keeps <- names(t)[keeps]
 
-  data <- data[data[[id]] %in% keeps,]
+  data <- dplyr::filter(data, id %in% keeps)
   data <- reconstruct(data, old)
   return(data)
 
@@ -423,7 +423,8 @@ complete_cases <- function(data, min.waves = "all") {
   wave <- get_wave(data)
   
   # Keep only complete cases
-  data <- data[complete.cases(data),]
+  data <- dplyr::filter(unpanel(data), complete.cases(data))
+  data <- panel_data(data, id = !! sym(id), wave = !! sym(wave))
   
   # Using the table to count up how many obs. of each person
   t <- table(data[[id]])
@@ -437,7 +438,7 @@ complete_cases <- function(data, min.waves = "all") {
   keeps <- which(t >= min.waves)
   keeps <- names(t)[keeps]
   
-  data <- data[data[[id]] %in% keeps,]
+  data <- dplyr::filter(data, !! sym(id) %in% keeps)
   
   return(data)
   
