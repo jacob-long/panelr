@@ -51,10 +51,25 @@ summary.panel_data <- function(object, ..., by.wave = TRUE, by.id = FALSE) {
     when(by.wave == TRUE ~ group_by(., !! sym(wave)),
          by.wave == FALSE ~ select(., - !! sym(wave))) %>%
     # Call skim
-    (skimr::skim)
+    skimr::skim() -> out
+  
+  class(out) <- c("summary.panel_data", class(out))
+  out
   
 }
 
+#' @export
+print.summary.panel_data <- function(x, ...) {
+  class(x) <- class(x) %not% "summary.panel_data"
+  print(x, include_summary = FALSE)
+}
+
+#' @export
+knit_print.summary.panel_data <- function(x, ...) {
+  class(x) <- class(x) %not% "summary.panel_data"
+  knitr::knit_print(x, options = list(skimr_include_summary = FALSE))
+}
+ 
 ## WIP describe within and between variance
 #' @importFrom stats weighted.mean
 describe <- function(.data, ...) {
