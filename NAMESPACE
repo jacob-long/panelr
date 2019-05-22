@@ -42,6 +42,12 @@ if (getRversion() >= "3.6.0") {
 } else {
   export(tidy.wbm)
 }
+
+if (getRversion() >= "3.6.0") {
+  S3method(knitr::knit_print, summary.panel_data)
+} else {
+  export(knit_print.summary.panel_data)
+}
 S3method("[",panel_data)
 S3method(anti_join,panel_data)
 S3method(arrange,panel_data)
@@ -115,7 +121,6 @@ export(get_periods)
 export(get_wave)
 export(heise)
 export(is_panel)
-export(knit_print.summary.panel_data)
 export(line_plot)
 export(long_panel)
 export(make_diff_data)

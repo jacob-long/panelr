@@ -64,7 +64,12 @@ print.summary.panel_data <- function(x, ...) {
   print(x, include_summary = FALSE)
 }
 
-#' @export
+#' @rawNamespace 
+#' if (getRversion() >= "3.6.0") {
+#'   S3method(knitr::knit_print, summary.panel_data)
+#' } else {
+#'   export(knit_print.summary.panel_data)
+#' }
 knit_print.summary.panel_data <- function(x, ...) {
   class(x) <- class(x) %not% "summary.panel_data"
   knitr::knit_print(x, options = list(skimr_include_summary = FALSE))
