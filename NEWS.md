@@ -3,7 +3,9 @@
 Bugfixes: 
 
 * Multi-part random effects specification is supported in `wbm()` (#14; thanks
-@strengejacke). 
+@strengejacke).
+* Improved support for labelled data (#12).
+* Conversion from `pdata.frame` to `panel_data` has been fixed.
 
 # panelr 0.7.0
 
