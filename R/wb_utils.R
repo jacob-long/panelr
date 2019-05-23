@@ -692,7 +692,7 @@ expand_interactions <- function(x) {
   }
   
   for (i in seq_along(attr(x, "rhs"))) {
-    if (to_char(get_rhs(x, i, TRUE)) != "~ 1") {
+    if (to_char(get_rhs(x, i, TRUE)) %nin% c("~ 1", "~1")) {
       attr(x, "rhs")[[i]] <- 
         reformulate(unique(attr(terms(get_rhs(x, i, TRUE), keep.order = TRUE),
                                 "term.labels")))[[2]]
