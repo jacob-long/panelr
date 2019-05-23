@@ -131,15 +131,21 @@ make_wb_data <- function(formula, data, id = NULL, wave = NULL,
                     model = "w-b", detrend = FALSE, use.wave = FALSE,
                     wave.factor = FALSE, min.waves = 2,
                     balance.correction = FALSE, dt.random = TRUE, dt.order = 1,
-                    weights = NULL, offset = NULL, ...) {
+                    weights = NULL, offset = NULL, 
+                    interaction.style = c("double-demean", "demean", "raw"),
+                    ...) {
   
+  interaction.style <- match.arg(interaction.style,
+                                 c("double-demean", "demean", "raw"))
   d <- wb_prepare_data(formula = Formula::Formula(formula),
                        data, id = id, wave = id,
                        model = model, detrend = detrend, use.wave = use.wave,
                        wave.factor = wave.factor, min.waves = min.waves,
                        balance_correction = balance.correction,
                        dt_random = dt.random, dt_order = dt.order,
-                       weights = weights, offset = offset)
+                       weights = weights, offset = offset,
+                       demean.ints = interaction.style == "double-demean",
+                       old.ints = interaction.style == "demean")
   d$e$data
   
 }

@@ -7,7 +7,8 @@
 make_wb_data(formula, data, id = NULL, wave = NULL, model = "w-b",
   detrend = FALSE, use.wave = FALSE, wave.factor = FALSE,
   min.waves = 2, balance.correction = FALSE, dt.random = TRUE,
-  dt.order = 1, weights = NULL, offset = NULL, ...)
+  dt.order = 1, weights = NULL, offset = NULL,
+  interaction.style = c("double-demean", "demean", "raw"), ...)
 }
 \arguments{
 \item{formula}{Model formula. See details for crucial
@@ -60,6 +61,22 @@ that contains the weights or a vector of the weights.}
     equal to the number of cases.  One or more \code{\link{offset}}
     terms can be included in the formula instead or as well, and if more
     than one is specified their sum is used.  See \code{\link{model.offset}}.}
+
+\item{interaction.style}{The best way to calculate interactions in within
+models is in some dispute. The conventional way (\code{"demean"}) is to first
+calculate the product of the variables involved in the interaction before
+those variables have their means subtracted and then subtract the mean of
+the product from the product term (see Schunk and Perales (2017)).
+Giesselmann and Schmidt-Catran (2018) show this method carries
+between-entity differences that within models are designed to model out.
+They suggest an alternate method (\code{"double-demean"}) in which the product
+term is first calculated using the de-meaned lower-order variables and
+then the subject means are subtracted from this product term. Another
+option is to simply use the product term of the de-meaned variables
+(\code{"raw"}), but Giesselmann and Schmidt-Catran (2018) show this method
+biases the results towards zero effect. The default is \code{"double-demean"}
+but if emulating other software is the goal, \code{"demean"} might be
+preferred.}
 
 \item{...}{Additional arguments provided to \code{\link[lme4:lmer]{lme4::lmer()}},
 \code{\link[lme4:glmer]{lme4::glmer()}}, or \code{\link[lme4:glmer.nb]{lme4::glmer.nb()}}.}
