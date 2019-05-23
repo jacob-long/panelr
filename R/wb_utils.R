@@ -1,7 +1,7 @@
 #' @importFrom stats as.formula terms
 #' @import stringr
 
-wb_formula_parser <- function(formula, dv, data) {
+wb_formula_parser <- function(formula, dv, data, force.constants = TRUE) {
   # See how many parts the formula has 
   conds <- length(formula)[2]
   
@@ -89,13 +89,15 @@ wb_formula_parser <- function(formula, dv, data) {
   }
   
   # Try to check for non-varying variables in varying part of formula
-  for (var in varying %just% names(data)) {
-    if (!(are_varying(data, !! sym(var)))) {
-      varying <- varying %not% var
-      constants <- c(constants, var)
-      msg_wrap(var, " was included in the time-varying part of the formula 
-               but does not vary over time. It is being treated as a constant
-               instead.")
+  if (force.constants == TRUE) {
+    for (var in varying %just% names(data)) {
+      if (!(are_varying(data, !! sym(var)))) {
+        varying <- varying %not% var
+        constants <- c(constants, var)
+        msg_wrap(var, " was included in the time-varying part of the formula 
+                 but does not vary over time. It is being treated as a constant
+                 instead.")
+      }
     }
   }
   
