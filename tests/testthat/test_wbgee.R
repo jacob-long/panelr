@@ -209,3 +209,59 @@ if (requireNamespace("broom")) {
             "data.frame")
   expect_is(broom::glance(wb), "data.frame")
 }
+
+# predictions ----------------------------------------------------------------
+context("wbgee predictions")
+model <- wbgee(lwage ~ lag(union) + wks, data = wages)
+test_that("wbgee predictions work w/o newdata", {
+  expect_is(predict(model)[[1]], "numeric")
+})
+
+test_that("wbgee predictions work w/ non-raw newdata", {
+  # non-panel_data input
+  expect_is(predict(model, newdata = data.frame(
+    union = 1:4,
+    wks = 40,
+    lwage = 50,
+    id = 1,
+    t = 5
+  ))[[1]], "numeric")
+  # panel_data input
+  expect_is(predict(model, newdata = panel_data(data.frame(
+    union = 1:4,
+    wks = 40,
+    lwage = 50,
+    id = 1,
+    t = 5
+  ), id = id, wave = t, strict = FALSE))[[1]], "numeric")
+  # without random effects
+  expect_is(predict(model, newdata = panel_data(data.frame(
+    union = 1:4,
+    wks = 40,
+    lwage = 50,
+    id = 1,
+    t = 5
+  ), id = id, wave = t, strict = FALSE))[[1]], "numeric")
+})
+
+test_that("wbgee predictions work w/ raw newdata", {
+  expect_is(predict(model, newdata = data.frame(
+    `lag(union)` = -2:2,
+    wks = 0,
+    `imean(wks)` = 40,
+    `imean(lag(union))` = 2,
+    lwage = 50,
+    id = 1,
+    t = 5, check.names = FALSE
+  ), raw = TRUE)[[1]], "numeric")
+  expect_is(predict(model, newdata = data.frame(
+    `lag(union)` = -2:2,
+    wks = 0,
+    `imean(wks)` = 40,
+    `imean(lag(union))` = 2,
+    lwage = 50,
+    id = 1,
+    t = 5, check.names = FALSE
+  ), raw = TRUE)[[1]], "numeric")
+})
+

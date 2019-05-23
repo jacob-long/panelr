@@ -75,40 +75,15 @@ getCall.wbm <- function(x, ...) {
 predict.wbm <- function(object, newdata = NULL, se.fit = FALSE,
                         raw = FALSE, use.re.var = FALSE,
                         re.form = NULL, type = c("link", "response"), 
-                        allow.new.levels = FALSE, na.action = na.pass, ...) {
+                        allow.new.levels = TRUE, na.action = na.pass, ...) {
   
+  # Need to re-process data when raw is FALSE
   if (!is.null(newdata) & raw == FALSE) {
-    mf_form <- object@call_info$mf_form
-    pf <- object@call_info$pf
-    newdata <- model_frame(mf_form, newdata)
-    dv <- object@call_info$dv
-    
-    if (object@call_info$detrend == TRUE) {
-      dto <- detrend(newdata, pf, object@call_info$dt_order,
-                     object@call_info$balance_correction,
-                     object@call_info$dt_random)
-      newdata <- dto
-    }
-    ## Revisit
-    newdata <- wb_model(object@call_info$model, pf, dv, newdata,
-                        object@call_info$detrend, old.ints = FALSE, 
-                        demean.ints = TRUE)$data
-    
+    newdata <- process_nonraw_newdata(object, newdata, re.form)
   }
   
   if (raw == TRUE & !is.null(newdata)) {
-    ints <- attr(object@frame, "interactions")
-    if (!is.null(ints)) {
-      ints <- gsub(":", "*", ints)
-      ints <- gsub("(^.*)(?=\\*)", "`\\1`", ints, perl = TRUE)
-      ints <- gsub("(?<=\\*)(.*$)", "`\\1`", ints, perl = TRUE)
-      demean <- attr(object@frame, "interaction.style") == "double-demean"
-      if (object@call_info$model %in% c("between", "contextual", "random")) {
-        demean <- FALSE
-      }
-      p <- process_interactions(ints, data = newdata, demean.ints = demean)
-      newdata <- p$data
-    }
+    newdata <- process_raw_newdata(object, newdata)
   }
   
   if (is.null(attr(attr(object@frame, "terms"), "varnames.fixed"))) {
@@ -122,11 +97,78 @@ predict.wbm <- function(object, newdata = NULL, se.fit = FALSE,
   } else {
     object <- as(object, "glmerMod")
   }
-  
+
   jtools::predict_merMod(object, newdata = newdata, se.fit = se.fit, 
           re.form = re.form, type = type[1], use.re.var = use.re.var,
           allow.new.levels = allow.new.levels, na.action = na.action, ...)
   
+}
+
+process_nonraw_newdata <- function(object, newdata, re.form) {
+  # If newdata isn't panel_data and re.form isn't ~0, need to coerce to 
+  # panel_data to avoid losing the ID variable
+  if (!is_panel(newdata)) {
+    id <- get_id(object@orig_data)
+    wave <- get_wave(object@orig_data)
+    # Need valid ID variable if using random effects
+    if (is.null(re.form) || to_char(re.form) != "~0") {
+      if (id %nin% names(newdata)) {
+        stop_wrap("newdata must contain the ", id, " variable when it is 
+                  part of the model.")
+      }
+    } else if (id %nin% names(newdata)) {
+      # otherwise ID can be anything, just need the column there for 
+      # valid panel_data object
+      newdata[[id]] <- 1
+    }
+    # Need user to provide wave if it's part of the model
+    if (wave %nin% names(newdata) & wave %in% object@call_info$pf$allvars) {
+      stop_wrap("newdata must contain the ", wave, " variable unless 
+                  re.form = ~0.")
+    } else if (wave %nin% names(newdata)) {
+      # Otherwise it can be anything
+      newdata[[wave]] <- 1:nrow(newdata)
+    }
+    
+    newdata <- panel_data(newdata, id = !! sym(id), wave = !! sym(wave))
+  }
+  
+  # Get the formula originally used to pass to model_frame
+  mf_form <- object@call_info$mf_form
+  dv <- object@call_info$dv
+  pf <- wb_formula_parser(formula(object), dv, newdata, force.constants = FALSE)
+  newdata <- pf$data
+  # Use model_frame to do variable transformations
+  newdata <- model_frame(mf_form, newdata)
+  
+  interaction.style <- object@call_info$interaction.style
+  newdata <- wb_model(object@call_info$model, pf, dv, newdata,
+                      object@call_info$detrend, 
+                      demean.ints = interaction.style == "double-demean",
+                      old.ints = interaction.style == "demean")$data
+  if (object@call_info$detrend == TRUE) {
+    dto <- detrend(newdata, pf, object@call_info$dt_order,
+                   object@call_info$balance_correction,
+                   object@call_info$dt_random)
+    newdata <- dto
+  }
+  return(newdata)
+}
+
+process_raw_newdata <- function(object, newdata) {
+  ints <- attr(object@frame, "interactions")
+  if (!is.null(ints)) {
+    ints <- gsub(":", "*", ints)
+    ints <- gsub("(^.*)(?=\\*)", "`\\1`", ints, perl = TRUE)
+    ints <- gsub("(?<=\\*)(.*$)", "`\\1`", ints, perl = TRUE)
+    demean <- attr(object@frame, "interaction.style") == "double-demean"
+    if (object@call_info$model %in% c("between", "contextual", "random")) {
+      demean <- FALSE
+    }
+    p <- process_interactions(ints, data = newdata, demean.ints = demean)
+    newdata <- p$data
+  }
+  return(newdata)
 }
 
 #' @title Predictions and simulations from within-between GEE models
@@ -150,22 +192,44 @@ predict.wbgee <- function(object, newdata = NULL, se.fit = FALSE,
                         raw = FALSE, type = c("link", "response"), ...) {
   
   if (!is.null(newdata) & raw == FALSE) {
-    mf_form <- object$call_info$mf_form
-    pf <- object$call_info$pf
-    newdata <- model_frame(mf_form, newdata)
-    dv <- object$call_info$dv
+    if (!is_panel(newdata)) {
+      id <- get_id(object$orig_data)
+      wave <- get_wave(object$orig_data)
+      if (id %nin% names(newdata)) {
+        # otherwise ID can be anything, just need the column there for 
+        # valid panel_data object
+        newdata[[id]] <- 1
+      }
+      # Need user to provide wave if it's part of the model
+      if ((wave %nin% names(newdata) & wave %in% object$call_info$pf$allvars)) {
+        stop_wrap("newdata must contain the ", wave, " variable.")
+      } else if (wave %nin% names(newdata)) {
+        # Otherwise it can be anything
+        newdata[[wave]] <- 1:nrow(newdata)
+      }
+      
+      newdata <- panel_data(newdata, id = !! sym(id), wave = !! sym(wave))
+    }
     
+    # Get the formula originally used to pass to model_frame
+    mf_form <- object$call_info$mf_form
+    dv <- object$call_info$dv
+    pf <- wb_formula_parser(formula(object), dv, newdata, force.constants = FALSE)
+    newdata <- pf$data
+    # Use model_frame to do variable transformations
+    newdata <- model_frame(mf_form, newdata)
+    
+    interaction.style <- object$call_info$interaction.style
+    newdata <- wb_model(object$call_info$model, pf, dv, newdata,
+                        object$call_info$detrend, 
+                        demean.ints = interaction.style == "double-demean",
+                        old.ints = interaction.style == "demean")$data
     if (object$call_info$detrend == TRUE) {
       dto <- detrend(newdata, pf, object$call_info$dt_order,
                      object$call_info$balance_correction,
                      object$call_info$dt_random)
       newdata <- dto
     }
-    ## Revisit
-    newdata <- wb_model(object$call_info$model, pf, dv, newdata,
-                        object$call_info$detrend, old.ints = FALSE, 
-                        demean.ints = TRUE)$data
-    
   }
   
   if (raw == TRUE & !is.null(newdata)) {

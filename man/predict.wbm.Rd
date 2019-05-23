@@ -7,7 +7,7 @@
 \usage{
 \method{predict}{wbm}(object, newdata = NULL, se.fit = FALSE,
   raw = FALSE, use.re.var = FALSE, re.form = NULL, type = c("link",
-  "response"), allow.new.levels = FALSE, na.action = na.pass, ...)
+  "response"), allow.new.levels = TRUE, na.action = na.pass, ...)
 
 \method{simulate}{wbm}(object, nsim = 1, seed = NULL, use.u = FALSE,
   newdata = NULL, raw = FALSE, newparams = NULL, re.form = NA,

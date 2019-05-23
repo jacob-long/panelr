@@ -357,9 +357,11 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
               max_wave = prepped$maxwave, min_wave = prepped$minwave,
               ints = ints, pvals = pvals, pR2 = pR2, env = the_env,
               mf_form = prepped$mf_form,
-              use.wave = use.wave, detrend = detrend, dt_order = dt_order,
+              use.wave = use.wave, wave.factor = wave.factor,
+              detrend = detrend, dt_order = dt_order,
               dt_random = dt_random, balance_correction = balance_correction,
-              pf = pf, merMod_call = merMod_call)
+              pf = pf, merMod_call = merMod_call, 
+              interaction.style = interaction.style)
 
   out@call <- the_call
   out@summ <- j
