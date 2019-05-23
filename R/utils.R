@@ -299,6 +299,16 @@ formula.wbm <- function(x, raw = FALSE, ...) {
 }
 
 #' @export
+
+formula.wbgee <- function(x, raw = FALSE, ...) {
+  if (raw == TRUE) {
+    return(x$formula)
+  } else {
+    return(Formula::Formula(as.formula(getCall(x)$formula)))
+  }
+}
+
+#' @export
 #' @importFrom stats terms
 
 terms.wbm <- function(x, fixed.only = TRUE, random.only = FALSE, ...) {
