@@ -1,6 +1,9 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+[![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version-ago/panelr)](https://cran.r-project.org/package=panelr)
+[![Total
+Downloads](https://cranlogs.r-pkg.org/badges/grand-total/panelr)](https://cran.r-project.org/package=panelr)
 [![Travis-CI Build
 Status](https://travis-ci.org/jacob-long/panelr.svg?branch=master)](https://travis-ci.org/jacob-long/panelr)
 [![AppVeyor Build
