@@ -6,6 +6,11 @@ Bugfixes:
 @strengejacke).
 * Improved support for labelled data (#12).
 * Conversion from `pdata.frame` to `panel_data` has been fixed.
+* Added `interaction.style` argument to `make_wb_data()`.
+* The behavior `predict.wbm()` and `predict.wbgee()` has been improved. Notably,
+the DV does not need to be included in `newdata` and the ID variable is only
+required when necessary.
+* Fixed error with custom random effect and interaction terms (#18).
 
 # panelr 0.7.0
 
