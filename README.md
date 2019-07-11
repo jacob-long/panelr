@@ -31,12 +31,10 @@ supports estimation via GLS for linear asymmetric effects models
 
 ## Installation
 
-At the moment, `panelr` is only available through Github. A submission
-to CRAN is coming soon.
+`panelr` is now available via CRAN.
 
 ``` r
-install.packages("devtools")
-devtools::install_github("jacob-long/panelr")
+install.packages("panelr")
 ```
 
 ## Usage
@@ -105,22 +103,6 @@ workflow with `panelr` can work:
 
 ``` r
 library(dplyr)
-```
-
-``` 
-
-Attaching package: 'dplyr'
-```
-
-    The following objects are masked from 'package:stats':
-    
-        filter, lag
-
-    The following objects are masked from 'package:base':
-    
-        intersect, setdiff, setequal, union
-
-``` r
 data("WageData")
 # Create `panel_data` object
 wages <- panel_data(WageData, id = id, wave = t) %>%
@@ -271,8 +253,8 @@ the Github issues system over trying to reach out to me in other ways.
 Pull requests for contributions are encouraged.
 
 Please note that this project is released with a [Contributor Code of
-Conduct](CONDUCT.md). By participating in this project you agree to
-abide by its terms.
+Conduct](https://github.com/jacob-long/panelr/blob/master/CONDUCT.md).
+By participating in this project you agree to abide by its terms.
 
 ## License
 
