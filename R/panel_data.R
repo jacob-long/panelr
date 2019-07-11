@@ -178,7 +178,7 @@ complete_data <- function(data, ..., formula = NULL, vars = NULL,
   keeps <- which(t >= min.waves)
   keeps <- names(t)[keeps]
 
-  data <- dplyr::filter(data, id %in% keeps)
+  data <- dplyr::filter(data, !! sym(id) %in% keeps)
   data <- reconstruct(data, old)
   return(data)
 
