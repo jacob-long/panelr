@@ -10,7 +10,8 @@ wbgee(formula, data, id = NULL, wave = NULL, model = "w-b",
   family = gaussian, balance.correction = FALSE, dt.random = TRUE,
   dt.order = 1, weights = NULL, offset = NULL,
   interaction.style = c("double-demean", "demean", "raw"),
-  scale = FALSE, scale.response = FALSE, n.sd = 1, ...)
+  scale = FALSE, scale.response = FALSE, n.sd = 1,
+  calc.fit.stats = TRUE, ...)
 }
 \arguments{
 \item{formula}{Model formula. See details for crucial
@@ -95,6 +96,9 @@ is \code{FALSE}.}
 
 \item{n.sd}{How many standard deviations should you divide by for
 standardization? Default is 1, though some prefer 2.}
+
+\item{calc.fit.stats}{Calculate fit statistics? Default is TRUE, but
+occasionally poor-fitting models might trip up here.}
 
 \item{...}{Additional arguments provided to \code{\link[geepack:geeglm]{geepack::geeglm()}}.}
 }
