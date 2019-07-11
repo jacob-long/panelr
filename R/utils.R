@@ -113,8 +113,8 @@ process_nonraw_newdata <- function(object, newdata, re.form) {
     # Need valid ID variable if using random effects
     if (is.null(re.form) || to_char(re.form) != "~0") {
       if (id %nin% names(newdata)) {
-        stop_wrap("newdata must contain the ", id, " variable when it is 
-                  part of the model.")
+        stop_wrap("newdata must contain the ", id, " variable unless
+                  're.form' is set to ~0.")
       }
     } else if (id %nin% names(newdata)) {
       # otherwise ID can be anything, just need the column there for 
