@@ -97,12 +97,12 @@ columns is the ID column and which is the wave column. It will also
 fight you a bit when you do things that might have the side effect of
 dropping those columns or putting them out of time order. `panel_data`
 frames are modified tibbles ([`tibble`
-package](http://tibble.tidyverse.org/)) that are grouped by entity
+package](https://tibble.tidyverse.org/)) that are grouped by entity
 (i.e., the ID column).
 
 `panel_data` frames are meant to play nice with the
-[`tidyverse`](tidyverse.org). Here’s a quick sample of how a tidy
-workflow with `panelr` can work:
+[`tidyverse`](https://tidyverse.org). Here’s a quick sample of how a
+tidy workflow with `panelr` can work:
 
 ``` r
 library(dplyr)
