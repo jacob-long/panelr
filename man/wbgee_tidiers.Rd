@@ -6,11 +6,11 @@
 \alias{glance.wbgee}
 \title{Tidy methods for \code{wbgee} models}
 \usage{
-tidy.asym_gee(x, conf.int = FALSE, conf.level = 0.95, ...)
+\method{tidy}{asym_gee}(x, conf.int = FALSE, conf.level = 0.95, ...)
 
-tidy.wbgee(x, conf.int = FALSE, conf.level = 0.95, ...)
+\method{tidy}{wbgee}(x, conf.int = FALSE, conf.level = 0.95, ...)
 
-glance.wbgee(x, ...)
+\method{glance}{wbgee}(x, ...)
 }
 \arguments{
 \item{x}{A \code{wbgee} object.}

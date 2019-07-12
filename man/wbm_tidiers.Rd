@@ -5,10 +5,11 @@
 \alias{glance.wbm}
 \title{Tidy methods for \code{wbm} models}
 \usage{
-tidy.wbm(x, conf.int = FALSE, conf.level = 0.95, effects = c("fixed",
-  "ran_pars"), conf.method = "Wald", ran_prefix = NULL, ...)
+\method{tidy}{wbm}(x, conf.int = FALSE, conf.level = 0.95,
+  effects = c("fixed", "ran_pars"), conf.method = "Wald",
+  ran_prefix = NULL, ...)
 
-glance.wbm(x, ...)
+\method{glance}{wbm}(x, ...)
 }
 \arguments{
 \item{x}{An object of class \code{merMod}, such as those from \code{lmer},

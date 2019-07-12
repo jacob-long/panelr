@@ -5,9 +5,9 @@
 \alias{glance.fdm}
 \title{Tidy methods for \code{fdm} and \code{asym} models}
 \usage{
-tidy.fdm(x, conf.int = FALSE, conf.level = 0.95, ...)
+\method{tidy}{fdm}(x, conf.int = FALSE, conf.level = 0.95, ...)
 
-glance.fdm(x, ...)
+\method{glance}{fdm}(x, ...)
 }
 \arguments{
 \item{x}{An \code{fdm} or \code{asym} object.}
