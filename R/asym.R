@@ -235,3 +235,38 @@ test_asyms <- function(model, asyms, vcov = NULL, escape = TRUE) {
   }
   output
 }
+
+#' @rdname tidy.fdm
+#' @rawNamespace 
+#' if (getRversion() >= "3.6.0") {
+#'   S3method(generics::tidy, asym)
+#' } else {
+#'   export(tidy.asym)
+#' }
+
+tidy.asym <- function(x, conf.int = FALSE, conf.level = .95, ...) {
+  
+  if (!requireNamespace("broom")) {
+    stop_wrap("You must have the broom package to use tidy methods.")
+  }
+  
+  params <- x$coef_table
+  # params$term <- rownames(params)
+  
+  # Getting confidence intervals if requested
+  if (conf.int == TRUE) {
+    ints <- as.data.frame(confint(x, level = conf.level))
+    # Renaming the columns to fit the tidy model
+    names(ints) <- c("conf.low", "conf.high")
+    # Renaming the terms to remove the backticks to match the params d.f.
+    ints$oterm <- stringr::str_remove_all(rownames(ints), "`")
+    params$oterm <- rownames(params)
+    # Put things together
+    params <- dplyr::left_join(params, ints, by = "oterm")
+  }
+  return(tibble::as_tibble( # Return a tibble
+    # Only return the relevant columns
+    params %just% c("term", "estimate", "statistic", "std.error", 
+                    "conf.low", "conf.high", "p.value", "group")
+  ))
+}
