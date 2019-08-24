@@ -488,7 +488,7 @@ confint.fdm <- function(object, parm, level = .95, ...) {
 #' 
 #' @rawNamespace 
 #' if (getRversion() >= "3.6.0") {
-#'   S3method(broom::tidy, fdm)
+#'   S3method(generics::tidy, fdm)
 #' } else {
 #'   export(tidy.fdm)
 #' }
@@ -522,7 +522,7 @@ tidy.fdm <- function(x, conf.int = FALSE, conf.level = .95, ...) {
 #' @rdname fdm_tidiers
 #' @rawNamespace 
 #' if (getRversion() >= "3.6.0") {
-#'   S3method(broom::glance, fdm)
+#'   S3method(generics::glance, fdm)
 #' } else {
 #'   export(glance.fdm)
 #' }

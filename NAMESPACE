@@ -2,19 +2,19 @@
 
 
 if (getRversion() >= "3.6.0") {
-  S3method(broom::glance, fdm)
+  S3method(generics::glance, fdm)
 } else {
   export(glance.fdm)
 }
 
 if (getRversion() >= "3.6.0") {
-  S3method(broom::glance, wbgee)
+  S3method(generics::glance, wbgee)
 } else {
   export(glance.wbgee)
 }
 
 if (getRversion() >= "3.6.0") {
-  S3method(broom::glance, wbm)
+  S3method(generics::glance, wbm)
 } else {
   export(glance.wbm)
 }
@@ -24,24 +24,27 @@ if (getRversion() >= "3.6.0") {
 } else {
   export(tidy.asym)
 }
+
+if (getRversion() >= "3.6.0") {
+  S3method(generics::tidy, asym_gee)
 } else {
   export(tidy.asym_gee)
 }
 
 if (getRversion() >= "3.6.0") {
-  S3method(broom::tidy, fdm)
+  S3method(generics::tidy, fdm)
 } else {
   export(tidy.fdm)
 }
 
 if (getRversion() >= "3.6.0") {
-  S3method(broom::tidy, wbgee)
+  S3method(generics::tidy, wbgee)
 } else {
   export(tidy.wbgee)
 }
 
 if (getRversion() >= "3.6.0") {
-  S3method(broom::tidy, wbm)
+  S3method(generics::tidy, wbm)
 } else {
   export(tidy.wbm)
 }

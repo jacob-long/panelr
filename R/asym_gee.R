@@ -250,7 +250,7 @@ print.asym_gee <- function(x, ...) {
 #' @rdname wbgee_tidiers
 #' @rawNamespace 
 #' if (getRversion() >= "3.6.0") {
-#'   S3method(broom::tidy, asym_gee)
+#'   S3method(generics::tidy, asym_gee)
 #' } else {
 #'   export(tidy.asym_gee)
 #' }

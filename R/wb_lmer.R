@@ -589,7 +589,7 @@ print.wbm <- function(x, ...) {
 #' }
 #' @rawNamespace 
 #' if (getRversion() >= "3.6.0") {
-#'   S3method(broom::tidy, wbm)
+#'   S3method(generics::tidy, wbm)
 #' } else {
 #'   export(tidy.wbm)
 #' }
@@ -656,7 +656,7 @@ tidy.wbm <- function(x, conf.int = FALSE, conf.level = .95,
 #' @inheritParams broom::lme4_tidiers
 #' @rawNamespace 
 #' if (getRversion() >= "3.6.0") {
-#'   S3method(broom::glance, wbm)
+#'   S3method(generics::glance, wbm)
 #' } else {
 #'   export(glance.wbm)
 #' }

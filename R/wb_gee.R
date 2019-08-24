@@ -398,7 +398,7 @@ print.wbgee <- function(x, ...) {
 #' }
 #' @rawNamespace 
 #' if (getRversion() >= "3.6.0") {
-#'   S3method(broom::tidy, wbgee)
+#'   S3method(generics::tidy, wbgee)
 #' } else {
 #'   export(tidy.wbgee)
 #' }
@@ -452,7 +452,7 @@ tidy.wbgee <- function(x, conf.int = FALSE, conf.level = .95, ...) {
 #' @rdname wbgee_tidiers
 #' @rawNamespace 
 #' if (getRversion() >= "3.6.0") {
-#'   S3method(broom::glance, wbgee)
+#'   S3method(generics::glance, wbgee)
 #' } else {
 #'   export(glance.wbgee)
 #' }
