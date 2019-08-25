@@ -324,6 +324,13 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
     msg_wrap("If wbm is taking too long to run, you can try setting 
              pvals = FALSE.")
   }
+  # Need to take vars out of call so I can update the summ object outside this
+  # environment
+  jcall <- getCall(j)
+  jcall$pvals <- substitute(pvals)
+  jcall$r.squared <- substitute(pR2)
+  jcall$t.df <- substitute(t.df)
+  attr(j, "call") <- jcall
   # check if pseudo-R2 calculation failed
   if (is.na(attr(j, "rsqs")[1]) | length(attr(j, "rsqs")) == 0) pR2 <- FALSE
   
@@ -331,7 +338,8 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
 
   j2 <- attributes(j)
   # Drop redundant model from the summ object
-  j$model <- NULL
+  # j$model <- NULL
+  # class(j) <- c("summ.wbm", class(j))
 
   merMod_call <- getCall(fit)
   terms <- attr(fit@frame, "terms")
@@ -665,4 +673,67 @@ glance.wbm <- function(x, ...) {
   mod_info_list <- sum$mod_info_list
   mod_info_list[sapply(mod_info_list, is.null)] <- NA
   return(tibble::as_tibble(mod_info_list))
+}
+
+#' @rawNamespace 
+#' if (getRversion() >= "3.6.0") {
+#'   S3method(jtools::summ, wbm)
+#' } else {
+#'   export(summ.wbm)
+#' }
+summ.wbm <- function(model, ...) {
+  out <- update_summ(model@summ, ...)
+  class(out) <- c("summ.wbm", class(out))
+  out$wbm <- model
+  out
+}
+
+#' @rdname wbm_tidiers
+#' @inheritParams broom::lme4_tidiers
+#' @rawNamespace 
+#' if (getRversion() >= "3.6.0") {
+#'   S3method(generics::glance, summ.wbm)
+#' } else {
+#'   export(glance.summ.wbm)
+#' }
+glance.summ.wbm <- function(x, ...) {
+  glance.wbm(x$wbm)
+}
+
+#' @rdname wbm_tidiers
+#' @inheritParams broom::lme4_tidiers
+#' @rawNamespace 
+#' if (getRversion() >= "3.6.0") {
+#'   S3method(generics::tidy, summ.wbm)
+#' } else {
+#'   export(tidy.summ.wbm)
+#' }
+tidy.summ.wbm <- function(x, ...) {
+  class(x) <- class(x) %not% "summ.wbm"
+  generics::tidy(x, ...)
+}
+
+#' @importFrom utils getFromNamespace
+update_summ <- function(summ, call.env, ...) {
+  
+  call <- getCall(summ)
+  
+  # Now get the argument names for that version of summ
+  summ_formals <- formals(getFromNamespace(class(summ), "jtools"))
+  
+  extras <- as.list(match.call())
+  indices <- which(names(extras) %in% names(summ_formals))
+  extras <- extras[indices]
+  
+  existing <- !is.na(match(names(extras), names(call)))
+  for (a in names(extras)[existing]) call[[a]] <- extras[[a]]
+  if (any(!existing)) {
+    call <- c(as.list(call), extras[!existing])
+    call <- as.call(call)
+  }
+  
+  env <- attr(summ, "env")
+  call$model <- summ$model
+  eval(call, env, parent.frame())
+  
 }

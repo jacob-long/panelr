@@ -3,6 +3,8 @@
 \name{tidy.wbm}
 \alias{tidy.wbm}
 \alias{glance.wbm}
+\alias{glance.summ.wbm}
+\alias{tidy.summ.wbm}
 \title{Tidy methods for \code{wbm} models}
 \usage{
 \method{tidy}{wbm}(x, conf.int = FALSE, conf.level = 0.95,
@@ -10,6 +12,10 @@
   ran_prefix = NULL, ...)
 
 \method{glance}{wbm}(x, ...)
+
+\method{glance}{summ.wbm}(x, ...)
+
+\method{tidy}{summ.wbm}(x, ...)
 }
 \arguments{
 \item{x}{An object of class \code{merMod}, such as those from \code{lmer},

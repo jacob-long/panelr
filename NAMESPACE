@@ -8,6 +8,12 @@ if (getRversion() >= "3.6.0") {
 }
 
 if (getRversion() >= "3.6.0") {
+  S3method(generics::glance, summ.wbm)
+} else {
+  export(glance.summ.wbm)
+}
+
+if (getRversion() >= "3.6.0") {
   S3method(generics::glance, wbgee)
 } else {
   export(glance.wbgee)
@@ -38,6 +44,12 @@ if (getRversion() >= "3.6.0") {
 }
 
 if (getRversion() >= "3.6.0") {
+  S3method(generics::tidy, summ.wbm)
+} else {
+  export(tidy.summ.wbm)
+}
+
+if (getRversion() >= "3.6.0") {
   S3method(generics::tidy, wbgee)
 } else {
   export(tidy.wbgee)
@@ -47,6 +59,12 @@ if (getRversion() >= "3.6.0") {
   S3method(generics::tidy, wbm)
 } else {
   export(tidy.wbm)
+}
+
+if (getRversion() >= "3.6.0") {
+  S3method(jtools::summ, wbm)
+} else {
+  export(summ.wbm)
 }
 
 if (getRversion() >= "3.6.0") {
@@ -227,3 +245,4 @@ importFrom(stringr,str_detect)
 importFrom(stringr,str_extract)
 importFrom(tibble,deframe)
 importFrom(tibble,trunc_mat)
+importFrom(utils,getFromNamespace)
