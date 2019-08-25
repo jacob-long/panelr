@@ -236,7 +236,7 @@ test_asyms <- function(model, asyms, vcov = NULL, escape = TRUE) {
   output
 }
 
-#' @rdname tidy.fdm
+#' @rdname fdm_tidiers
 #' @rawNamespace 
 #' if (getRversion() >= "3.6.0") {
 #'   S3method(generics::tidy, asym)
