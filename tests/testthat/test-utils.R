@@ -97,6 +97,30 @@ test_that("long_panel works (unbalanced data)", {
 })
 
 w <- tibble::tribble(
+  ~Q1_W2, ~Q1_W3, ~Q1_W4, ~Q2_W2, ~Q2_W4,
+  1,      1.5,     2,      5,      10,
+  5,      4,       3,      14,     7,
+  15,     12,      9,      8,      16
+)
+
+l <- panel_data(tibble::tribble(
+  ~id, ~wave, ~Q1, ~Q2,
+  "1",     2,   1,   5,
+  "1",     3, 1.5,  NA,
+  "1",     4,   2,  10,
+  "2",     2,   5,  14,
+  "2",     3,   4,  NA,
+  "2",     4,   3,   7,
+  "3",     2,  15,   8,
+  "3",     3,  12,  NA,
+  "3",     4,   9,  16
+))
+
+test_that("long_panel works (unbalanced data, numeric waves not begin w/ 1)", {
+  expect_equal(long_panel(w, prefix = "_W", begin = 2, end = 4), l)
+})
+
+w <- tibble::tribble(
   ~Q1_WA, ~Q1_WB, ~Q1_WC, ~Q2_WA, ~Q2_WC,
   1,      1.5,     2,      5,      10,
   5,      4,       3,      14,     7,

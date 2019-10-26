@@ -297,13 +297,14 @@ long_panel <- function(data, prefix = NULL, suffix = NULL, begin = NULL,
     
     for (var in which_miss) { # Iterate through stubs with missing periods
       for (period in periods) { # Iterate through periods
-        if (var %nin% stubs_by_period[[period]]) { # If stub missing in period
+        if (var %nin% stubs_by_period[[as.character(period)]]) { # If stub missing in period
           # Build variable name (all suffixes are deleted by now)
           vname <- paste0(var, sep, period)
           # Create column in data with empty values
           data[vname] <- rep(NA, times = nrow(data))
           # Add to var list (has to be done this way to preserve time order)
-          varying_by_period[[period]] <- c(varying_by_period[[period]], vname)
+          varying_by_period[[as.character(period)]] <- 
+            c(varying_by_period[[as.character(period)]], vname)
         }
       }
     }

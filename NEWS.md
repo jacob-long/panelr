@@ -1,3 +1,10 @@
+# panelr 0.7.2
+
+Bugfix:
+
+* `long_panel()` now handles numeric waves correctly when the input data are
+unbalanced.
+
 # panelr 0.7.1
 
 Bugfixes: 
