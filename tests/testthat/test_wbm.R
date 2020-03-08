@@ -288,6 +288,8 @@ test_that("wbm_stan makes code and data", {
   expect_s3_class(model$stan_code, "brmsmodel")
 })
 
+library(brms)
+
 model <- wbm_stan(lwage ~ lag(union) + wks | blk + fem | (blk | id),
                   data = wages, chains = 1, iter = 2000, fit_model = FALSE)
 

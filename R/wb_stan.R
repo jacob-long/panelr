@@ -58,7 +58,8 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
   if (!requireNamespace("brms")) {
     stop_wrap("You must have the brms package installed to use wbm_stan.")
   }
-  if (getOption("stan-warning", FALSE) == FALSE) {
+  if (getOption("stan-warning", FALSE) == FALSE &
+      "package:brms" %nin% search()) {
     msg_wrap("If model compilation fails, please run 'library(brms)' and 
              try again.")
     options("stan-warning" = TRUE)
@@ -125,11 +126,15 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
                        fixed = TRUE)
   }
 
-  fin_formula <- as.formula(fin_formula)
+  if (model.cor == TRUE) {
+    cor_append <- paste0("+ arma(time = ", wave, ",", " gr = ", id, 
+                         ", p = 1, q = 0, cov = FALSE)")
+    fin_formula <- paste(as.character(deparse(fin_formula)), cor_append)
+  } 
+  
+  fin_formula <- brms::brmsformula(fin_formula)
   
   ints <- e$cross_ints
-
-  cor_form <- as.formula(paste("~", wave, "|", id))
 
   if (scale == TRUE) {
 
@@ -139,15 +144,11 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
                            binary.inputs = "0/1")
 
   }
-  
-  cor_arg <- if (model.cor == TRUE) brms::cor_ar(formula = cor_form) else NULL
-  
 
   # Give users the option to just get code + data for this
   if (fit_model == TRUE) {
 
     model <- brms::brm(fin_formula,
-                       autocor = cor_arg,
                        data = data,
                        chains = chains, iter = iter,
                        family = family,
@@ -168,7 +169,6 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
   } else {
 
     standat <- brms::make_standata(fin_formula,
-                       autocor = cor_arg,
                        data = data,
                        chains = chains, iter = iter,
                        family = family,
@@ -176,7 +176,6 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
 
     stancode <-
       brms::make_stancode(fin_formula,
-                          autocor = brms::cor_ar(formula = cor_form),
                           data = data, chains = chains, iter = iter,
                           family = family, save_ranef = save_ranef, ...)
 
