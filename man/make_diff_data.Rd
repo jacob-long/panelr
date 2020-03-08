@@ -4,9 +4,20 @@
 \alias{make_diff_data}
 \title{Generate differenced and asymmetric effects data}
 \usage{
-make_diff_data(formula, data, id = NULL, wave = NULL,
-  use.wave = FALSE, min.waves = 1, weights = NULL, offset = NULL,
-  asym = FALSE, cumulative = FALSE, escape.names = FALSE, ...)
+make_diff_data(
+  formula,
+  data,
+  id = NULL,
+  wave = NULL,
+  use.wave = FALSE,
+  min.waves = 1,
+  weights = NULL,
+  offset = NULL,
+  asym = FALSE,
+  cumulative = FALSE,
+  escape.names = FALSE,
+  ...
+)
 }
 \arguments{
 \item{formula}{Model formula. See details for crucial

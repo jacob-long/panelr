@@ -4,8 +4,7 @@
 \alias{complete_data}
 \title{Filter out entities with too few observations}
 \usage{
-complete_data(data, ..., formula = NULL, vars = NULL,
-  min.waves = "all")
+complete_data(data, ..., formula = NULL, vars = NULL, min.waves = "all")
 }
 \arguments{
 \item{data}{A \code{\link[=panel_data]{panel_data()}} frame.}

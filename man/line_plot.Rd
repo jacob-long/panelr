@@ -4,10 +4,20 @@
 \alias{line_plot}
 \title{Plot trends in longitudinal variables}
 \usage{
-line_plot(data, var, id = NULL, wave = NULL, overlay = TRUE,
-  show.points = TRUE, subset.ids = FALSE, n.random.subset = 9,
-  add.mean = FALSE, mean.function = "lm", line.size = 1, alpha = if
-  (overlay) 0.5 else 1)
+line_plot(
+  data,
+  var,
+  id = NULL,
+  wave = NULL,
+  overlay = TRUE,
+  show.points = TRUE,
+  subset.ids = FALSE,
+  n.random.subset = 9,
+  add.mean = FALSE,
+  mean.function = "lm",
+  line.size = 1,
+  alpha = if (overlay) 0.5 else 1
+)
 }
 \arguments{
 \item{data}{Either a \code{panel_data} frame or another data frame.}

@@ -4,9 +4,17 @@
 \alias{fdm}
 \title{Estimate first differences models using GLS}
 \usage{
-fdm(formula, data, id = NULL, wave = NULL, use.wave = FALSE,
-  min.waves = 1, variance = c("toeplitz-1", "constrained",
-  "unconstrained"), error.type = c("CR2", "CR1S"), ...)
+fdm(
+  formula,
+  data,
+  id = NULL,
+  wave = NULL,
+  use.wave = FALSE,
+  min.waves = 1,
+  variance = c("toeplitz-1", "constrained", "unconstrained"),
+  error.type = c("CR2", "CR1S"),
+  ...
+)
 }
 \arguments{
 \item{formula}{Model formula. See details for crucial

@@ -4,6 +4,9 @@ Bugfix:
 
 * `long_panel()` now handles numeric waves correctly when the input data are
 unbalanced.
+* Fixed bug related to changes in `brms` package's interface for autocorrelated
+errors.
+* Eliminated warning from update to `tidyr` package.
 
 # panelr 0.7.1
 

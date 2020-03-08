@@ -4,11 +4,24 @@
 \alias{make_wb_data}
 \title{Prepare data for within-between modeling}
 \usage{
-make_wb_data(formula, data, id = NULL, wave = NULL, model = "w-b",
-  detrend = FALSE, use.wave = FALSE, wave.factor = FALSE,
-  min.waves = 2, balance.correction = FALSE, dt.random = TRUE,
-  dt.order = 1, weights = NULL, offset = NULL,
-  interaction.style = c("double-demean", "demean", "raw"), ...)
+make_wb_data(
+  formula,
+  data,
+  id = NULL,
+  wave = NULL,
+  model = "w-b",
+  detrend = FALSE,
+  use.wave = FALSE,
+  wave.factor = FALSE,
+  min.waves = 2,
+  balance.correction = FALSE,
+  dt.random = TRUE,
+  dt.order = 1,
+  weights = NULL,
+  offset = NULL,
+  interaction.style = c("double-demean", "demean", "raw"),
+  ...
+)
 }
 \arguments{
 \item{formula}{Model formula. See details for crucial

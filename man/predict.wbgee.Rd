@@ -4,8 +4,14 @@
 \alias{predict.wbgee}
 \title{Predictions and simulations from within-between GEE models}
 \usage{
-\method{predict}{wbgee}(object, newdata = NULL, se.fit = FALSE,
-  raw = FALSE, type = c("link", "response"), ...)
+\method{predict}{wbgee}(
+  object,
+  newdata = NULL,
+  se.fit = FALSE,
+  raw = FALSE,
+  type = c("link", "response"),
+  ...
+)
 }
 \arguments{
 \item{object}{Object of class inheriting from \code{"lm"}}

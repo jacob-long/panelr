@@ -5,14 +5,33 @@
 \alias{simulate.wbm}
 \title{Predictions and simulations from within-between models}
 \usage{
-\method{predict}{wbm}(object, newdata = NULL, se.fit = FALSE,
-  raw = FALSE, use.re.var = FALSE, re.form = NULL, type = c("link",
-  "response"), allow.new.levels = TRUE, na.action = na.pass, ...)
+\method{predict}{wbm}(
+  object,
+  newdata = NULL,
+  se.fit = FALSE,
+  raw = FALSE,
+  use.re.var = FALSE,
+  re.form = NULL,
+  type = c("link", "response"),
+  allow.new.levels = TRUE,
+  na.action = na.pass,
+  ...
+)
 
-\method{simulate}{wbm}(object, nsim = 1, seed = NULL, use.u = FALSE,
-  newdata = NULL, raw = FALSE, newparams = NULL, re.form = NA,
-  type = c("link", "response"), allow.new.levels = FALSE,
-  na.action = na.pass, ...)
+\method{simulate}{wbm}(
+  object,
+  nsim = 1,
+  seed = NULL,
+  use.u = FALSE,
+  newdata = NULL,
+  raw = FALSE,
+  newparams = NULL,
+  re.form = NA,
+  type = c("link", "response"),
+  allow.new.levels = FALSE,
+  na.action = na.pass,
+  ...
+)
 }
 \arguments{
 \item{object}{a fitted model object}
@@ -65,8 +84,8 @@ passed to \code{lme4::bootMer()}.}
     of the random effects).)}
 
 \item{newparams}{new parameters to use in evaluating predictions,
-    specified as in the \code{start} parameter for \code{\link{lmer}} or
-    \code{\link{glmer}} -- a list with components \code{theta} and
+    specified as in the \code{start} parameter for \code{\link[lme4]{lmer}} or
+    \code{\link[lme4]{glmer}} -- a list with components \code{theta} and
     \code{beta} and (for LMMs or GLMMs that estimate a scale parameter)
     \code{sigma}}
 }

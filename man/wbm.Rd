@@ -4,15 +4,34 @@
 \alias{wbm}
 \title{Panel regression models fit via multilevel modeling}
 \usage{
-wbm(formula, data, id = NULL, wave = NULL, model = "w-b",
-  detrend = FALSE, use.wave = FALSE, wave.factor = FALSE,
-  min.waves = 2, family = gaussian, balance.correction = FALSE,
-  dt.random = TRUE, dt.order = 1, pR2 = TRUE, pvals = TRUE,
-  t.df = "Satterthwaite", weights = NULL, offset = NULL,
+wbm(
+  formula,
+  data,
+  id = NULL,
+  wave = NULL,
+  model = "w-b",
+  detrend = FALSE,
+  use.wave = FALSE,
+  wave.factor = FALSE,
+  min.waves = 2,
+  family = gaussian,
+  balance.correction = FALSE,
+  dt.random = TRUE,
+  dt.order = 1,
+  pR2 = TRUE,
+  pvals = TRUE,
+  t.df = "Satterthwaite",
+  weights = NULL,
+  offset = NULL,
   interaction.style = c("double-demean", "demean", "raw"),
-  scale = FALSE, scale.response = FALSE, n.sd = 1,
-  dt_random = dt.random, dt_order = dt.order,
-  balance_correction = balance.correction, ...)
+  scale = FALSE,
+  scale.response = FALSE,
+  n.sd = 1,
+  dt_random = dt.random,
+  dt_order = dt.order,
+  balance_correction = balance.correction,
+  ...
+)
 }
 \arguments{
 \item{formula}{Model formula. See details for crucial

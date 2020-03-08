@@ -4,14 +4,30 @@
 \alias{wbgee}
 \title{Panel regression models fit with GEE}
 \usage{
-wbgee(formula, data, id = NULL, wave = NULL, model = "w-b",
-  cor.str = c("ar1", "exchangeable", "unstructured"), detrend = FALSE,
-  use.wave = FALSE, wave.factor = FALSE, min.waves = 2,
-  family = gaussian, balance.correction = FALSE, dt.random = TRUE,
-  dt.order = 1, weights = NULL, offset = NULL,
+wbgee(
+  formula,
+  data,
+  id = NULL,
+  wave = NULL,
+  model = "w-b",
+  cor.str = c("ar1", "exchangeable", "unstructured"),
+  detrend = FALSE,
+  use.wave = FALSE,
+  wave.factor = FALSE,
+  min.waves = 2,
+  family = gaussian,
+  balance.correction = FALSE,
+  dt.random = TRUE,
+  dt.order = 1,
+  weights = NULL,
+  offset = NULL,
   interaction.style = c("double-demean", "demean", "raw"),
-  scale = FALSE, scale.response = FALSE, n.sd = 1,
-  calc.fit.stats = TRUE, ...)
+  scale = FALSE,
+  scale.response = FALSE,
+  n.sd = 1,
+  calc.fit.stats = TRUE,
+  ...
+)
 }
 \arguments{
 \item{formula}{Model formula. See details for crucial

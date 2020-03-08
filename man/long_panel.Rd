@@ -4,10 +4,21 @@
 \alias{long_panel}
 \title{Convert wide panels to long format}
 \usage{
-long_panel(data, prefix = NULL, suffix = NULL, begin = NULL,
-  end = NULL, id = "id", wave = "wave", periods = NULL,
-  label_location = c("end", "beginning"), as_panel_data = TRUE,
-  match = ".*", use.regex = FALSE, check.varying = TRUE)
+long_panel(
+  data,
+  prefix = NULL,
+  suffix = NULL,
+  begin = NULL,
+  end = NULL,
+  id = "id",
+  wave = "wave",
+  periods = NULL,
+  label_location = c("end", "beginning"),
+  as_panel_data = TRUE,
+  match = ".*",
+  use.regex = FALSE,
+  check.varying = TRUE
+)
 }
 \arguments{
 \item{data}{The wide data frame.}
@@ -46,7 +57,7 @@ Default is TRUE.}
 \item{match}{The regex that will match the part of the variable names other
 than the wave indicator. By default it will match any character any
 amount of times. Sometimes you might know that the variable names should
-start with a digit, for instance, and you might use \code{"\\d.*"} instead.}
+start with a digit, for instance, and you might use \code{"\\\\d.*"} instead.}
 
 \item{use.regex}{Should the \code{begin} and \code{end} arguments be treated as
 regular expressions? Default is FALSE.}

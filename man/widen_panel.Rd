@@ -4,8 +4,7 @@
 \alias{widen_panel}
 \title{Convert long panel data to wide format}
 \usage{
-widen_panel(data, separator = "_", ignore.attributes = FALSE,
-  varying = NULL)
+widen_panel(data, separator = "_", ignore.attributes = FALSE, varying = NULL)
 }
 \arguments{
 \item{data}{The \code{panel_data} frame.}

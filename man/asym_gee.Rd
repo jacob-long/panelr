@@ -4,10 +4,20 @@
 \alias{asym_gee}
 \title{Asymmetric effects models fit with GEE}
 \usage{
-asym_gee(formula, data, id = NULL, wave = NULL, cor.str = c("ar1",
-  "exchangeable", "unstructured"), use.wave = FALSE,
-  wave.factor = FALSE, min.waves = 1, family = gaussian,
-  weights = NULL, offset = NULL, ...)
+asym_gee(
+  formula,
+  data,
+  id = NULL,
+  wave = NULL,
+  cor.str = c("ar1", "exchangeable", "unstructured"),
+  use.wave = FALSE,
+  wave.factor = FALSE,
+  min.waves = 1,
+  family = gaussian,
+  weights = NULL,
+  offset = NULL,
+  ...
+)
 }
 \arguments{
 \item{formula}{Model formula. See details for crucial

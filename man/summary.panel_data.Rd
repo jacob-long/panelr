@@ -4,8 +4,7 @@
 \alias{summary.panel_data}
 \title{Summarize panel data frames}
 \usage{
-\method{summary}{panel_data}(object, ..., by.wave = TRUE,
-  by.id = FALSE)
+\method{summary}{panel_data}(object, ..., by.wave = TRUE, by.id = FALSE)
 }
 \arguments{
 \item{object}{A \code{panel_data} frame.}

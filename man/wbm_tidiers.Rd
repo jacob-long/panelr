@@ -7,9 +7,15 @@
 \alias{tidy.summ.wbm}
 \title{Tidy methods for \code{wbm} models}
 \usage{
-\method{tidy}{wbm}(x, conf.int = FALSE, conf.level = 0.95,
-  effects = c("fixed", "ran_pars"), conf.method = "Wald",
-  ran_prefix = NULL, ...)
+\method{tidy}{wbm}(
+  x,
+  conf.int = FALSE,
+  conf.level = 0.95,
+  effects = c("fixed", "ran_pars"),
+  conf.method = "Wald",
+  ran_prefix = NULL,
+  ...
+)
 
 \method{glance}{wbm}(x, ...)
 
