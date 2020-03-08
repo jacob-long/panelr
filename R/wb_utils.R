@@ -375,8 +375,11 @@ detrend <- function(data, pf, dt_order, balance_correction, dt_random) {
                               !! un_bt(mean_var) := 
                                 purrr::map(data, b_model, var = v)
         )
-        data <- panel_data(tidyr::unnest(data),
-                           id = !! sym(id), wave = !! sym(wave))
+        data <- panel_data(
+          tidyr::unnest(data, cols = names(data) %not%  c(id, wave),
+                        names_repair = tidyr::tidyr_legacy),
+          id = !! sym(id), wave = !! sym(wave)
+        )
         data <- dplyr::mutate(data,  !! un_bt(v) := !! parse_expr(v_term))
       }
     } 
@@ -384,7 +387,8 @@ detrend <- function(data, pf, dt_order, balance_correction, dt_random) {
   
   if (dt_random == TRUE | balance_correction == TRUE) {
     # Unnest the data if it was nested
-    data <- tidyr::unnest(data)
+    data <- tidyr::unnest(data, cols = names(data) %not% c(id, wave),
+                          names_repair = tidyr::tidyr_legacy)
     data <- panel_data(data, id = !! sym(id), wave = !! sym(wave))
     # The unnesting process generates extra nuisance variables for those
     # included in the detrending (e.g., x1). I add "-" to tell select to
