@@ -4,7 +4,8 @@
 \name{nlsy}
 \alias{nlsy}
 \title{National Longitudinal Survey of Youth data}
-\format{A data frame with 581 rows and 16 variables:
+\format{
+A data frame with 581 rows and 16 variables:
 \describe{
 \item{momage}{Mother's age at birth}
 \item{gender}{0 if boy, 1 if girl}
@@ -28,7 +29,8 @@ taken in 1994}
 \item{pov90}{1 if family is in poverty, 0 if not, in 1990}
 \item{pov92}{1 if family is in poverty, 0 if not, in 1992}
 \item{pov94}{1 if family is in poverty, 0 if not, in 1994}
-}}
+}
+}
 \source{
 These data originate with the U.S. Department of Labor. The particular
 subset used here come from Paul Allison via Statistical Horizons:

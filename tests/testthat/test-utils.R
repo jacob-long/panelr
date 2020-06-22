@@ -69,7 +69,7 @@ l <- panel_data(tibble::tribble(
 ))
 
 test_that("long_panel works (basic case)", {
-  expect_equal(long_panel(w, prefix = "_W", begin = 1, end = 3), l)
+  expect_true(all(long_panel(w, prefix = "_W", begin = 1, end = 3) == l))
 })
 
 w <- tibble::tribble(
@@ -93,7 +93,7 @@ l <- panel_data(tibble::tribble(
 ))
 
 test_that("long_panel works (unbalanced data)", {
-  expect_equal(long_panel(w, prefix = "_W", begin = 1, end = 3), l)
+  expect_true(all(long_panel(w, prefix = "_W", begin = 1, end = 3) == l, na.rm = T))
 })
 
 w <- tibble::tribble(
@@ -117,7 +117,7 @@ l <- panel_data(tibble::tribble(
 ))
 
 test_that("long_panel works (unbalanced data, numeric waves not begin w/ 1)", {
-  expect_equal(long_panel(w, prefix = "_W", begin = 2, end = 4), l)
+  expect_true(all(long_panel(w, prefix = "_W", begin = 2, end = 4) == l, na.rm = T))
 })
 
 w <- tibble::tribble(
@@ -143,8 +143,8 @@ l <- tibble::tribble(
 l$wave <- ordered(l$wave, c("A", "B", "C"))
 
 test_that("long_panel works (character periods)", {
-  expect_equal(long_panel(w, prefix = "_W", begin = "A", end = "C"), 
-               panel_data(l))
+  expect_true(all(long_panel(w, prefix = "_W", begin = "A", end = "C") ==
+               panel_data(l), na.rm = T))
 })
 
 w <- tibble::tribble(
@@ -168,8 +168,8 @@ l <- panel_data(tibble::tribble(
 ))
 
 test_that("long_panel works (beginning label)", {
-  expect_equal(long_panel(w, prefix = "W", suffix = "_", begin = 1, end = 3,
-                          label_location = "beginning"), l)
+  expect_true(all(long_panel(w, prefix = "W", suffix = "_", begin = 1, end = 3,
+                          label_location = "beginning") == l, na.rm = T))
 })
 
 w <- tibble::tribble(
@@ -195,8 +195,9 @@ l <- tibble::tribble(
 l$wave <- ordered(l$wave, c("A", "B", "C"))
 
 test_that("long_panel works (beginning label/character periods)", {
-  expect_equal(long_panel(w, prefix = "W", suffix = "_", begin = "A", end = "C",
-                          label_location = "beginning"), panel_data(l))
+  expect_true(all(long_panel(w, prefix = "W", suffix = "_", begin = "A", 
+                             end = "C", label_location = "beginning") ==
+                    panel_data(l), na.rm = T))
 })
 
 w <- tibble::tribble(
@@ -222,8 +223,8 @@ l <- tibble::tribble(
 l$wave <- ordered(l$wave, c("A", "B", "C"))
 
 test_that("long_panel works (prefix and suffix/character periods)", {
-  expect_equal(long_panel(w, prefix = "_", suffix = "W", begin = "A", end = "C",
-                          label_location = "end"), panel_data(l))
+  expect_true(all(long_panel(w, prefix = "_", suffix = "W", begin = "A", end = "C",
+                          label_location = "end") == panel_data(l), na.rm = T))
 })
 
 w <- tibble::tribble(
@@ -249,9 +250,10 @@ l <- tibble::tribble(
 l$wave <- ordered(l$wave, c("A", "B", "C"))
 
 test_that("long_panel works (beginning/no separators/character periods)", {
-  expect_equal(long_panel(w, prefix = "", suffix = "",
-                          label_location = "beginning", begin = "A", end = "C"),
-               panel_data(l))
+  expect_true(all(long_panel(w, prefix = "", suffix = "", 
+                             label_location = "beginning", begin = "A",
+                             end = "C") ==
+               panel_data(l), na.rm = T))
 })
 
 w <- tibble::tribble(
@@ -275,8 +277,8 @@ l <- panel_data(tibble::tribble(
 ))
 
 test_that("long_panel works (redundant match in varname, ambiguous waves)", {
-  expect_equal(long_panel(w, prefix = "W", label_location = "end", 
-                          periods = c(1, 2, 12)), l)
+  expect_true(all(long_panel(w, prefix = "W", label_location = "end", 
+                          periods = c(1, 2, 12)) == l, na.rm = T))
 })
 
 context("tibble printing")

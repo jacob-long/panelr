@@ -4,7 +4,8 @@
 \name{teen_poverty}
 \alias{teen_poverty}
 \title{National Longitudinal Survey of Youth teenage women poverty data}
-\format{A data frame with 1141 rows and 28 variables:
+\format{
+A data frame with 1141 rows and 28 variables:
 \describe{
 \item{id}{Unique identifier for the respondent}
 \item{age}{Age at first interview}
@@ -34,7 +35,8 @@
 \item{hours3}{Hours worked during the week of the survey, at time 3}
 \item{hours4}{Hours worked during the week of the survey, at time 4}
 \item{hours5}{Hours worked during the week of the survey, at time 5}
-}}
+}
+}
 \source{
 These data originate with the U.S. Department of Labor. The particular
 subset used here come from Paul Allison via Statistical Horizons:

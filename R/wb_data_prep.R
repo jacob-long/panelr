@@ -235,6 +235,14 @@ wb_model <- function(model, pf, dv, data, detrend, demean.ints, old.ints) {
   the_terms <- c(bt(pf$varying), bt(pf$constants), bt(cross_ints), 
                  bt(within_ints), pf$bint_labs, 
                  if (!is.null(pf$ranefs)) bt_ranefs(pf$ranefs, data) else NULL)
+  if (!is.null(bt(cross_ints)) | !is.null(bt(within_ints)) |
+      !is.null(pf$bint_labs)) {
+      with_asts <- gsub(":", "*", c(cross_ints, within_ints, pf$bint_labs))
+      data <- select(data, !! parse_expr(
+          paste0("!contains(c(", paste0('"', with_asts, '"', collapse = ","), "))")
+        )
+      )
+  }
   fin_formula <- paste(bt(dv), "~", add_form, "+",
                        paste(the_terms, collapse = " + "))
   

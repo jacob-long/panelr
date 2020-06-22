@@ -4,7 +4,8 @@
 \name{WageData}
 \alias{WageData}
 \title{Earnings data from the Panel Study of Income Dynamics}
-\format{A data frame with 4165 rows and 14 variables:
+\format{
+A data frame with 4165 rows and 14 variables:
 \describe{
 \item{id}{Unique identifier for each survey respondent}
 \item{t}{A number corresponding to each wave of the survey, 1 through 7}
@@ -24,7 +25,8 @@ standard metropolitan area (SMSA; = 1)}
 \item{blk}{Binary indicator for whether respondent is African-American (= 1)}
 \item{ed}{Years of education}
 \item{exp}{Years in the workforce.}
-}}
+}
+}
 \source{
 These data are all over the place. This particular file was
 downloaded from Richard Williams at

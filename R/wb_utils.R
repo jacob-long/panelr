@@ -532,7 +532,8 @@ fb <- function(term) {
 get_rhs <- function(x, which = 1, to.formula = FALSE) {
   # Coercing to formula can be useful, otherwise it's a call object
   if (to.formula == TRUE) {
-    as.formula(paste("~", deparse(attr(x, "rhs")[[which]])))
+    the_str <- paste("~", deparse(attr(x, "rhs")[[which]]), collapse = " ")
+    as.formula(gsub("\\n", "", the_str, fixed = TRUE))
   } else {
     attr(x, "rhs")[[which]]
   }

@@ -46,7 +46,7 @@ panel_data <- function(data, id = id, wave = wave, ...) {
     msg_wrap("Unordered factor wave variable was converted to ordered.
              You should check that the order is correct.")
     periods <- levels(data[[wave]])
-  } else if (!is.ordered(data[[wave]]) & !is.numeric(data[[wave]])) {
+  } else if (!valid_wave(data[[wave]])) {
     stop("The wave variable must be numeric or an ordered factor.")
   } else {
     periods <- sort(unique(data[[wave]]))
@@ -413,6 +413,11 @@ get_id <- function(data) {
 #' @rdname get_wave
 get_periods <- function(data) {
   attr(data, "periods")
+}
+
+valid_wave <- function(x) {
+  is.numeric(x) | is.ordered(x) | is(x, "Date") | inherits(x, "POSIXct") |
+    inherits(x, "POSIXlt") | inherits(x, "POSIXt") | inherits(x, "difftime") 
 }
 
 ##### internal panel_data tools #############################################
