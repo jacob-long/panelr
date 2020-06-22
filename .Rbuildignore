@@ -16,3 +16,5 @@
 ^\_pkgdown\.yaml$
 ^_pkgdown\.yml$
 ^CRAN-RELEASE$
+^doc$
+^Meta$
