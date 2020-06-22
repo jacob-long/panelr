@@ -50,7 +50,7 @@ created by \code{wbm}.}
 \item{use.re.var}{If \code{se.fit} is TRUE, include random effects variance in
 standard errors? Default is FALSE.}
 
-\item{re.form}{(formula, \code{NULL}, or \code{NA}) specify which random effects to condition on when predicting.  If \code{NULL},
+\item{re.form}{formula for random effects to condition on.  If \code{NULL},
     include all random effects; if \code{NA} or \code{~0},
     include no random effects.}
 
