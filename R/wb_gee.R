@@ -46,10 +46,9 @@
 #' *Annual Review of Psychology*, *62*, 583–619.
 #' https://doi.org/10.1146/annurev.psych.093008.100356
 #' 
-#' Giesselmann, M., & Schmidt-Catran, A. (2018). Interactions in fixed effects
-#' regression models (Discussion Papers of DIW Berlin No. 1748). 
-#' *DIW Berlin, German Institute for Economic Research*. 
-#' Retrieved from https://ideas.repec.org/p/diw/diwwpp/dp1748.html
+#' Giesselmann, M., & Schmidt-Catran, A. W. (2020). Interactions in fixed 
+#' effects regression models. *Sociological Methods & Research*, 1–28. 
+#' https://doi.org/10.1177/0049124120914934
 #'
 #' McNeish, D. (2019). Effect partitioning in cross-sectionally clustered data
 #'  without multilevel models. *Multivariate Behavioral Research*, 

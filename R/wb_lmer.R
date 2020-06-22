@@ -59,13 +59,13 @@
 #'  calculate the product of the variables involved in the interaction before
 #'  those variables have their means subtracted and then subtract the mean of 
 #'  the product from the product term (see Schunk and Perales (2017)). 
-#'  Giesselmann and Schmidt-Catran (2018) show this method carries 
+#'  Giesselmann and Schmidt-Catran (2020) show this method carries 
 #'  between-entity differences that within models are designed to model out.
 #'  They suggest an alternate method (`"double-demean"`) in which the product
 #'  term is first calculated using the de-meaned lower-order variables and 
 #'  then the subject means are subtracted from this product term. Another 
 #'  option is to simply use the product term of the de-meaned variables
-#'  (`"raw"`), but Giesselmann and Schmidt-Catran (2018) show this method 
+#'  (`"raw"`), but Giesselmann and Schmidt-Catran (2020) show this method 
 #'  biases the results towards zero effect. The default is `"double-demean"`
 #'  but if emulating other software is the goal, `"demean"` might be 
 #'  preferred.

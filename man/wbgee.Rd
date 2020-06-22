@@ -93,13 +93,13 @@ models is in some dispute. The conventional way (\code{"demean"}) is to first
 calculate the product of the variables involved in the interaction before
 those variables have their means subtracted and then subtract the mean of
 the product from the product term (see Schunk and Perales (2017)).
-Giesselmann and Schmidt-Catran (2018) show this method carries
+Giesselmann and Schmidt-Catran (2020) show this method carries
 between-entity differences that within models are designed to model out.
 They suggest an alternate method (\code{"double-demean"}) in which the product
 term is first calculated using the de-meaned lower-order variables and
 then the subject means are subtracted from this product term. Another
 option is to simply use the product term of the de-meaned variables
-(\code{"raw"}), but Giesselmann and Schmidt-Catran (2018) show this method
+(\code{"raw"}), but Giesselmann and Schmidt-Catran (2020) show this method
 biases the results towards zero effect. The default is \code{"double-demean"}
 but if emulating other software is the goal, \code{"demean"} might be
 preferred.}
@@ -152,10 +152,9 @@ and between-person effects in longitudinal models of change.
 \emph{Annual Review of Psychology}, \emph{62}, 583–619.
 https://doi.org/10.1146/annurev.psych.093008.100356
 
-Giesselmann, M., & Schmidt-Catran, A. (2018). Interactions in fixed effects
-regression models (Discussion Papers of DIW Berlin No. 1748).
-\emph{DIW Berlin, German Institute for Economic Research}.
-Retrieved from https://ideas.repec.org/p/diw/diwwpp/dp1748.html
+Giesselmann, M., & Schmidt-Catran, A. W. (2020). Interactions in fixed
+effects regression models. \emph{Sociological Methods & Research}, 1–28.
+https://doi.org/10.1177/0049124120914934
 
 McNeish, D. (2019). Effect partitioning in cross-sectionally clustered data
 without multilevel models. \emph{Multivariate Behavioral Research},
