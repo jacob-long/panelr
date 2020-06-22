@@ -98,7 +98,12 @@ describe <- function(.data, ...) {
   out
 }
 
-#' @export
+#' @rawNamespace 
+#' if (getRversion() >= "3.6.0") {
+#'   S3method(dplyr::select, panel_data)
+#' } else {
+#'   export(select.panel_data)
+#' }
 #' @importFrom dplyr select
 #'
 # Used to be a simple reconstruct but now I want to be more opinionated and
@@ -113,7 +118,7 @@ select.panel_data <- function(.data, ...) {
   # Add them in (it's okay if they're already there)
   dots <- c(sym(id), sym(wave), dots)
   # Go ahead and select
-  NextMethod(generic = "select", .data, !!! dots)
+  reconstruct(select(unpanel(.data) %>% group_by(!! sym(id)), !!! dots), .data)
 }
 
 #' @export
@@ -187,6 +192,11 @@ arrange.panel_data <- function(.data, ..., .by_group = TRUE) {
       j[c(id, wave)] <- TRUE
     }
   }
+  reconstruct(NextMethod(), x)
+}
+
+#' @export
+`[<-.panel_data` <- function(x, i, j, ..., value) {
   reconstruct(NextMethod(), x)
 }
 

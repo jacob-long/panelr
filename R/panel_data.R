@@ -33,7 +33,7 @@ panel_data <- function(data, id = id, wave = wave, ...) {
   if (!is.factor(data[[id]])) {data[[id]] <- factor(data[[id]])}
 
   # Group by case ID
-  if (id %nin% group_vars(data)) {data <- group_by(data, !!sym(id), add = TRUE)}
+  if (id %nin% group_vars(data)) {data <- group_by(data, !!sym(id), .add = TRUE)}
   # Warn about multi-grouped DFs
   if (length(group_vars(data)) > 1) {
     msg_wrap("Detected additional grouping variables. Be aware this may
@@ -44,7 +44,7 @@ panel_data <- function(data, id = id, wave = wave, ...) {
   if (is.factor(data[[wave]]) & !is.ordered(data[[wave]])) {
     data[[wave]] <- factor(data[[wave]], ordered = TRUE)
     msg_wrap("Unordered factor wave variable was converted to ordered.
-             You may wish to check that the order is correct.")
+             You should check that the order is correct.")
     periods <- levels(data[[wave]])
   } else if (!is.ordered(data[[wave]]) & !is.numeric(data[[wave]])) {
     stop("The wave variable must be numeric or an ordered factor.")
@@ -190,7 +190,7 @@ complete_data <- function(data, ..., formula = NULL, vars = NULL,
 
 is_varying <- function(data, variable) {
   
-  variable <- enquo(variable)
+  variable <- ensym(variable)
   
   out <- data %>%
     # For each group, does the variable vary?

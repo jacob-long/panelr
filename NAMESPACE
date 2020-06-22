@@ -2,6 +2,18 @@
 
 
 if (getRversion() >= "3.6.0") {
+  S3method(dplyr::filter, panel_data)
+} else {
+  export(filter.panel_data)
+}
+
+if (getRversion() >= "3.6.0") {
+  S3method(dplyr::select, panel_data)
+} else {
+  export(select.panel_data)
+}
+
+if (getRversion() >= "3.6.0") {
   S3method(generics::glance, fdm)
 } else {
   export(glance.fdm)
@@ -73,6 +85,9 @@ if (getRversion() >= "3.6.0") {
   export(knit_print.summary.panel_data)
 }
 S3method("[",panel_data)
+S3method("[<-",panel_data)
+S3method("[[<-",panel_data)
+S3method("names<-",panel_data)
 S3method(anti_join,panel_data)
 S3method(arrange,panel_data)
 S3method(arrange_,panel_data)
@@ -83,7 +98,6 @@ S3method(confint,fdm)
 S3method(confint,wbgee)
 S3method(df.residual,wbm)
 S3method(distinct,panel_data)
-S3method(filter,panel_data)
 S3method(formula,wbgee)
 S3method(formula,wbm)
 S3method(full_join,panel_data)
@@ -111,7 +125,6 @@ S3method(print,wbgee)
 S3method(print,wbm)
 S3method(reconstruct,panel_data)
 S3method(right_join,panel_data)
-S3method(select,panel_data)
 S3method(semi_join,panel_data)
 S3method(simulate,wbm)
 S3method(slice,panel_data)

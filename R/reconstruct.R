@@ -65,7 +65,12 @@ summarise.panel_data <- function(.data, ...) {
   reconstruct(NextMethod(), .data)
 }
 
-#' @export
+#' @rawNamespace 
+#' if (getRversion() >= "3.6.0") {
+#'   S3method(dplyr::filter, panel_data)
+#' } else {
+#'   export(filter.panel_data)
+#' }
 #' @importFrom dplyr filter
 filter.panel_data <- function(.data, ...) {
   reconstruct(NextMethod(), .data)
@@ -136,8 +141,18 @@ slice.panel_data <- function(.data, ...) {
 
 #' @export
 #' @importFrom dplyr group_by
-group_by.panel_data <- function(.data, ..., add = FALSE) {
+group_by.panel_data <- function(.data, ...) {
   reconstruct(NextMethod(), .data)
+}
+
+#' @export
+`names<-.panel_data` <- function(x, value) {
+  reconstruct(NextMethod(), x)
+}
+
+#' @export
+`[[<-.panel_data` <- function(x, i, j, ..., value) {
+  reconstruct(NextMethod(), x)
 }
 
 ### Backwards compat support for deprecated standard eval dplyr

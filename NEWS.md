@@ -1,3 +1,8 @@
+# panelr 0.7.3
+
+Bugfixes:
+
+* Fixes several problems induced by recent `dplyr` updates. (#28, #29)
 # panelr 0.7.2
 
 Bugfix:
