@@ -415,6 +415,7 @@ get_periods <- function(data) {
   attr(data, "periods")
 }
 
+#' @importFrom methods is
 valid_wave <- function(x) {
   is.numeric(x) | is.ordered(x) | is(x, "Date") | inherits(x, "POSIXct") |
     inherits(x, "POSIXlt") | inherits(x, "POSIXt") | inherits(x, "difftime") 

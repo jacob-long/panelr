@@ -31,7 +31,12 @@
 
 \item{conf.level}{confidence level for CI}
 
-\item{effects}{A character vector including one or more of "fixed" (fixed-effect parameters); "ran_pars" (variances and covariances or standard deviations and correlations of random effect terms); "ran_vals" (conditional modes/BLUPs/latent variable estimates); or "ran_coefs" (predicted parameter values for each group, as returned by \code{\link[lme4]{coef.merMod}})}
+\item{effects}{A character vector including one or more of "fixed"
+(fixed-effect parameters); "ran_pars" (variances and covariances or
+standard deviations and correlations of random effect terms);
+"ran_vals" (conditional modes/BLUPs/latent variable estimates); or
+"ran_coefs" (predicted parameter values for each group, as returned by
+\code{coef.merMod}.}
 
 \item{conf.method}{method for computing confidence intervals (see \code{lme4::confint.merMod})}
 

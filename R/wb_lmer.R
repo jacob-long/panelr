@@ -588,6 +588,12 @@ print.wbm <- function(x, ...) {
 #' @description `panelr` provides methods to access `wbm` data in a tidy format
 #' @rdname wbm_tidiers
 #' @inheritParams broom.mixed::lme4_tidiers
+#' @param effects A character vector including one or more of "fixed"
+#' (fixed-effect parameters); "ran_pars" (variances and covariances or
+#' standard deviations and correlations of random effect terms);
+#' "ran_vals" (conditional modes/BLUPs/latent variable estimates); or
+#' "ran_coefs" (predicted parameter values for each group, as returned by
+#' `coef.merMod`.
 #' @examples 
 #' data("WageData")
 #' wages <- panel_data(WageData, id = id, wave = t)
