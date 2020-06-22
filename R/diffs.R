@@ -482,8 +482,8 @@ confint.fdm <- function(object, parm, level = .95, ...) {
 #' data("WageData")
 #' wages <- panel_data(WageData, id = id, wave = t)
 #' model <- fdm(lwage ~ wks + union, data = wages)
-#' if (requireNamespace("broom")) {
-#'   broom::tidy(model)
+#' if (requireNamespace("generics")) {
+#'   generics::tidy(model)
 #' }
 #' 
 #' @rawNamespace 
@@ -495,8 +495,8 @@ confint.fdm <- function(object, parm, level = .95, ...) {
 
 tidy.fdm <- function(x, conf.int = FALSE, conf.level = .95, ...) {
   
-  if (!requireNamespace("broom")) {
-    stop_wrap("You must have the broom package to use tidy methods.")
+  if (!requireNamespace("generics")) {
+    stop_wrap("You must have the generics package to use tidy methods.")
   }
   
   params <- x$coef_table

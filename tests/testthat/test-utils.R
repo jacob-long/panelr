@@ -337,7 +337,7 @@ if (requireNamespace("plm")) {
 
 context("tidiers")
 
-if (requireNamespace("broom")) {
+if (requireNamespace("broom.mixed")) {
   wb <- wbm(wks ~ union + lwage | blk, data = w)
   test_that("tidy works", {
     expect_is(tidy.wbm(wb), "tbl_df")

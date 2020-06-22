@@ -393,8 +393,8 @@ print.wbgee <- function(x, ...) {
 #' data("WageData")
 #' wages <- panel_data(WageData, id = id, wave = t)
 #' model <- wbgee(lwage ~ lag(union) + wks, data = wages)
-#' if (requireNamespace("broom")) {
-#'   broom::tidy(model)
+#' if (requireNamespace("generics")) {
+#'   generics::tidy(model)
 #' }
 #' @rawNamespace 
 #' if (getRversion() >= "3.6.0") {
@@ -405,8 +405,8 @@ print.wbgee <- function(x, ...) {
 
 tidy.wbgee <- function(x, conf.int = FALSE, conf.level = .95, ...) {
   
-  if (!requireNamespace("broom")) {
-    stop_wrap("You must have the broom package to use tidy methods.")
+  if (!requireNamespace("generics")) {
+    stop_wrap("You must have the generics package to use tidy methods.")
   }
   
   # Going to get the organized values from the summary function

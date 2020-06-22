@@ -139,9 +139,9 @@ if (requireNamespace("plm")) {
 
 # tidiers -----------------------------------------------------------------
 context("fdm tidiers")
-if (requireNamespace("broom")) {
-  expect_is(broom::tidy(wb <- fdm(wks ~ lag(union) + lag(lwage),
+if (requireNamespace("broom.mixed")) {
+  expect_is(generics::tidy(wb <- fdm(wks ~ lag(union) + lag(lwage),
                                        data = wages), conf.int = TRUE), 
             "data.frame")
-  expect_is(broom::glance(wb), "data.frame")
+  expect_is(generics::glance(wb), "data.frame")
 }

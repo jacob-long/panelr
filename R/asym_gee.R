@@ -257,8 +257,8 @@ print.asym_gee <- function(x, ...) {
 
 tidy.asym_gee <- function(x, conf.int = FALSE, conf.level = .95, ...) {
   
-  if (!requireNamespace("broom")) {
-    stop_wrap("You must have the broom package to use tidy methods.")
+  if (!requireNamespace("generics")) {
+    stop_wrap("You must have the generics package to use tidy methods.")
   }
 
   # Getting their rownames before they are dropped by dplyr

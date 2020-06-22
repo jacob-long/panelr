@@ -34,7 +34,7 @@ Imports: crayon,
       stringr,
       tibble (>= 2.0.0)
 Suggests: brms,
-    broom,
+    broom.mixed,
     car,
     clubSandwich,
     geepack,

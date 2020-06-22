@@ -246,8 +246,8 @@ test_asyms <- function(model, asyms, vcov = NULL, escape = TRUE) {
 
 tidy.asym <- function(x, conf.int = FALSE, conf.level = .95, ...) {
   
-  if (!requireNamespace("broom")) {
-    stop_wrap("You must have the broom package to use tidy methods.")
+  if (!requireNamespace("generics")) {
+    stop_wrap("You must have the generics package to use tidy methods.")
   }
   
   params <- x$coef_table

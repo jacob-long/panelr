@@ -31,13 +31,13 @@
 
 \item{conf.level}{confidence level for CI}
 
-\item{effects}{A character vector including one or more of "fixed" (fixed-effect parameters), "ran_pars" (variances and covariances or standard deviations and correlations of random effect terms) or "ran_modes" (conditional modes/BLUPs/latent variable estimates)}
+\item{effects}{A character vector including one or more of "fixed" (fixed-effect parameters); "ran_pars" (variances and covariances or standard deviations and correlations of random effect terms); "ran_vals" (conditional modes/BLUPs/latent variable estimates); or "ran_coefs" (predicted parameter values for each group, as returned by \code{\link[lme4]{coef.merMod}})}
 
 \item{conf.method}{method for computing confidence intervals (see \code{lme4::confint.merMod})}
 
 \item{ran_prefix}{a length-2 character vector specifying the strings to use as prefixes for self- (variance/standard deviation) and cross- (covariance/correlation) random effects terms}
 
-\item{...}{extra arguments (not used)}
+\item{...}{Additional arguments (passed to \code{confint.merMod} for \code{tidy}; \code{augment_columns} for \code{augment}; ignored for \code{glance})}
 }
 \description{
 \code{panelr} provides methods to access \code{wbm} data in a tidy format
@@ -46,7 +46,7 @@
 data("WageData")
 wages <- panel_data(WageData, id = id, wave = t)
 model <- wbm(lwage ~ lag(union) + wks, data = wages)
-if (requireNamespace("broom")) {
-  broom::tidy(model)
+if (requireNamespace("broom.mixed")) {
+  broom.mixed::tidy(model)
 }
 }

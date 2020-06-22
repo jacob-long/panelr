@@ -4,6 +4,7 @@ Bugfixes:
 
 * Fixes several problems induced by recent `dplyr` updates. (#28, #29)
 * Allow dates to serve as the `wave` variable.
+* Fixes issues related to upcoming update to the `broom` package. (#30)
 
 # panelr 0.7.2
 

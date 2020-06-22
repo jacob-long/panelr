@@ -587,13 +587,13 @@ print.wbm <- function(x, ...) {
 #' @title Tidy methods for `wbm` models
 #' @description `panelr` provides methods to access `wbm` data in a tidy format
 #' @rdname wbm_tidiers
-#' @inheritParams broom::lme4_tidiers
+#' @inheritParams broom.mixed::lme4_tidiers
 #' @examples 
 #' data("WageData")
 #' wages <- panel_data(WageData, id = id, wave = t)
 #' model <- wbm(lwage ~ lag(union) + wks, data = wages)
-#' if (requireNamespace("broom")) {
-#'   broom::tidy(model)
+#' if (requireNamespace("broom.mixed")) {
+#'   broom.mixed::tidy(model)
 #' }
 #' @rawNamespace 
 #' if (getRversion() >= "3.6.0") {
@@ -606,8 +606,8 @@ tidy.wbm <- function(x, conf.int = FALSE, conf.level = .95,
                      effects = c("fixed", "ran_pars"), conf.method = "Wald",
                      ran_prefix = NULL, ...) {
   
-  if (!requireNamespace("broom")) {
-    stop_wrap("You must have the broom package to use tidy methods.")
+  if (!requireNamespace("broom.mixed")) {
+    stop_wrap("You must have the broom.mixed package to use tidy methods.")
   }
   
   # Going to get the organized values from the summary function
@@ -646,7 +646,7 @@ tidy.wbm <- function(x, conf.int = FALSE, conf.level = .95,
   }
   # Get the random effects if requested
   if ("ran_pars" %in% effects) {
-    ran_pars <- broom::tidy(as(x, switch(class(x), "wblm" = "lmerMod",
+    ran_pars <- broom.mixed::tidy(as(x, switch(class(x), "wblm" = "lmerMod",
                                              "wbglm" = "glmerMod")),
                             effects = "ran_pars", conf.method = conf.method,
                             conf.level = conf.level, ran_prefix = ran_prefix,
@@ -661,7 +661,7 @@ tidy.wbm <- function(x, conf.int = FALSE, conf.level = .95,
 }
 
 #' @rdname wbm_tidiers
-#' @inheritParams broom::lme4_tidiers
+#' @inheritParams broom.mixed::lme4_tidiers
 #' @rawNamespace 
 #' if (getRversion() >= "3.6.0") {
 #'   S3method(generics::glance, wbm)
@@ -689,7 +689,7 @@ summ.wbm <- function(model, ...) {
 }
 
 #' @rdname wbm_tidiers
-#' @inheritParams broom::lme4_tidiers
+#' @inheritParams broom.mixed::lme4_tidiers
 #' @rawNamespace 
 #' if (getRversion() >= "3.6.0") {
 #'   S3method(generics::glance, summ.wbm)
@@ -701,7 +701,7 @@ glance.summ.wbm <- function(x, ...) {
 }
 
 #' @rdname wbm_tidiers
-#' @inheritParams broom::lme4_tidiers
+#' @inheritParams broom.mixed::lme4_tidiers
 #' @rawNamespace 
 #' if (getRversion() >= "3.6.0") {
 #'   S3method(generics::tidy, summ.wbm)
