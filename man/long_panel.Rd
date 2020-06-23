@@ -101,8 +101,10 @@ wide_wages <- widen_panel(wages)
 
 # Note: wide_wages has variables in the following format:
 # var1_1, var1_2, var1_3, var2_1, var2_2, var2_3, etc.
+\dontrun{
 long_wages <- long_panel(wide_wages, prefix = "_", begin = 1, end = 7,
                          id = "id", label_location = "end")
+}
 # Note that in this case, the prefix and label_location arguments are
 # the defaults but are included just for clarity.
 

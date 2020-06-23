@@ -18,11 +18,13 @@
 #' *Socius*, *5*, 1-12. https://doi.org/10.1177/2378023119826441
 #' @examples 
 #' 
+#' \dontrun{
 #' data("teen_poverty")
 #' # Convert to long format
 #' teen <- long_panel(teen_poverty, begin = 1, end = 5)
 #' model <- asym(hours ~ lag(pov) + spouse, data = teen)
 #' summary(model)
+#' }
 #' 
 #' @rdname asym
 #' @importFrom stats BIC AIC na.omit

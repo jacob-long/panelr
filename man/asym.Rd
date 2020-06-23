@@ -56,11 +56,13 @@ model described in Allison (2019) using GLS estimation.
 }
 \examples{
 
+\dontrun{
 data("teen_poverty")
 # Convert to long format
 teen <- long_panel(teen_poverty, begin = 1, end = 5)
 model <- asym(hours ~ lag(pov) + spouse, data = teen)
 summary(model)
+}
 
 }
 \references{
