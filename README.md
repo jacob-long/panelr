@@ -28,7 +28,7 @@ GEE estimation via `geepack` (`wbgee()`).
 
 It also automates the fairly new “asymmetric effects” specification
 described by [Allison
-(2019)](http://journals.sagepub.com/doi/10.1177/2378023119826441) and
+(2019)](https://journals.sagepub.com/doi/10.1177/2378023119826441) and
 supports estimation via GLS for linear asymmetric effects models
 (`asym()`) and via GEE for non-Gaussian models (`asym_gee()`).
 
