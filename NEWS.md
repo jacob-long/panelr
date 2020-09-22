@@ -47,7 +47,7 @@ for estimation. This can give you more trustworthy results under some
 circumstances and is much less likely to have convergence problems.
 * `fdm()` estimates first differences models via GLS (from the `nlme` package).
 * `asym()` estimates the linear asymmetric effects model described by 
-[Allison (2019)](http://journals.sagepub.com/doi/10.1177/2378023119826441)
+[Allison (2019)](https://journals.sagepub.com/doi/10.1177/2378023119826441)
 via first differences.
 * `asym_gee()` estimates a similar asymmetric effects model to the one using
 cumulative differences described in Allison (2019), but using GEE rather than
