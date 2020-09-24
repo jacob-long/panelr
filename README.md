@@ -101,7 +101,7 @@ package](https://tibble.tidyverse.org/)) that are grouped by entity
 (i.e., the ID column).
 
 `panel_data` frames are meant to play nice with the
-[`tidyverse`](https://tidyverse.org). Here’s a quick sample of how a
+[`tidyverse`](https://www.tidyverse.org/). Here’s a quick sample of how a
 tidy workflow with `panelr` can work:
 
 ``` r
