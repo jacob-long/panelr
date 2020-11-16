@@ -288,14 +288,17 @@ simulate.wbm <- function(object, nsim = 1, seed = NULL, use.u = FALSE,
   object <- to_merMod(object)
   
   if (!is.na(re.form)) {
+    ## unused terms and type arguments throw warning
     simulate(object, nsim = nsim, seed = seed,
              newdata = newdata, newparams = newparams, re.form = re.form,
-             terms = NULL, type = type, allow.new.levels = allow.new.levels,
+             ## terms = NULL, type = type,
+             allow.new.levels = allow.new.levels,
              na.action = na.action, ...)
   } else {
     simulate(object, nsim = nsim, seed = seed,
              newdata = newdata, newparams = newparams, use.u = use.u,
-             terms = NULL, type = type, allow.new.levels = allow.new.levels,
+             ## terms = NULL, type = type,
+             allow.new.levels = allow.new.levels,
              na.action = na.action, ...)
   }
   
