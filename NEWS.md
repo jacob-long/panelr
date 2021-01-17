@@ -1,3 +1,9 @@
+# panelr 0.7.5
+
+Re-release: There are no changes, but `panelr` was removed from CRAN because
+one of the packages it depended on had also been removed. That package is 
+now back on CRAN, so `panelr` will return as well.
+
 # panelr 0.7.4
 
 Re-release: There are no changes, but `panelr` was removed from CRAN because

@@ -1,6 +1,6 @@
 data("WageData")
 
-
+if (requireNamespace("clubSandwich")) {
 # Defaults ----------------------------------------------------------------
 context("fdm defaults")
 wages <- WageData
@@ -144,4 +144,5 @@ if (requireNamespace("broom.mixed")) {
                                        data = wages), conf.int = TRUE), 
             "data.frame")
   expect_is(generics::glance(wb), "data.frame")
+}
 }
