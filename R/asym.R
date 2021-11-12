@@ -91,7 +91,7 @@ asym <- function(formula, data, id = NULL, wave = NULL, use.wave = FALSE,
                       data = data)
   coef_table <- as.data.frame(clubSandwich::coef_test(gls_mod, vcov = the_vcov,
                                         test = "naive-t", cluster = data[[id]]))
-  coef_table <- as.data.frame(coef_table)
+  coef_table <- as.data.frame(coef_table[c("beta","SE","tstat","p_t")])
   if ("tstat" %nin% names(coef_table)) { # old version of clubSandwich
     names(coef_table) <- c("estimate", "std.error", "p.value")
     coef_table["statistic"] <- coef_table$estimate / coef_table$std.error
