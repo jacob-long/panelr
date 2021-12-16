@@ -1,3 +1,8 @@
+# panelr 0.7.6
+
+Compatibility update for upcoming changes to the `clubSandwich`. Thanks to 
+James Pustejovksy for submitting the necessary fixes.
+
 # panelr 0.7.5
 
 Re-release: There are no changes, but `panelr` was removed from CRAN because
