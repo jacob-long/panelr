@@ -87,7 +87,9 @@ dplyr::filter
 #' @export
 #' @importFrom dplyr distinct
 distinct.panel_data <- function(.data, ..., .keep_all = FALSE) {
-  reconstruct(NextMethod(), .data)
+  out <- tibble::as_tibble(.data)
+  out <- dplyr::distinct(out, ..., .keep_all = .keep_all)
+  reconstruct(out, .data)
 }
 
 #' @export
