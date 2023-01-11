@@ -9,6 +9,7 @@
 #' @param by.id (if `skimr` is installed) Separate descriptives by entity?
 #'  Default is FALSE. Be careful if you have a large number of entities as
 #'  the output will be massive.
+#' @param skim_with A closure from [skimr::skim_with()]. If set, skim
 #' @examples 
 #' 
 #' data("WageData")
@@ -18,8 +19,8 @@
 #' @importFrom purrr when
 #' @importFrom rlang UQS UQ
 #' @export
-
-summary.panel_data <- function(object, ..., by.wave = TRUE, by.id = FALSE) {
+#' 
+summary.panel_data <- function(object, ..., by.wave = TRUE, by.id = FALSE, skim_with = NULL) {
   
   # Handling case of no selected vars --- I want default summary behavior
   # rather than default select behavior (which is to return nothing)
@@ -43,15 +44,20 @@ summary.panel_data <- function(object, ..., by.wave = TRUE, by.id = FALSE) {
   wave <- get_wave(object)
   
   # Avoiding message from adding wave/id vars
-  suppressMessages({object %>% select(UQS(vars))}) %>%
+  out <- suppressMessages({object %>% select(UQS(vars))}) %>%
     # Behavior conditional on by.id arg
     when(by.id == FALSE ~ unpanel(.) %>% ungroup(.) %>% select(., - !! sym(id)), 
          by.id == TRUE ~ unpanel(.) %>% group_by(., !! sym(id))) %>% 
     # Behavior conditional on by.wave arg
     when(by.wave == TRUE ~ group_by(., !! sym(wave)),
-         by.wave == FALSE ~ select(., - !! sym(wave))) %>%
-    # Call skim
-    skimr::skim() -> out
+         by.wave == FALSE ~ select(., - !! sym(wave)))
+  
+  # Call skim
+  if (!is.null(skim_with)){
+    out <- skim_with(out)
+  } else {
+    out <- skimr::skim(out)
+  }
   
   class(out) <- c("summary.panel_data", class(out))
   out
