@@ -196,3 +196,21 @@ summarize_.panel_data <- function(.data, ..., .dots = list()) {
 slice_.panel_data <- function(.data, ..., .dots = list()) {
   reconstruct(NextMethod(), .data)
 }
+
+##### tidyr ##################################################################
+
+#' @export
+#' @importFrom tidyr nest
+nest.panel_data <- function(.data, ...) {
+  out <- tibble::as_tibble(.data)
+  
+  groups <- dplyr::groups(.data)
+  if (length(groups) != 0L) {
+    out <- dplyr::group_by(out, !!!groups)
+  }
+  
+  out <- tidyr::nest(out, ...)
+  
+  reconstruct(out, .data)
+}
+
