@@ -194,13 +194,13 @@ is_varying <- function(data, variable) {
   
   out <- data %>%
     # For each group, does the variable vary?
-    mutate(variable := n_distinct(!! variable, na.rm = TRUE) %in% c(0L,1L)) %>%
-    unpanel() %>%
-    select(variable) %>%
-    # Changing to a vector
-    deframe() %>%
-    # Asking if all groups had zero changes within the groups
-    all(na.rm = TRUE)
+    transmute(variable := n_distinct(!! variable, na.rm = TRUE) %in% c(0L,1L)) %>%
+    ungroup()
+  
+  out <- out[["variable"]]
+
+  # Asking if all groups had zero changes within the groups
+  out <- all(out, na.rm = TRUE)
   
   # Because the above operation basically produces the answer to is_constant
   # I now need to return the opposite of out
@@ -229,29 +229,33 @@ is_varying <- function(data, variable) {
 
 are_varying <- function(data, ..., type = "time") {
   
-  # class(data) <- class(data)[class(data) %nin% "panel_data"]
+  wave <- get_wave(data) 
+  id <- get_id(data)
+  class(data) <- class(data)[class(data) %nin% "panel_data"]
+  
   dots <- quos(...)
   if (length(dots) == 0) {
-    dnames <- names(data) %not% c(get_id(data), get_wave(data))
+    dnames <- names(data) %not% c(wave, id)
     dots <- syms(as.list(dnames))
   } else {
-    data <- dplyr::select(data, ...)
+    # This gives an unsurprising "adding grouping variable" message
+    suppressMessages(data <- dplyr::select(data, ...))
     dots <- as.character(enexprs(...))
-    is_wave <- if (get_wave(data) %in% dots) NULL else get_wave(data)
+    is_wave <- if (wave %in% dots) NULL else wave
     dots <- syms(
-      as.list(names(data) %not% c(get_id(data), is_wave))
+      as.list(names(data) %not% c(id, is_wave))
     )
   }
   # Get time variation
   if ("time" %in% type) {
     outt <- map_lgl(dots, function(x, d) {
-      is_varying(!! x, data = select(d, !! x))
+      is_varying(!! x, data = select(d, !! id, !! x))
     }, d = data)
   } 
   # Get individual variation
   if ("individual" %in% type) {
     outi <- map_lgl(dots, function(x, d) {
-      is_varying_individual(!! x, data = select(d, !! x))
+      is_varying_individual(!! x, data = select(d, !! id, !! x))
       }, d = data)
     # If both, rbind them into a d.f.
     if (exists("outt")) {
@@ -291,7 +295,7 @@ is_varying_individual <- function(data, variable) {
     # make new variable with the within-subject variance
     mutate(variable = var(!! variable, na.rm = TRUE)) %>%
     # ungroup
-    unpanel() %>%
+    ungroup() %>%
     # select only our new value
     select(variable) %>%
     # change to a vector
@@ -378,7 +382,9 @@ print.panel_data <- function(x, ...) {
 #' @export
 
 unpanel <- function(panel) {
-  ungroup(panel)
+  class(panel) <- class(panel) %not% c("panel_data", "grouped_df")
+  attributes(panel) <- attributes(panel)[names(attributes(panel)) %not% "groups"]
+  return(panel)
 }
 
 #' @title Retrieve panel_data metadata
