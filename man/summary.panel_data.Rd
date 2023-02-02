@@ -4,7 +4,7 @@
 \alias{summary.panel_data}
 \title{Summarize panel data frames}
 \usage{
-\method{summary}{panel_data}(object, ..., by.wave = TRUE, by.id = FALSE)
+\method{summary}{panel_data}(object, ..., by.wave = TRUE, by.id = FALSE, skim_with = NULL)
 }
 \arguments{
 \item{object}{A \code{panel_data} frame.}
@@ -19,6 +19,8 @@ Default is TRUE.}
 \item{by.id}{(if \code{skimr} is installed) Separate descriptives by entity?
 Default is FALSE. Be careful if you have a large number of entities as
 the output will be massive.}
+
+\item{skim_with}{A closure from \code{\link[skimr:skim_with]{skimr::skim_with()}}. If set, skim}
 }
 \description{
 \code{summary} method for \code{panel_data} objects.
