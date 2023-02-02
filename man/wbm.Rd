@@ -118,7 +118,8 @@ but if emulating other software is the goal, \code{"demean"} might be
 preferred.}
 
 \item{scale}{If \code{TRUE}, reports standardized regression
-coefficients. Default is \code{FALSE}.}
+coefficients by scaling and mean-centering input data (the latter can be
+changed via the \code{scale.only} argument). Default is \code{FALSE}.}
 
 \item{scale.response}{Should the response variable also be rescaled? Default
 is \code{FALSE}.}
