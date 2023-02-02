@@ -16,7 +16,6 @@
 #' wages <- panel_data(WageData, id = id, wave = t)
 #' summary(wages, lwage, exp, wks)
 #' 
-#' @importFrom purrr when
 #' @importFrom rlang UQS UQ
 #' @export
 #' 
