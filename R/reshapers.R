@@ -331,6 +331,13 @@ long_panel <- function(data, prefix = NULL, suffix = NULL, begin = NULL,
   # Now I check for variables that are only quasi-varying because of poor 
   # labeling in the long format (e.g., W1_race)
   v.names <- unique(unname(unlist(stubs_by_period))) 
+  
+  # If user doesn't want me to impute constants or get a panel data frame, 
+  # just return what I've got
+  if (!as_panel_data & !check.varying) {
+    return(as_tibble(out)) # Converting to tibble for reverse compatibility
+  }
+  
   # Create panel_data object to use for these checks
   tmp_pd <- panel_data(out, id = !!sym(id), wave = !!sym(wave))
   # Check whether the variables really are varying
