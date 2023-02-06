@@ -1,3 +1,12 @@
+# panelr 0.7.7
+
+* Includes back-end changes for compatibility with recent updates to `skimr`,  `dplyr`, and `purrr`. Users should not notice any change in behavior from these.
+* When users do not want `long_panel()` to check whether values are varying,
+it no longer performs a series of operations that are rendered unnecessary. This
+will slightly speed up performance when `check.varying = FALSE`. (#44)
+* Very small performance improvement when using `long_panel()` and 
+`are_varying()` functions.
+
 # panelr 0.7.6
 
 Compatibility update for upcoming changes to the `clubSandwich`. Thanks to 
