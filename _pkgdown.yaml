@@ -53,6 +53,7 @@ reference:
         - predict.wbgee
         - formula.wbm
         - nobs.wbm
+        - wbm-class
   - title: Other utilities
     contents:
         - are_varying
@@ -66,5 +67,4 @@ reference:
         - WageData
         - teen_poverty
         - nlsy
-    
     
