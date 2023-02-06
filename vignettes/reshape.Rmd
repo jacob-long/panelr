@@ -3,10 +3,10 @@ title: "Reshaping panel data with `long_panel()` and `widen_panel()`"
 author: "Jacob A. Long"
 date: "`r Sys.Date()`"
 output: 
-  rmarkdown::html_document:
+  rmarkdown::html_vignette:
     df_print: "kable"
-    toc: true
-    toc_float: true
+pkgdown: 
+  as_is: true
 vignette: >
   %\VignetteIndexEntry{Reshaping panel data with `long_panel()` and `widen_panel()`}
   %\VignetteEngine{knitr::rmarkdown}
@@ -15,7 +15,7 @@ vignette: >
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
+  collapse = FALSE,
   comment = "",
   message = FALSE
 )
@@ -34,7 +34,7 @@ measures repeated at each time point.
 
 ```{r echo = FALSE}
 tibble::tribble(
-  ~id, ~wave, ~Q1, ~Q2,
+  ~id, ~wave, ~Q1, ~Q2,  
   "1",     1,   1,   5,
   "1",     2, 1.5,  7.5,
   "1",     3,   2,  10,

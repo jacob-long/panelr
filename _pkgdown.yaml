@@ -1,9 +1,16 @@
 template:
-  params:
-    bootswatch: flatly
+  bootswatch: yeti
+  bootstrap: 5
+  bslib:
+    base_font: {google: "Lato"}
+    heading_font: {google: "Raleway"}
+    code_font: {google: "IBM Plex Mono"}
+    h1-font-size: 2.5rem
+    h2-font-size: 2rem
+    h3-font-size: 1.5rem
 
 navbar:
-  type: inverse
+  bg: dark
   left:
     - icon: fa-home
       href: index.html

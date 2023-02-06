@@ -34,7 +34,13 @@ Check out the other vignette for a lot of detail on how to take your raw data
 and reshape it into a `panel_data` format. Here's a short version, using some
 example data provided by this package.
 
-```{r}
+```{r include = FALSE}
+library(panelr)
+data("teen_poverty")
+teen_poverty
+```
+
+```{r echo = FALSE}
 library(panelr)
 data("teen_poverty")
 teen_poverty
