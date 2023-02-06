@@ -10,7 +10,7 @@ vcov_CR <- function(obj, cluster, type, target = NULL, inverse_var = TRUE,
   p <- NCOL(X)
   N <- NROW(X)
   if (length(cluster) != N) {
-    if (class(na.action(obj)) == "omit") {
+    if (inherits(na.action(obj), "omit")) {
       cluster <- droplevels(cluster[-na.action(obj)])
     }
     else {
