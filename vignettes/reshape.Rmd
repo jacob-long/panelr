@@ -5,6 +5,8 @@ date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_document:
     df_print: "kable"
+    toc: true
+    toc_float: true
 vignette: >
   %\VignetteIndexEntry{Reshaping panel data with `long_panel()` and `widen_panel()`}
   %\VignetteEngine{knitr::rmarkdown}
@@ -14,7 +16,8 @@ vignette: >
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = ""
+  comment = "",
+  message = FALSE
 )
 ```
 
