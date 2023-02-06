@@ -3,7 +3,7 @@ title: "Reshaping panel data with `long_panel()` and `widen_panel()`"
 author: "Jacob A. Long"
 date: "`r Sys.Date()`"
 output: 
-  rmarkdown::html_vignette:
+  rmarkdown::html_document:
     df_print: "kable"
 vignette: >
   %\VignetteIndexEntry{Reshaping panel data with `long_panel()` and `widen_panel()`}
