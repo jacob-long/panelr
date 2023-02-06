@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">panelr</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.7.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.7.7</span>
       </span>
     </div>
 
@@ -76,6 +76,12 @@
       <small>Source: <a href="https://github.com/jacob-long/panelr/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="0.7.7" id="panelr-077">panelr 0.7.7<a class="anchor" aria-label="anchor" href="#panelr-077"></a></h2>
+<ul><li>Includes back-end changes for compatibility with recent updates to <code>skimr</code>, <code>dplyr</code>, and <code>purrr</code>. Users should not notice any change in behavior from these.</li>
+<li>When users do not want <code><a href="../reference/long_panel.html">long_panel()</a></code> to check whether values are varying, it no longer performs a series of operations that are rendered unnecessary. This will slightly speed up performance when <code>check.varying = FALSE</code>. (<a href="https://github.com/jacob-long/panelr/issues/44" class="external-link">#44</a>)</li>
+<li>Very small performance improvement when using <code><a href="../reference/long_panel.html">long_panel()</a></code> and <code><a href="../reference/are_varying.html">are_varying()</a></code> functions.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.7.6" id="panelr-076">panelr 0.7.6<small>2021-12-17</small><a class="anchor" aria-label="anchor" href="#panelr-076"></a></h2>
 <p>Compatibility update for upcoming changes to the <code>clubSandwich</code>. Thanks to James Pustejovksy for submitting the necessary fixes.</p>
