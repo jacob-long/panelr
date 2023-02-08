@@ -30,14 +30,14 @@ standard metropolitan area (SMSA; = 1)}
 \source{
 These data are all over the place. This particular file was
 downloaded from Richard Williams at
-\url{http://www3.nd.edu/~rwilliam/statafiles/wages.dta}, though he doesn't
+\url{https://www3.nd.edu/~rwilliam/statafiles/wages.dta}, though he doesn't
 claim ownership of these data.
 
 The data were shared as a supplement to Baltagi (2005) at
 \url{https://www.wiley.com/legacy/wileychi/baltagi3e/data_sets.html}.
 
 They were also shared as a supplement to Greene (2008) at
-\url{http://pages.stern.nyu.edu/~wgreene/Text/Edition6/tablelist6.htm}.
+\url{https://pages.stern.nyu.edu/~wgreene/Text/Edition6/tablelist6.htm}.
 
 The data are also available in numerous other locations, including in
 slightly different formats as \code{\link[plm]{Wages}} in the \pkg{plm}
