@@ -29,7 +29,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">panelr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.8.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -101,7 +101,7 @@
                         <h4 data-toc-skip class="author">Jacob A.
 Long</h4>
             
-            <h4 data-toc-skip class="date">2023-02-08</h4>
+            <h4 data-toc-skip class="date">2023-03-14</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/jacob-long/panelr/blob/HEAD/vignettes/wbm.Rmd" class="external-link"><code>vignettes/wbm.Rmd</code></a></small>
       <div class="d-none name"><code>wbm.Rmd</code></div>
@@ -153,8 +153,8 @@ for each respondent in each wave of the 5-wave survey. We’ll use
 <code class="sourceCode R"><span><span class="va">teen</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/long_panel.html">long_panel</a></span><span class="op">(</span><span class="va">teen_poverty</span>, begin <span class="op">=</span> <span class="fl">1</span>, end <span class="op">=</span> <span class="fl">5</span>, label_location <span class="op">=</span> <span class="st">"end"</span><span class="op">)</span></span>
 <span><span class="va">teen</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #949494;"># Panel data:    5,755 × 9</span></span></span>
-<span><span class="co">## <span style="color: #949494;"># entities:      id [1151]</span></span></span>
-<span><span class="co">## <span style="color: #949494;"># wave variable: wave [1, 2, 3, ... (5 waves)]</span></span></span>
+<span><span class="co">## <span style="color: #949494;"># Entities:      id [1,151]</span></span></span>
+<span><span class="co">## <span style="color: #949494;"># Wave variable: wave [1, 2, 3, ... (5 waves)]</span></span></span>
 <span><span class="co">##    id     wave   age black   pov mother spouse inschool hours</span></span>
 <span><span class="co">##    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">## <span style="color: #BCBCBC;"> 1</span> 22        1    16     0     1      0      0        1    21</span></span>
@@ -531,8 +531,8 @@ variable in the formula or set <code>use.wave</code> to
 <span><span class="co"><span style="font-weight: bold;">## </span>-----------------------------------------------------------</span></span>
 <span><span class="co">##                       Est.   S.E.   t val.      d.f.      p</span></span>
 <span><span class="co">## ------------------ ------- ------ -------- --------- ------</span></span>
-<span><span class="co">## (Intercept)           5.91   0.20    28.95    588.63   0.00</span></span>
-<span><span class="co">## imean(wks)            0.01   0.00     2.25    587.99   0.02</span></span>
+<span><span class="co">## (Intercept)           5.91   0.20    28.95    588.64   0.00</span></span>
+<span><span class="co">## imean(wks)            0.01   0.00     2.25    588.00   0.02</span></span>
 <span><span class="co">## imean(union)          0.15   0.03     4.67    588.00   0.00</span></span>
 <span><span class="co">## imean(ms)             0.17   0.05     3.07    588.00   0.00</span></span>
 <span><span class="co">## imean(occ)           -0.41   0.03   -13.31    588.00   0.00</span></span>
@@ -585,13 +585,13 @@ formula.</p>
 <span><span class="co"><span style="font-weight: bold;">## </span>----------------------------------------------------------</span></span>
 <span><span class="co">##                       Est.   S.E.   t val.     d.f.      p</span></span>
 <span><span class="co">## ------------------ ------- ------ -------- -------- ------</span></span>
-<span><span class="co">## (Intercept)           5.93   0.20    29.69   588.53   0.00</span></span>
-<span><span class="co">## imean(wks)            0.01   0.00     2.12   587.98   0.03</span></span>
-<span><span class="co">## imean(union)          0.16   0.03     4.90   587.97   0.00</span></span>
+<span><span class="co">## (Intercept)           5.93   0.20    29.69   588.52   0.00</span></span>
+<span><span class="co">## imean(wks)            0.01   0.00     2.12   587.97   0.03</span></span>
+<span><span class="co">## imean(union)          0.16   0.03     4.90   587.96   0.00</span></span>
 <span><span class="co">## imean(ms)             0.17   0.05     3.25   588.06   0.00</span></span>
 <span><span class="co">## imean(occ)           -0.39   0.03   -13.16   588.01   0.00</span></span>
 <span><span class="co">## blk                  -0.13   0.05    -2.49   588.00   0.01</span></span>
-<span><span class="co">## fem                  -0.31   0.06    -4.90   588.07   0.00</span></span>
+<span><span class="co">## fem                  -0.31   0.06    -4.90   588.06   0.00</span></span>
 <span><span class="co">## t                     0.10   0.00    54.67   594.66   0.00</span></span>
 <span><span class="co">## ----------------------------------------------------------</span></span>
 <span><span class="co">## </span></span>

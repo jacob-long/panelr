@@ -12,7 +12,7 @@ that occur in wbm() without having to fit the model."><!-- mathjax --><script sr
     
     <a class="navbar-brand me-2" href="../index.html">panelr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.8.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -221,8 +221,8 @@ preferred.</p></dd>
 <span class="r-in"><span><span class="va">wages</span> <span class="op">&lt;-</span> <span class="fu"><a href="panel_data.html">panel_data</a></span><span class="op">(</span><span class="va">WageData</span>, id <span class="op">=</span> <span class="va">id</span>, wave <span class="op">=</span> <span class="va">t</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">make_wb_data</span><span class="op">(</span><span class="va">lwage</span> <span class="op">~</span> <span class="va">wks</span> <span class="op">+</span> <span class="va">union</span> <span class="op">|</span> <span class="va">fem</span>, data <span class="op">=</span> <span class="va">wages</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Panel data:    4,165 × 8</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># entities:      id [595]</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># wave variable: t [1, 2, 3, ... (7 waves)]</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Entities:      id [595]</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Wave variable: t [1, 2, 3, ... (7 waves)]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    id        t lwage   wks  union   fem `imean(wks)` `imean(union)`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> 1         1  5.56 -<span style="color: #BB0000;">5.57</span>  0         0         37.6          0    </span>
