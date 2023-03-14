@@ -335,39 +335,24 @@ uniq_nomiss <- function(x) {
   return(un)
 }
 
-#' @export
-#' @importFrom tibble trunc_mat
-#'
-print.panel_data <- function(x, ...) {
-  
-  # Original trunc_mat
-  print_tbl <- tibble::trunc_mat(x, ...)
-  
-  # Overwrite "A tibble" with "Panel data"
-  names(print_tbl$summary)[[1]] <- "Panel data"
-  
-  # Panel metadata
-  periods <- get_periods(x)
-  if (length(periods) > 3) {
-    periods <- paste0(paste(periods[1:3], collapse = ", "), ", ... (", 
-                      n_distinct(periods), " waves)")
-  } else {
-    periods <- paste0(paste(periods, collapse = ", "), " (", 
-                      n_distinct(periods), " waves)")
-  }
-  panel_meta <- c("entities" =
-                    paste0(get_id(x), " [", n_distinct(x[[get_id(x)]]), "]"),
-                    "wave variable" = paste0(get_wave(x), " [", periods, "]")
-                 )
-  # Add panel metadata
-  print_tbl$summary <- append(print_tbl$summary, panel_meta, after = 1)
-  # Drop groups 
-  print_tbl$summary <- 
-    print_tbl$summary[names(print_tbl$summary) %nin% "Groups"]
-  
-  # Print
-  # cat("# ", names(summary), ": ", summary, "\n", sep = "")
-  print(print_tbl)
+#' @export 
+#' @importFrom tibble tbl_sum
+#' 
+tbl_sum.panel_data <- function(x, ...) {
+    default_header <- NextMethod()
+    names(default_header)[1] <- "Panel data"
+    names(default_header)[2] <- "Entities"
+    periods <- get_periods(x)
+    if (length(periods) > 3) {
+      periods <- paste0(paste(periods[1:3], collapse = ", "), ", ... (", 
+                        n_distinct(periods), " waves)")
+    } else {
+      periods <- paste0(paste(periods, collapse = ", "), " (", 
+                        n_distinct(periods), " waves)")
+    }
+    the_periods <- paste0(get_wave(x), " [", periods, "]")
+                  
+    c(default_header, "Wave variable" = the_periods)
 }
 
 #' @title Convert panel_data to regular data frame
