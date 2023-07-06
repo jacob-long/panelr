@@ -9,3 +9,6 @@
 
 1 note is due to the checker being unsure whether the name "McNeish"
 is a misspelling. 
+
+This is a resubmission of a package that was archived due to test failure. It
+is no longer unconditionally using a suggested package in tests.

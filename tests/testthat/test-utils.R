@@ -313,10 +313,12 @@ test_that("extractors work", {
 
 context("panel_data")
 
+if (requireNamespace("skimr")) {
 test_that("summary.panel_data works", {
   expect_output(print(summary(w, lwage, blk)))
   expect_output(print(summary(w[1:14,], lwage, blk, by.id = TRUE, by.wave = FALSE)))
 })
+}
 
 test_that("complete_data works", {
   expect_is(complete_data(w, lwage, blk), "panel_data")

@@ -280,6 +280,8 @@ if (requireNamespace("plm")) {
 
 # wbm_stan ----------------------------------------------------------------
 context("wbm_stan")
+
+if (requireNamespace("brms")) {
 model <- wbm_stan(lwage ~ lag(union) + wks | blk + fem | blk * lag(union),
                   data = wages, chains = 1, iter = 2000, fit_model = FALSE)
 
@@ -331,6 +333,7 @@ test_that("wbm_stan works w/ balance correction", {
   expect_s3_class(model$stan_data, "standata")
   expect_s3_class(model$stan_code, "brmsmodel")
 })
+}
 
 # predictions -----------------------------------------------------------------
 context("wbm predictions")

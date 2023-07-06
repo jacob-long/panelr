@@ -1,5 +1,7 @@
 data("WageData")
 
+if (requireNamespace("geepack")) {
+
 # Defaults ----------------------------------------------------------------
 context("wbgee defaults")
 wages <- WageData
@@ -264,4 +266,4 @@ test_that("wbgee predictions work w/ raw newdata", {
     t = 5, check.names = FALSE
   ), raw = TRUE)[[1]], "numeric")
 })
-
+}

@@ -1,6 +1,7 @@
-# panelr 0.7.8.9000
+# panelr 0.7.8
 
-* Includes a back-end up date for continued compatibility with `tibble`. (#55)
+* Includes a back-end update for continued compatibility with `tibble`. (#55)
+* Fixes a testing issue that caused the package's removal from CRAN.
 
 # panelr 0.7.7
 

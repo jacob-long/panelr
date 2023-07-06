@@ -1,5 +1,6 @@
-data("WageData")
+if (requireNamespace("geepack")) {
 
+data("WageData")
 
 # Defaults ----------------------------------------------------------------
 context("asym_gee defaults")
@@ -145,4 +146,6 @@ if (requireNamespace("broom.mixed")) {
                                        data = wages), conf.int = TRUE), 
             "data.frame")
   expect_is(generics::glance(wb), "data.frame")
+}
+
 }
