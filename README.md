@@ -4,12 +4,10 @@
 [![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version-ago/panelr)](https://cran.r-project.org/package=panelr)
 [![Total
 Downloads](https://cranlogs.r-pkg.org/badges/grand-total/panelr)](https://cran.r-project.org/package=panelr)
-[![Travis-CI Build
-Status](https://travis-ci.org/jacob-long/panelr.svg?branch=master)](https://travis-ci.org/jacob-long/panelr)
 [![AppVeyor Build
 Status](https://ci.appveyor.com/api/projects/status/github/jacob-long/panelr?branch=master&svg=true)](https://ci.appveyor.com/project/jacob-long/panelr)
 [![Coverage
-Status](https://img.shields.io/codecov/c/github/jacob-long/panelr/master.svg)](https://codecov.io/github/jacob-long/panelr?branch=master)
+Status](https://img.shields.io/codecov/c/github/jacob-long/panelr/master.svg)](https://app.codecov.io/github/jacob-long/panelr?branch=master)
 
 # panelr
 
@@ -262,4 +260,4 @@ By participating in this project you agree to abide by its terms.
 ## License
 
 The source code of this package is licensed under the [MIT
-License](https://opensource.org/licenses/mit-license.php).
+License](https://opensource.org/license/mit/).
