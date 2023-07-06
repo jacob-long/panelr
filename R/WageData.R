@@ -39,6 +39,6 @@
 #'
 #'  The data are also available in numerous other locations, including in
 #'  slightly different formats as \code{\link[plm]{Wages}} in the \pkg{plm}
-#'  package and \code{\link[AER]{PSID7682}} in the \pkg{AER} package.
+#'  package and \code{\link[AER]{PSID7682}} in the `AER` package.
 #'
 "WageData"

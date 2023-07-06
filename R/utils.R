@@ -346,6 +346,7 @@ npar.wbm <- function(object) {
 #' @description This S3 method allows you to retrieve the formula used to 
 #'  fit `wbm` objects.
 #' @inheritParams stats::formula
+#' @param x A `wbm` model.
 #' @param raw Return the formula used in the call to `lmerMod`/`glmerMod`?
 #'  Default is FALSE.
 #' @importFrom stats formula

@@ -7,7 +7,7 @@
 \method{formula}{wbm}(x, raw = FALSE, ...)
 }
 \arguments{
-\item{x}{\R object, for \code{DF2formula()} a \code{\link{data.frame}}.}
+\item{x}{A \code{wbm} model.}
 
 \item{raw}{Return the formula used in the call to \code{lmerMod}/\code{glmerMod}?
 Default is FALSE.}
