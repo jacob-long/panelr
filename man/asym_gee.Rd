@@ -73,10 +73,12 @@ See the documentation for \code{\link[=wbm]{wbm()}} for many details on formula 
 other arguments.
 }
 \examples{
-data("WageData")
-wages <- panel_data(WageData, id = id, wave = t)
-model <- asym_gee(lwage ~ lag(union) + wks, data = wages)
-summary(model)
+if (requireNamespace("geepack")) {
+  data("WageData")
+  wages <- panel_data(WageData, id = id, wave = t)
+  model <- asym_gee(lwage ~ lag(union) + wks, data = wages)
+  summary(model)
+}
 
 }
 \references{

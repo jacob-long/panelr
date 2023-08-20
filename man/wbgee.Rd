@@ -131,11 +131,13 @@ See the documentation for \code{\link[=wbm]{wbm()}} for many details on formula 
 other arguments.
 }
 \examples{
-data("WageData")
-wages <- panel_data(WageData, id = id, wave = t)
-model <- wbgee(lwage ~ lag(union) + wks | blk + fem | blk * lag(union),
-         data = wages)
-summary(model)
+if (requireNamespace("geepack")) {
+  data("WageData")
+  wages <- panel_data(WageData, id = id, wave = t)
+  model <- wbgee(lwage ~ lag(union) + wks | blk + fem | blk * lag(union),
+           data = wages)
+  summary(model)
+}
 
 }
 \references{
