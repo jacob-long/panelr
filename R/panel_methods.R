@@ -35,7 +35,7 @@ summary.panel_data <- function(object, ..., by.wave = TRUE, by.id = FALSE, skim_
     msg_wrap("Get better summaries of panel_data frames by installing the 
              skimr package. Falling back to default summary.data.frame...")
     return(summary.data.frame(suppressMessages({
-      panel_data %>% select(!!! vars)
+      object %>% select(!!! vars)
     })))
   }
   
