@@ -55,11 +55,13 @@ The function fits first difference models using GLS estimation.
 }
 \examples{
 
-data("teen_poverty")
-# Convert to long format
-teen <- long_panel(teen_poverty, begin = 1, end = 5)
-model <- fdm(hours ~ lag(pov) + spouse, data = teen)
-summary(model)
+if (requireNamespace("clubSandwich")) {
+  data("teen_poverty")
+  # Convert to long format
+  teen <- long_panel(teen_poverty, begin = 1, end = 5)
+  model <- fdm(hours ~ lag(pov) + spouse, data = teen)
+  summary(model)
+}
 
 }
 \references{

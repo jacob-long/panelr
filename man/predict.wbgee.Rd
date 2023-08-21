@@ -34,9 +34,11 @@ These methods facilitate fairly straightforward predictions
 from \code{wbgee} models.
 }
 \examples{
-data("WageData")
-wages <- panel_data(WageData, id = id, wave = t)
-model <- wbgee(lwage ~ lag(union) + wks, data = wages)
-# By default, assumes you're using the processed data for newdata
-predict(model)
+if (requireNamespace("geepack")) {
+  data("WageData")
+  wages <- panel_data(WageData, id = id, wave = t)
+  model <- wbgee(lwage ~ lag(union) + wks, data = wages)
+  # By default, assumes you're using the processed data for newdata
+  predict(model)
+}
 }

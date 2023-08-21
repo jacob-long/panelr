@@ -28,10 +28,12 @@ to 0.95, which corresponds to a 95 percent confidence interval.}
 \code{panelr} provides methods to access \code{wbgee} data in a tidy format
 }
 \examples{
-data("WageData")
-wages <- panel_data(WageData, id = id, wave = t)
-model <- wbgee(lwage ~ lag(union) + wks, data = wages)
-if (requireNamespace("generics")) {
-  generics::tidy(model)
+if (requireNamespace("geepack")) {
+  data("WageData")
+  wages <- panel_data(WageData, id = id, wave = t)
+  model <- wbgee(lwage ~ lag(union) + wks, data = wages)
+  if (requireNamespace("generics")) {
+    generics::tidy(model)
+  }
 }
 }

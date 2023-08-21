@@ -180,11 +180,13 @@ process_raw_newdata <- function(object, newdata) {
 #' @importFrom stats predict na.pass
 #' @inheritParams stats::predict.lm
 #' @examples 
-#' data("WageData")
-#' wages <- panel_data(WageData, id = id, wave = t)
-#' model <- wbgee(lwage ~ lag(union) + wks, data = wages)
-#' # By default, assumes you're using the processed data for newdata
-#' predict(model)
+#' if (requireNamespace("geepack")) {
+#'   data("WageData")
+#'   wages <- panel_data(WageData, id = id, wave = t)
+#'   model <- wbgee(lwage ~ lag(union) + wks, data = wages)
+#'   # By default, assumes you're using the processed data for newdata
+#'   predict(model)
+#' }
 #' @export
 #' @rdname predict.wbgee
 

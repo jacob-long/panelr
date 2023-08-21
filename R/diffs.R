@@ -6,11 +6,13 @@
 #' *Socius*, *5*, 1-12. https://doi.org/10.1177/2378023119826441
 #' @examples 
 #' 
-#' data("teen_poverty")
-#' # Convert to long format
-#' teen <- long_panel(teen_poverty, begin = 1, end = 5)
-#' model <- fdm(hours ~ lag(pov) + spouse, data = teen)
-#' summary(model)
+#' if (requireNamespace("clubSandwich")) {
+#'   data("teen_poverty")
+#'   # Convert to long format
+#'   teen <- long_panel(teen_poverty, begin = 1, end = 5)
+#'   model <- fdm(hours ~ lag(pov) + spouse, data = teen)
+#'   summary(model)
+#' }
 #' 
 #' @rdname fdm
 #' @export 
@@ -479,11 +481,13 @@ confint.fdm <- function(object, parm, level = .95, ...) {
 #' @param ... Ignored
 #' @examples 
 #' 
-#' data("WageData")
-#' wages <- panel_data(WageData, id = id, wave = t)
-#' model <- fdm(lwage ~ wks + union, data = wages)
-#' if (requireNamespace("generics")) {
-#'   generics::tidy(model)
+#' if (requireNamespace("clubSandwich")) {
+#'   data("WageData")
+#'   wages <- panel_data(WageData, id = id, wave = t)
+#'   model <- fdm(lwage ~ wks + union, data = wages)
+#'   if (requireNamespace("generics")) {
+#'     generics::tidy(model)
+#'   }
 #' }
 #' 
 #' @rawNamespace 

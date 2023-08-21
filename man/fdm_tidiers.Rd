@@ -30,11 +30,13 @@ tidy format
 }
 \examples{
 
-data("WageData")
-wages <- panel_data(WageData, id = id, wave = t)
-model <- fdm(lwage ~ wks + union, data = wages)
-if (requireNamespace("generics")) {
-  generics::tidy(model)
+if (requireNamespace("clubSandwich")) {
+  data("WageData")
+  wages <- panel_data(WageData, id = id, wave = t)
+  model <- fdm(lwage ~ wks + union, data = wages)
+  if (requireNamespace("generics")) {
+    generics::tidy(model)
+  }
 }
 
 }

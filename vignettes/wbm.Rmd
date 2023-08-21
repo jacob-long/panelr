@@ -13,12 +13,13 @@ vignette: >
 ---
 
 ```{r setup, include = FALSE}
-required <- c("clubSandwich")
-if (!all(sapply(required, requireNamespace, quietly = TRUE)))
+required <- c("clubSandwich", "geepack")
+do_eval <- all(sapply(required, requireNamespace, quietly = TRUE))
 knitr::opts_chunk$set(
   collapse = FALSE,
   comment = "",
-  message = FALSE
+  message = FALSE,
+  eval = do_eval
 )
 ```
 
