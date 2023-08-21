@@ -101,7 +101,7 @@
                         <h4 data-toc-skip class="author">Jacob A.
 Long</h4>
             
-            <h4 data-toc-skip class="date">2023-08-20</h4>
+            <h4 data-toc-skip class="date">2023-08-21</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/jacob-long/panelr/blob/HEAD/vignettes/wbm.Rmd" class="external-link"><code>vignettes/wbm.Rmd</code></a></small>
       <div class="d-none name"><code>wbm.Rmd</code></div>
@@ -123,24 +123,24 @@ them.</li>
 <p>Check out the other vignette for a lot of detail on how to take your
 raw data and reshape it into a <code>panel_data</code> format. Here’s a
 short version, using some example data provided by this package.</p>
-<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 1,151 × 28</span></span></span>
-<span><span class="co">##       id  pov1 mother1 spouse1 inschool1 hours1  pov2 mother2 spouse2 inschool2</span></span>
-<span><span class="co">##    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 1</span>    22     1       0       0         1     21     0       0       0         1</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 2</span>    75     0       0       0         1      8     0       0       0         1</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 3</span>    92     0       0       0         1     30     0       0       0         1</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 4</span>    96     0       0       0         0     19     1       1       0         0</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 5</span>   141     0       0       0         1      0     0       0       0         1</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 6</span>   161     0       0       0         1      0     0       0       0         1</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 7</span>   220     0       0       0         1      6     0       0       0         1</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 8</span>   229     0       0       0         1      0     1       0       0         1</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 9</span>   236     0       0       0         1      0     0       0       0         1</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">10</span>   240     0       0       0         1     18     1       0       0         1</span></span>
-<span><span class="co">## <span style="color: #949494;"># ℹ 1,141 more rows</span></span></span>
-<span><span class="co">## <span style="color: #949494;"># ℹ 18 more variables: hours2 &lt;dbl&gt;, pov3 &lt;dbl&gt;, mother3 &lt;dbl&gt;, spouse3 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">## <span style="color: #949494;">#   inschool3 &lt;dbl&gt;, hours3 &lt;dbl&gt;, pov4 &lt;dbl&gt;, mother4 &lt;dbl&gt;, spouse4 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">## <span style="color: #949494;">#   inschool4 &lt;dbl&gt;, hours4 &lt;dbl&gt;, age &lt;dbl&gt;, black &lt;dbl&gt;, pov5 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">## <span style="color: #949494;">#   mother5 &lt;dbl&gt;, spouse5 &lt;dbl&gt;, inschool5 &lt;dbl&gt;, hours5 &lt;dbl&gt;</span></span></span></code></pre>
+<pre><code> [38;5;246m# A tibble: 1,151 × 28 [39m
+      id  pov1 mother1 spouse1 inschool1 hours1  pov2 mother2 spouse2 inschool2
+    [3m [38;5;246m&lt;dbl&gt; [39m [23m  [3m [38;5;246m&lt;dbl&gt; [39m [23m    [3m [38;5;246m&lt;dbl&gt; [39m [23m    [3m [38;5;246m&lt;dbl&gt; [39m [23m      [3m [38;5;246m&lt;dbl&gt; [39m [23m   [3m [38;5;246m&lt;dbl&gt; [39m [23m  [3m [38;5;246m&lt;dbl&gt; [39m [23m    [3m [38;5;246m&lt;dbl&gt; [39m [23m    [3m [38;5;246m&lt;dbl&gt; [39m [23m      [3m [38;5;246m&lt;dbl&gt; [39m [23m
+ [38;5;250m 1 [39m    22     1       0       0         1     21     0       0       0         1
+ [38;5;250m 2 [39m    75     0       0       0         1      8     0       0       0         1
+ [38;5;250m 3 [39m    92     0       0       0         1     30     0       0       0         1
+ [38;5;250m 4 [39m    96     0       0       0         0     19     1       1       0         0
+ [38;5;250m 5 [39m   141     0       0       0         1      0     0       0       0         1
+ [38;5;250m 6 [39m   161     0       0       0         1      0     0       0       0         1
+ [38;5;250m 7 [39m   220     0       0       0         1      6     0       0       0         1
+ [38;5;250m 8 [39m   229     0       0       0         1      0     1       0       0         1
+ [38;5;250m 9 [39m   236     0       0       0         1      0     0       0       0         1
+ [38;5;250m10 [39m   240     0       0       0         1     18     1       0       0         1
+ [38;5;246m# ℹ 1,141 more rows [39m
+ [38;5;246m# ℹ 18 more variables: hours2 &lt;dbl&gt;, pov3 &lt;dbl&gt;, mother3 &lt;dbl&gt;, spouse3 &lt;dbl&gt;, [39m
+ [38;5;246m#   inschool3 &lt;dbl&gt;, hours3 &lt;dbl&gt;, pov4 &lt;dbl&gt;, mother4 &lt;dbl&gt;, spouse4 &lt;dbl&gt;, [39m
+ [38;5;246m#   inschool4 &lt;dbl&gt;, hours4 &lt;dbl&gt;, age &lt;dbl&gt;, black &lt;dbl&gt;, pov5 &lt;dbl&gt;, [39m
+ [38;5;246m#   mother5 &lt;dbl&gt;, spouse5 &lt;dbl&gt;, inschool5 &lt;dbl&gt;, hours5 &lt;dbl&gt; [39m</code></pre>
 <p>These data come from a subset of young women surveyed as part of the
 National Longitudinal Survey of Youth starting in 1979. The
 <code>teen_poverty</code> data come in “wide” format, meaning there is
@@ -152,22 +152,22 @@ for each respondent in each wave of the 5-wave survey. We’ll use
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">teen</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/long_panel.html">long_panel</a></span><span class="op">(</span><span class="va">teen_poverty</span>, begin <span class="op">=</span> <span class="fl">1</span>, end <span class="op">=</span> <span class="fl">5</span>, label_location <span class="op">=</span> <span class="st">"end"</span><span class="op">)</span></span>
 <span><span class="va">teen</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="color: #949494;"># Panel data:    5,755 × 9</span></span></span>
-<span><span class="co">## <span style="color: #949494;"># Entities:      id [1,151]</span></span></span>
-<span><span class="co">## <span style="color: #949494;"># Wave variable: wave [1, 2, 3, ... (5 waves)]</span></span></span>
-<span><span class="co">##    id     wave   age black   pov mother spouse inschool hours</span></span>
-<span><span class="co">##    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 1</span> 22        1    16     0     1      0      0        1    21</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 2</span> 22        2    16     0     0      0      0        1    15</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 3</span> 22        3    16     0     0      0      0        1     3</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 4</span> 22        4    16     0     0      0      0        1     0</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 5</span> 22        5    16     0     0      0      0        1     0</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 6</span> 75        1    17     0     0      0      0        1     8</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 7</span> 75        2    17     0     0      0      0        1     0</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 8</span> 75        3    17     0     0      0      0        1     0</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 9</span> 75        4    17     0     0      0      0        1     4</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">10</span> 75        5    17     0     1      0      0        1     0</span></span>
-<span><span class="co">## <span style="color: #949494;"># ℹ 5,745 more rows</span></span></span></code></pre>
+<pre><code> [38;5;246m# Panel data:    5,755 × 9 [39m
+ [38;5;246m# Entities:      id [1,151] [39m
+ [38;5;246m# Wave variable: wave [1, 2, 3, ... (5 waves)] [39m
+   id     wave   age black   pov mother spouse inschool hours
+    [3m [38;5;246m&lt;fct&gt; [39m [23m  [3m [38;5;246m&lt;dbl&gt; [39m [23m  [3m [38;5;246m&lt;dbl&gt; [39m [23m  [3m [38;5;246m&lt;dbl&gt; [39m [23m  [3m [38;5;246m&lt;dbl&gt; [39m [23m   [3m [38;5;246m&lt;dbl&gt; [39m [23m   [3m [38;5;246m&lt;dbl&gt; [39m [23m     [3m [38;5;246m&lt;dbl&gt; [39m [23m  [3m [38;5;246m&lt;dbl&gt; [39m [23m
+ [38;5;250m 1 [39m 22        1    16     0     1      0      0        1    21
+ [38;5;250m 2 [39m 22        2    16     0     0      0      0        1    15
+ [38;5;250m 3 [39m 22        3    16     0     0      0      0        1     3
+ [38;5;250m 4 [39m 22        4    16     0     0      0      0        1     0
+ [38;5;250m 5 [39m 22        5    16     0     0      0      0        1     0
+ [38;5;250m 6 [39m 75        1    17     0     0      0      0        1     8
+ [38;5;250m 7 [39m 75        2    17     0     0      0      0        1     0
+ [38;5;250m 8 [39m 75        3    17     0     0      0      0        1     0
+ [38;5;250m 9 [39m 75        4    17     0     0      0      0        1     4
+ [38;5;250m10 [39m 75        5    17     0     1      0      0        1     0
+ [38;5;246m# ℹ 5,745 more rows [39m</code></pre>
 <p>Now we have a <code>panel_data</code> object! It is a special version
 of a <code>tibble</code>, which is itself a special kind of
 <code>data.frame</code>. <code>panel_data</code> objects work very hard
@@ -381,51 +381,51 @@ membership (<code>union</code>), marital status (<code>ms</code>), blue
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wbm.html">wbm</a></span><span class="op">(</span><span class="va">lwage</span> <span class="op">~</span> <span class="va">wks</span> <span class="op">+</span> <span class="va">union</span> <span class="op">+</span> <span class="va">ms</span> <span class="op">+</span> <span class="va">occ</span> <span class="op">|</span> <span class="va">blk</span> <span class="op">+</span> <span class="va">fem</span>, data <span class="op">=</span> <span class="va">wages</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="font-weight: bold;">MODEL INFO:</span></span></span>
-<span><span class="co"><span style="font-weight: bold;">## </span><span style="font-style: italic;">Entities: </span>595</span></span>
-<span><span class="co">## <span style="font-style: italic;">Time periods: </span>1-7</span></span>
-<span><span class="co">## <span style="font-style: italic;">Dependent variable: </span>lwage</span></span>
-<span><span class="co">## <span style="font-style: italic;">Model type:</span> Linear mixed effects</span></span>
-<span><span class="co">## <span style="font-style: italic;">Specification: </span>within-between</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="font-weight: bold;">MODEL FIT:</span></span></span>
-<span><span class="co">## <span style="font-style: italic;">AIC = </span>2036.78, <span style="font-style: italic;">BIC = </span>2119.13</span></span>
-<span><span class="co">## <span style="font-style: italic;">Pseudo-R² (fixed effects) = </span>0.27</span></span>
-<span><span class="co">## <span style="font-style: italic;">Pseudo-R² (total) = </span>0.69</span></span>
-<span><span class="co"><span style="font-style: italic;">## Entity ICC = </span>0.57</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="font-weight: bold;">WITHIN EFFECTS:</span></span></span>
-<span><span class="co"><span style="font-weight: bold;">## </span>----------------------------------------------------</span></span>
-<span><span class="co">##                Est.   S.E.   t val.      d.f.      p</span></span>
-<span><span class="co">## ----------- ------- ------ -------- --------- ------</span></span>
-<span><span class="co">## wks            0.00   0.00     1.06   3566.00   0.29</span></span>
-<span><span class="co">## union          0.06   0.03     2.53   3566.00   0.01</span></span>
-<span><span class="co">## ms            -0.08   0.03    -2.57   3566.00   0.01</span></span>
-<span><span class="co">## occ           -0.08   0.02    -3.32   3566.00   0.00</span></span>
-<span><span class="co">## ----------------------------------------------------</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="font-weight: bold;">BETWEEN EFFECTS:</span></span></span>
-<span><span class="co"><span style="font-weight: bold;">## </span>----------------------------------------------------------</span></span>
-<span><span class="co">##                       Est.   S.E.   t val.     d.f.      p</span></span>
-<span><span class="co">## ------------------ ------- ------ -------- -------- ------</span></span>
-<span><span class="co">## (Intercept)           6.30   0.20    30.85   588.00   0.00</span></span>
-<span><span class="co">## imean(wks)            0.01   0.00     2.25   588.00   0.02</span></span>
-<span><span class="co">## imean(union)          0.15   0.03     4.67   588.00   0.00</span></span>
-<span><span class="co">## imean(ms)             0.17   0.05     3.07   588.00   0.00</span></span>
-<span><span class="co">## imean(occ)           -0.41   0.03   -13.31   588.00   0.00</span></span>
-<span><span class="co">## blk                  -0.15   0.05    -2.81   588.00   0.01</span></span>
-<span><span class="co">## fem                  -0.32   0.06    -4.96   588.00   0.00</span></span>
-<span><span class="co">## ----------------------------------------------------------</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="font-style: italic;">p values calculated using Satterthwaite d.f.</span></span></span>
-<span><span class="co"><span style="font-style: italic;">## </span> </span></span>
-<span><span class="co">## <span style="font-weight: bold;">RANDOM EFFECTS:</span></span></span>
-<span><span class="co"><span style="font-weight: bold;">## </span>------------------------------------</span></span>
-<span><span class="co">##   Group      Parameter    Std. Dev. </span></span>
-<span><span class="co">## ---------- ------------- -----------</span></span>
-<span><span class="co">##     id      (Intercept)    0.2992   </span></span>
-<span><span class="co">##  Residual                  0.2589   </span></span>
-<span><span class="co">## ------------------------------------</span></span></code></pre>
+<pre><code> [1mMODEL INFO:
+ [22m [3mEntities:  [23m595
+ [3mTime periods:  [23m1-7
+ [3mDependent variable:  [23mlwage
+ [3mModel type: [23m Linear mixed effects
+ [3mSpecification:  [23mwithin-between
+
+ [1mMODEL FIT: [22m
+ [3mAIC =  [23m2036.78,  [3mBIC =  [23m2119.13
+ [3mPseudo-R² (fixed effects) =  [23m0.27
+ [3mPseudo-R² (total) =  [23m0.69 [3m
+Entity ICC =  [23m0.57
+
+ [1mWITHIN EFFECTS:
+ [22m----------------------------------------------------
+               Est.   S.E.   t val.      d.f.      p
+----------- ------- ------ -------- --------- ------
+wks            0.00   0.00     1.06   3566.00   0.29
+union          0.06   0.03     2.53   3566.00   0.01
+ms            -0.08   0.03    -2.57   3566.00   0.01
+occ           -0.08   0.02    -3.32   3566.00   0.00
+----------------------------------------------------
+
+ [1mBETWEEN EFFECTS:
+ [22m----------------------------------------------------------
+                      Est.   S.E.   t val.     d.f.      p
+------------------ ------- ------ -------- -------- ------
+(Intercept)           6.30   0.20    30.85   588.00   0.00
+imean(wks)            0.01   0.00     2.25   588.00   0.02
+imean(union)          0.15   0.03     4.67   588.00   0.00
+imean(ms)             0.17   0.05     3.07   588.00   0.00
+imean(occ)           -0.41   0.03   -13.31   588.00   0.00
+blk                  -0.15   0.05    -2.81   588.00   0.01
+fem                  -0.32   0.06    -4.96   588.00   0.00
+----------------------------------------------------------
+
+ [3mp values calculated using Satterthwaite d.f.
+ [23m 
+ [1mRANDOM EFFECTS:
+ [22m------------------------------------
+  Group      Parameter    Std. Dev. 
+---------- ------------- -----------
+    id      (Intercept)    0.2992   
+ Residual                  0.2589   
+------------------------------------</code></pre>
 <p>As you can see, the output distinguishes within- and between-entity
 effects. When you see <code>imean()</code> around a variable, that is
 the between-entity effect represented as the individual mean.</p>
@@ -440,51 +440,51 @@ for the lagged effect using <code><a href="https://dplyr.tidyverse.org/reference
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wbm.html">wbm</a></span><span class="op">(</span><span class="va">lwage</span> <span class="op">~</span> <span class="va">wks</span> <span class="op">+</span> <span class="va">union</span> <span class="op">+</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/lead-lag.html" class="external-link">lag</a></span><span class="op">(</span><span class="va">ms</span><span class="op">)</span> <span class="op">+</span> <span class="va">occ</span> <span class="op">|</span> <span class="va">blk</span> <span class="op">+</span> <span class="va">fem</span>, data <span class="op">=</span> <span class="va">wages</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="font-weight: bold;">MODEL INFO:</span></span></span>
-<span><span class="co"><span style="font-weight: bold;">## </span><span style="font-style: italic;">Entities: </span>595</span></span>
-<span><span class="co">## <span style="font-style: italic;">Time periods: </span>2-7</span></span>
-<span><span class="co">## <span style="font-style: italic;">Dependent variable: </span>lwage</span></span>
-<span><span class="co">## <span style="font-style: italic;">Model type:</span> Linear mixed effects</span></span>
-<span><span class="co">## <span style="font-style: italic;">Specification: </span>within-between</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="font-weight: bold;">MODEL FIT:</span></span></span>
-<span><span class="co">## <span style="font-style: italic;">AIC = </span>1247.06, <span style="font-style: italic;">BIC = </span>1327.41</span></span>
-<span><span class="co">## <span style="font-style: italic;">Pseudo-R² (fixed effects) = </span>0.28</span></span>
-<span><span class="co">## <span style="font-style: italic;">Pseudo-R² (total) = </span>0.74</span></span>
-<span><span class="co"><span style="font-style: italic;">## Entity ICC = </span>0.64</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="font-weight: bold;">WITHIN EFFECTS:</span></span></span>
-<span><span class="co"><span style="font-weight: bold;">## </span>------------------------------------------------------</span></span>
-<span><span class="co">##                  Est.   S.E.   t val.      d.f.      p</span></span>
-<span><span class="co">## ------------- ------- ------ -------- --------- ------</span></span>
-<span><span class="co">## wks             -0.00   0.00    -1.43   2999.92   0.15</span></span>
-<span><span class="co">## union            0.05   0.03     1.82   2991.78   0.07</span></span>
-<span><span class="co">## lag(ms)         -0.04   0.03    -1.19   2971.04   0.23</span></span>
-<span><span class="co">## occ             -0.06   0.02    -2.56   2992.05   0.01</span></span>
-<span><span class="co">## ------------------------------------------------------</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="font-weight: bold;">BETWEEN EFFECTS:</span></span></span>
-<span><span class="co"><span style="font-weight: bold;">## </span>------------------------------------------------------------</span></span>
-<span><span class="co">##                         Est.   S.E.   t val.     d.f.      p</span></span>
-<span><span class="co">## -------------------- ------- ------ -------- -------- ------</span></span>
-<span><span class="co">## (Intercept)             6.36   0.21    30.51   588.00   0.00</span></span>
-<span><span class="co">## imean(wks)              0.01   0.00     2.25   588.00   0.02</span></span>
-<span><span class="co">## imean(union)            0.15   0.03     4.48   588.00   0.00</span></span>
-<span><span class="co">## imean(lag(ms))          0.15   0.06     2.80   588.01   0.01</span></span>
-<span><span class="co">## imean(occ)             -0.41   0.03   -13.16   588.02   0.00</span></span>
-<span><span class="co">## blk                    -0.15   0.05    -2.92   587.99   0.00</span></span>
-<span><span class="co">## fem                    -0.33   0.06    -5.17   588.01   0.00</span></span>
-<span><span class="co">## ------------------------------------------------------------</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="font-style: italic;">p values calculated using Satterthwaite d.f.</span></span></span>
-<span><span class="co"><span style="font-style: italic;">## </span> </span></span>
-<span><span class="co">## <span style="font-weight: bold;">RANDOM EFFECTS:</span></span></span>
-<span><span class="co"><span style="font-weight: bold;">## </span>------------------------------------</span></span>
-<span><span class="co">##   Group      Parameter    Std. Dev. </span></span>
-<span><span class="co">## ---------- ------------- -----------</span></span>
-<span><span class="co">##     id      (Intercept)    0.3068   </span></span>
-<span><span class="co">##  Residual                  0.2325   </span></span>
-<span><span class="co">## ------------------------------------</span></span></code></pre>
+<pre><code> [1mMODEL INFO:
+ [22m [3mEntities:  [23m595
+ [3mTime periods:  [23m2-7
+ [3mDependent variable:  [23mlwage
+ [3mModel type: [23m Linear mixed effects
+ [3mSpecification:  [23mwithin-between
+
+ [1mMODEL FIT: [22m
+ [3mAIC =  [23m1247.06,  [3mBIC =  [23m1327.41
+ [3mPseudo-R² (fixed effects) =  [23m0.28
+ [3mPseudo-R² (total) =  [23m0.74 [3m
+Entity ICC =  [23m0.64
+
+ [1mWITHIN EFFECTS:
+ [22m------------------------------------------------------
+                 Est.   S.E.   t val.      d.f.      p
+------------- ------- ------ -------- --------- ------
+wks             -0.00   0.00    -1.43   2999.92   0.15
+union            0.05   0.03     1.82   2991.78   0.07
+lag(ms)         -0.04   0.03    -1.19   2971.04   0.23
+occ             -0.06   0.02    -2.56   2992.05   0.01
+------------------------------------------------------
+
+ [1mBETWEEN EFFECTS:
+ [22m------------------------------------------------------------
+                        Est.   S.E.   t val.     d.f.      p
+-------------------- ------- ------ -------- -------- ------
+(Intercept)             6.36   0.21    30.51   588.00   0.00
+imean(wks)              0.01   0.00     2.25   588.00   0.02
+imean(union)            0.15   0.03     4.48   588.00   0.00
+imean(lag(ms))          0.15   0.06     2.80   588.01   0.01
+imean(occ)             -0.41   0.03   -13.16   588.02   0.00
+blk                    -0.15   0.05    -2.92   587.99   0.00
+fem                    -0.33   0.06    -5.17   588.01   0.00
+------------------------------------------------------------
+
+ [3mp values calculated using Satterthwaite d.f.
+ [23m 
+ [1mRANDOM EFFECTS:
+ [22m------------------------------------
+  Group      Parameter    Std. Dev. 
+---------- ------------- -----------
+    id      (Intercept)    0.3068   
+ Residual                  0.2325   
+------------------------------------</code></pre>
 <p>Well that doesn’t change the direction of the estimate, but it also
 moved it sufficiently close to 0 that we can’t say much about it one way
 or another.</p>
@@ -504,52 +504,52 @@ variable in the formula or set <code>use.wave</code> to
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wbm.html">wbm</a></span><span class="op">(</span><span class="va">lwage</span> <span class="op">~</span> <span class="va">wks</span> <span class="op">+</span> <span class="va">union</span> <span class="op">+</span> <span class="va">ms</span> <span class="op">+</span> <span class="va">occ</span> <span class="op">|</span> <span class="va">blk</span> <span class="op">+</span> <span class="va">fem</span>, data <span class="op">=</span> <span class="va">wages</span>, use.wave <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="font-weight: bold;">MODEL INFO:</span></span></span>
-<span><span class="co"><span style="font-weight: bold;">## </span><span style="font-style: italic;">Entities: </span>595</span></span>
-<span><span class="co">## <span style="font-style: italic;">Time periods: </span>1-7</span></span>
-<span><span class="co">## <span style="font-style: italic;">Dependent variable: </span>lwage</span></span>
-<span><span class="co">## <span style="font-style: italic;">Model type:</span> Linear mixed effects</span></span>
-<span><span class="co">## <span style="font-style: italic;">Specification: </span>within-between</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="font-weight: bold;">MODEL FIT:</span></span></span>
-<span><span class="co">## <span style="font-style: italic;">AIC = </span>-1688.87, <span style="font-style: italic;">BIC = </span>-1600.19</span></span>
-<span><span class="co">## <span style="font-style: italic;">Pseudo-R² (fixed effects) = </span>0.44</span></span>
-<span><span class="co">## <span style="font-style: italic;">Pseudo-R² (total) = </span>0.89</span></span>
-<span><span class="co"><span style="font-style: italic;">## Entity ICC = </span>0.8</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="font-weight: bold;">WITHIN EFFECTS:</span></span></span>
-<span><span class="co"><span style="font-weight: bold;">## </span>----------------------------------------------------</span></span>
-<span><span class="co">##                Est.   S.E.   t val.      d.f.      p</span></span>
-<span><span class="co">## ----------- ------- ------ -------- --------- ------</span></span>
-<span><span class="co">## wks            0.00   0.00     1.91   3565.00   0.06</span></span>
-<span><span class="co">## union          0.03   0.02     2.29   3565.00   0.02</span></span>
-<span><span class="co">## ms            -0.03   0.02    -1.71   3565.00   0.09</span></span>
-<span><span class="co">## occ           -0.03   0.01    -1.81   3565.00   0.07</span></span>
-<span><span class="co">## ----------------------------------------------------</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="font-weight: bold;">BETWEEN EFFECTS:</span></span></span>
-<span><span class="co"><span style="font-weight: bold;">## </span>-----------------------------------------------------------</span></span>
-<span><span class="co">##                       Est.   S.E.   t val.      d.f.      p</span></span>
-<span><span class="co">## ------------------ ------- ------ -------- --------- ------</span></span>
-<span><span class="co">## (Intercept)           5.91   0.20    28.95    588.63   0.00</span></span>
-<span><span class="co">## imean(wks)            0.01   0.00     2.25    587.99   0.02</span></span>
-<span><span class="co">## imean(union)          0.15   0.03     4.67    588.00   0.00</span></span>
-<span><span class="co">## imean(ms)             0.17   0.05     3.07    588.00   0.00</span></span>
-<span><span class="co">## imean(occ)           -0.41   0.03   -13.31    588.00   0.00</span></span>
-<span><span class="co">## blk                  -0.15   0.05    -2.81    588.00   0.01</span></span>
-<span><span class="co">## fem                  -0.32   0.06    -4.96    588.00   0.00</span></span>
-<span><span class="co">## t                     0.10   0.00    81.29   3565.00   0.00</span></span>
-<span><span class="co">## -----------------------------------------------------------</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="font-style: italic;">p values calculated using Satterthwaite d.f.</span></span></span>
-<span><span class="co"><span style="font-style: italic;">## </span> </span></span>
-<span><span class="co">## <span style="font-weight: bold;">RANDOM EFFECTS:</span></span></span>
-<span><span class="co"><span style="font-weight: bold;">## </span>------------------------------------</span></span>
-<span><span class="co">##   Group      Parameter    Std. Dev. </span></span>
-<span><span class="co">## ---------- ------------- -----------</span></span>
-<span><span class="co">##     id      (Intercept)    0.3094   </span></span>
-<span><span class="co">##  Residual                  0.1533   </span></span>
-<span><span class="co">## ------------------------------------</span></span></code></pre>
+<pre><code> [1mMODEL INFO:
+ [22m [3mEntities:  [23m595
+ [3mTime periods:  [23m1-7
+ [3mDependent variable:  [23mlwage
+ [3mModel type: [23m Linear mixed effects
+ [3mSpecification:  [23mwithin-between
+
+ [1mMODEL FIT: [22m
+ [3mAIC =  [23m-1688.87,  [3mBIC =  [23m-1600.19
+ [3mPseudo-R² (fixed effects) =  [23m0.44
+ [3mPseudo-R² (total) =  [23m0.89 [3m
+Entity ICC =  [23m0.8
+
+ [1mWITHIN EFFECTS:
+ [22m----------------------------------------------------
+               Est.   S.E.   t val.      d.f.      p
+----------- ------- ------ -------- --------- ------
+wks            0.00   0.00     1.91   3565.00   0.06
+union          0.03   0.02     2.29   3565.00   0.02
+ms            -0.03   0.02    -1.71   3565.00   0.09
+occ           -0.03   0.01    -1.81   3565.00   0.07
+----------------------------------------------------
+
+ [1mBETWEEN EFFECTS:
+ [22m-----------------------------------------------------------
+                      Est.   S.E.   t val.      d.f.      p
+------------------ ------- ------ -------- --------- ------
+(Intercept)           5.91   0.20    28.95    588.63   0.00
+imean(wks)            0.01   0.00     2.25    587.99   0.02
+imean(union)          0.15   0.03     4.67    588.00   0.00
+imean(ms)             0.17   0.05     3.07    588.00   0.00
+imean(occ)           -0.41   0.03   -13.31    588.00   0.00
+blk                  -0.15   0.05    -2.81    588.00   0.01
+fem                  -0.32   0.06    -4.96    588.00   0.00
+t                     0.10   0.00    81.29   3565.00   0.00
+-----------------------------------------------------------
+
+ [3mp values calculated using Satterthwaite d.f.
+ [23m 
+ [1mRANDOM EFFECTS:
+ [22m------------------------------------
+  Group      Parameter    Std. Dev. 
+---------- ------------- -----------
+    id      (Intercept)    0.3094   
+ Residual                  0.1533   
+------------------------------------</code></pre>
 <p>Including <code>t</code> wipes out some of those previously observed
 effects. Believe it or not, we just fit a growth curve model!</p>
 <p>Now, we might think people have different trajectories. We can
@@ -558,53 +558,53 @@ formula.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wbm.html">wbm</a></span><span class="op">(</span><span class="va">lwage</span> <span class="op">~</span> <span class="va">wks</span> <span class="op">+</span> <span class="va">union</span> <span class="op">+</span> <span class="va">ms</span> <span class="op">+</span> <span class="va">occ</span> <span class="op">|</span> <span class="va">blk</span> <span class="op">+</span> <span class="va">fem</span> <span class="op">|</span> <span class="op">(</span><span class="va">t</span> <span class="op">|</span> <span class="va">id</span><span class="op">)</span>, use.wave <span class="op">=</span> <span class="cn">TRUE</span>, data <span class="op">=</span> <span class="va">wages</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="font-weight: bold;">MODEL INFO:</span></span></span>
-<span><span class="co"><span style="font-weight: bold;">## </span><span style="font-style: italic;">Entities: </span>595</span></span>
-<span><span class="co">## <span style="font-style: italic;">Time periods: </span>1-7</span></span>
-<span><span class="co">## <span style="font-style: italic;">Dependent variable: </span>lwage</span></span>
-<span><span class="co">## <span style="font-style: italic;">Model type:</span> Linear mixed effects</span></span>
-<span><span class="co">## <span style="font-style: italic;">Specification: </span>within-between</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="font-weight: bold;">MODEL FIT:</span></span></span>
-<span><span class="co">## <span style="font-style: italic;">AIC = </span>-2064.42, <span style="font-style: italic;">BIC = </span>-1963.07</span></span>
-<span><span class="co">## <span style="font-style: italic;">Pseudo-R² (fixed effects) = </span>0.43</span></span>
-<span><span class="co">## <span style="font-style: italic;">Pseudo-R² (total) = </span>0.92</span></span>
-<span><span class="co"><span style="font-style: italic;">## Entity ICC = </span>0.84</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="font-weight: bold;">WITHIN EFFECTS:</span></span></span>
-<span><span class="co"><span style="font-weight: bold;">## </span>----------------------------------------------------</span></span>
-<span><span class="co">##                Est.   S.E.   t val.      d.f.      p</span></span>
-<span><span class="co">## ----------- ------- ------ -------- --------- ------</span></span>
-<span><span class="co">## wks            0.00   0.00     1.47   3498.40   0.14</span></span>
-<span><span class="co">## union          0.02   0.01     1.61   3561.26   0.11</span></span>
-<span><span class="co">## ms            -0.04   0.02    -1.97   3416.40   0.05</span></span>
-<span><span class="co">## occ           -0.02   0.01    -1.42   3563.73   0.16</span></span>
-<span><span class="co">## ----------------------------------------------------</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="font-weight: bold;">BETWEEN EFFECTS:</span></span></span>
-<span><span class="co"><span style="font-weight: bold;">## </span>----------------------------------------------------------</span></span>
-<span><span class="co">##                       Est.   S.E.   t val.     d.f.      p</span></span>
-<span><span class="co">## ------------------ ------- ------ -------- -------- ------</span></span>
-<span><span class="co">## (Intercept)           5.93   0.20    29.69   588.53   0.00</span></span>
-<span><span class="co">## imean(wks)            0.01   0.00     2.12   587.98   0.03</span></span>
-<span><span class="co">## imean(union)          0.16   0.03     4.90   587.97   0.00</span></span>
-<span><span class="co">## imean(ms)             0.17   0.05     3.25   588.06   0.00</span></span>
-<span><span class="co">## imean(occ)           -0.39   0.03   -13.16   588.01   0.00</span></span>
-<span><span class="co">## blk                  -0.13   0.05    -2.49   588.00   0.01</span></span>
-<span><span class="co">## fem                  -0.31   0.06    -4.90   588.07   0.00</span></span>
-<span><span class="co">## t                     0.10   0.00    54.67   594.66   0.00</span></span>
-<span><span class="co">## ----------------------------------------------------------</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="font-style: italic;">p values calculated using Satterthwaite d.f.</span></span></span>
-<span><span class="co"><span style="font-style: italic;">## </span> </span></span>
-<span><span class="co">## <span style="font-weight: bold;">RANDOM EFFECTS:</span></span></span>
-<span><span class="co"><span style="font-weight: bold;">## </span>------------------------------------</span></span>
-<span><span class="co">##   Group      Parameter    Std. Dev. </span></span>
-<span><span class="co">## ---------- ------------- -----------</span></span>
-<span><span class="co">##     id      (Intercept)    0.3057   </span></span>
-<span><span class="co">##     id           t         0.03499  </span></span>
-<span><span class="co">##  Residual                  0.1334   </span></span>
-<span><span class="co">## ------------------------------------</span></span></code></pre>
+<pre><code> [1mMODEL INFO:
+ [22m [3mEntities:  [23m595
+ [3mTime periods:  [23m1-7
+ [3mDependent variable:  [23mlwage
+ [3mModel type: [23m Linear mixed effects
+ [3mSpecification:  [23mwithin-between
+
+ [1mMODEL FIT: [22m
+ [3mAIC =  [23m-2064.42,  [3mBIC =  [23m-1963.07
+ [3mPseudo-R² (fixed effects) =  [23m0.43
+ [3mPseudo-R² (total) =  [23m0.92 [3m
+Entity ICC =  [23m0.84
+
+ [1mWITHIN EFFECTS:
+ [22m----------------------------------------------------
+               Est.   S.E.   t val.      d.f.      p
+----------- ------- ------ -------- --------- ------
+wks            0.00   0.00     1.47   3498.40   0.14
+union          0.02   0.01     1.61   3561.26   0.11
+ms            -0.04   0.02    -1.97   3416.40   0.05
+occ           -0.02   0.01    -1.42   3563.73   0.16
+----------------------------------------------------
+
+ [1mBETWEEN EFFECTS:
+ [22m----------------------------------------------------------
+                      Est.   S.E.   t val.     d.f.      p
+------------------ ------- ------ -------- -------- ------
+(Intercept)           5.93   0.20    29.69   588.53   0.00
+imean(wks)            0.01   0.00     2.12   587.98   0.03
+imean(union)          0.16   0.03     4.90   587.97   0.00
+imean(ms)             0.17   0.05     3.25   588.06   0.00
+imean(occ)           -0.39   0.03   -13.16   588.01   0.00
+blk                  -0.13   0.05    -2.49   588.00   0.01
+fem                  -0.31   0.06    -4.90   588.07   0.00
+t                     0.10   0.00    54.67   594.66   0.00
+----------------------------------------------------------
+
+ [3mp values calculated using Satterthwaite d.f.
+ [23m 
+ [1mRANDOM EFFECTS:
+ [22m------------------------------------
+  Group      Parameter    Std. Dev. 
+---------- ------------- -----------
+    id      (Intercept)    0.3057   
+    id           t         0.03499  
+ Residual                  0.1334   
+------------------------------------</code></pre>
 <p>And now we have a latent growth curve model. The general effect on
 the other coefficients is more uncertainty and attenuated estimates.
 It’s worth keeping in mind that it is sometimes wrong to use a growth
@@ -624,51 +624,51 @@ option too.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wbm.html">wbm</a></span><span class="op">(</span><span class="va">lwage</span> <span class="op">~</span> <span class="va">wks</span> <span class="op">+</span> <span class="va">union</span> <span class="op">+</span> <span class="va">ms</span> <span class="op">+</span> <span class="va">occ</span> <span class="op">|</span> <span class="va">blk</span> <span class="op">+</span> <span class="va">fem</span>, data <span class="op">=</span> <span class="va">wages</span>, model <span class="op">=</span> <span class="st">"contextual"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="font-weight: bold;">MODEL INFO:</span></span></span>
-<span><span class="co"><span style="font-weight: bold;">## </span><span style="font-style: italic;">Entities: </span>595</span></span>
-<span><span class="co">## <span style="font-style: italic;">Time periods: </span>1-7</span></span>
-<span><span class="co">## <span style="font-style: italic;">Dependent variable: </span>lwage</span></span>
-<span><span class="co">## <span style="font-style: italic;">Model type:</span> Linear mixed effects</span></span>
-<span><span class="co">## <span style="font-style: italic;">Specification: </span>contextual</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="font-weight: bold;">MODEL FIT:</span></span></span>
-<span><span class="co">## <span style="font-style: italic;">AIC = </span>2036.78, <span style="font-style: italic;">BIC = </span>2119.13</span></span>
-<span><span class="co">## <span style="font-style: italic;">Pseudo-R² (fixed effects) = </span>0.27</span></span>
-<span><span class="co">## <span style="font-style: italic;">Pseudo-R² (total) = </span>0.69</span></span>
-<span><span class="co"><span style="font-style: italic;">## Entity ICC = </span>0.57</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="font-weight: bold;">WITHIN EFFECTS:</span></span></span>
-<span><span class="co"><span style="font-weight: bold;">## </span>----------------------------------------------------</span></span>
-<span><span class="co">##                Est.   S.E.   t val.      d.f.      p</span></span>
-<span><span class="co">## ----------- ------- ------ -------- --------- ------</span></span>
-<span><span class="co">## wks            0.00   0.00     1.06   3566.00   0.29</span></span>
-<span><span class="co">## union          0.06   0.03     2.53   3566.00   0.01</span></span>
-<span><span class="co">## ms            -0.08   0.03    -2.57   3566.00   0.01</span></span>
-<span><span class="co">## occ           -0.08   0.02    -3.32   3566.00   0.00</span></span>
-<span><span class="co">## ----------------------------------------------------</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="font-weight: bold;">CONTEXTUAL EFFECTS:</span></span></span>
-<span><span class="co"><span style="font-weight: bold;">## </span>-----------------------------------------------------------</span></span>
-<span><span class="co">##                       Est.   S.E.   t val.      d.f.      p</span></span>
-<span><span class="co">## ------------------ ------- ------ -------- --------- ------</span></span>
-<span><span class="co">## (Intercept)           6.30   0.20    30.85    588.00   0.00</span></span>
-<span><span class="co">## imean(wks)            0.01   0.00     1.93    660.18   0.05</span></span>
-<span><span class="co">## imean(union)          0.09   0.04     2.15   1411.72   0.03</span></span>
-<span><span class="co">## imean(ms)             0.25   0.06     3.95   1047.31   0.00</span></span>
-<span><span class="co">## imean(occ)           -0.33   0.04    -8.55   1401.80   0.00</span></span>
-<span><span class="co">## blk                  -0.15   0.05    -2.81    588.00   0.01</span></span>
-<span><span class="co">## fem                  -0.32   0.06    -4.96    588.00   0.00</span></span>
-<span><span class="co">## -----------------------------------------------------------</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="font-style: italic;">p values calculated using Satterthwaite d.f.</span></span></span>
-<span><span class="co"><span style="font-style: italic;">## </span> </span></span>
-<span><span class="co">## <span style="font-weight: bold;">RANDOM EFFECTS:</span></span></span>
-<span><span class="co"><span style="font-weight: bold;">## </span>------------------------------------</span></span>
-<span><span class="co">##   Group      Parameter    Std. Dev. </span></span>
-<span><span class="co">## ---------- ------------- -----------</span></span>
-<span><span class="co">##     id      (Intercept)    0.2992   </span></span>
-<span><span class="co">##  Residual                  0.2589   </span></span>
-<span><span class="co">## ------------------------------------</span></span></code></pre>
+<pre><code> [1mMODEL INFO:
+ [22m [3mEntities:  [23m595
+ [3mTime periods:  [23m1-7
+ [3mDependent variable:  [23mlwage
+ [3mModel type: [23m Linear mixed effects
+ [3mSpecification:  [23mcontextual
+
+ [1mMODEL FIT: [22m
+ [3mAIC =  [23m2036.78,  [3mBIC =  [23m2119.13
+ [3mPseudo-R² (fixed effects) =  [23m0.27
+ [3mPseudo-R² (total) =  [23m0.69 [3m
+Entity ICC =  [23m0.57
+
+ [1mWITHIN EFFECTS:
+ [22m----------------------------------------------------
+               Est.   S.E.   t val.      d.f.      p
+----------- ------- ------ -------- --------- ------
+wks            0.00   0.00     1.06   3566.00   0.29
+union          0.06   0.03     2.53   3566.00   0.01
+ms            -0.08   0.03    -2.57   3566.00   0.01
+occ           -0.08   0.02    -3.32   3566.00   0.00
+----------------------------------------------------
+
+ [1mCONTEXTUAL EFFECTS:
+ [22m-----------------------------------------------------------
+                      Est.   S.E.   t val.      d.f.      p
+------------------ ------- ------ -------- --------- ------
+(Intercept)           6.30   0.20    30.85    588.00   0.00
+imean(wks)            0.01   0.00     1.93    660.18   0.05
+imean(union)          0.09   0.04     2.15   1411.72   0.03
+imean(ms)             0.25   0.06     3.95   1047.31   0.00
+imean(occ)           -0.33   0.04    -8.55   1401.80   0.00
+blk                  -0.15   0.05    -2.81    588.00   0.01
+fem                  -0.32   0.06    -4.96    588.00   0.00
+-----------------------------------------------------------
+
+ [3mp values calculated using Satterthwaite d.f.
+ [23m 
+ [1mRANDOM EFFECTS:
+ [22m------------------------------------
+  Group      Parameter    Std. Dev. 
+---------- ------------- -----------
+    id      (Intercept)    0.2992   
+ Residual                  0.2589   
+------------------------------------</code></pre>
 <p>Now the individual means have a new interpretation as the difference
 in effect compared to the within-entity estimates.</p>
 <p>If you don’t want to use any of the time-invariant variables, you can
@@ -676,38 +676,38 @@ also just ask for the “within” estimator:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wbm.html">wbm</a></span><span class="op">(</span><span class="va">lwage</span> <span class="op">~</span> <span class="va">wks</span> <span class="op">+</span> <span class="va">union</span> <span class="op">+</span> <span class="va">ms</span> <span class="op">+</span> <span class="va">occ</span>, data <span class="op">=</span> <span class="va">wages</span>, model <span class="op">=</span> <span class="st">"within"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="font-weight: bold;">MODEL INFO:</span></span></span>
-<span><span class="co"><span style="font-weight: bold;">## </span><span style="font-style: italic;">Entities: </span>595</span></span>
-<span><span class="co">## <span style="font-style: italic;">Time periods: </span>1-7</span></span>
-<span><span class="co">## <span style="font-style: italic;">Dependent variable: </span>lwage</span></span>
-<span><span class="co">## <span style="font-style: italic;">Model type:</span> Linear mixed effects</span></span>
-<span><span class="co">## <span style="font-style: italic;">Specification: </span>within</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="font-weight: bold;">MODEL FIT:</span></span></span>
-<span><span class="co">## <span style="font-style: italic;">AIC = </span>2266.01, <span style="font-style: italic;">BIC = </span>2310.35</span></span>
-<span><span class="co">## <span style="font-style: italic;">Pseudo-R² (fixed effects) = </span>0</span></span>
-<span><span class="co">## <span style="font-style: italic;">Pseudo-R² (total) = </span>0.69</span></span>
-<span><span class="co"><span style="font-style: italic;">## Entity ICC = </span>0.69</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## ----------------------------------------------------------</span></span>
-<span><span class="co">##                      Est.   S.E.   t val.      d.f.      p</span></span>
-<span><span class="co">## ----------------- ------- ------ -------- --------- ------</span></span>
-<span><span class="co">## (Intercept)          6.68   0.02   413.08    594.00   0.00</span></span>
-<span><span class="co">## wks                  0.00   0.00     1.06   3566.00   0.29</span></span>
-<span><span class="co">## union                0.06   0.03     2.53   3566.00   0.01</span></span>
-<span><span class="co">## ms                  -0.08   0.03    -2.57   3566.00   0.01</span></span>
-<span><span class="co">## occ                 -0.08   0.02    -3.32   3566.00   0.00</span></span>
-<span><span class="co">## ----------------------------------------------------------</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="font-style: italic;">p values calculated using Satterthwaite d.f.</span></span></span>
-<span><span class="co"><span style="font-style: italic;">## </span> </span></span>
-<span><span class="co">## <span style="font-weight: bold;">RANDOM EFFECTS:</span></span></span>
-<span><span class="co"><span style="font-weight: bold;">## </span>------------------------------------</span></span>
-<span><span class="co">##   Group      Parameter    Std. Dev. </span></span>
-<span><span class="co">## ---------- ------------- -----------</span></span>
-<span><span class="co">##     id      (Intercept)    0.3819   </span></span>
-<span><span class="co">##  Residual                  0.2589   </span></span>
-<span><span class="co">## ------------------------------------</span></span></code></pre>
+<pre><code> [1mMODEL INFO:
+ [22m [3mEntities:  [23m595
+ [3mTime periods:  [23m1-7
+ [3mDependent variable:  [23mlwage
+ [3mModel type: [23m Linear mixed effects
+ [3mSpecification:  [23mwithin
+
+ [1mMODEL FIT: [22m
+ [3mAIC =  [23m2266.01,  [3mBIC =  [23m2310.35
+ [3mPseudo-R² (fixed effects) =  [23m0
+ [3mPseudo-R² (total) =  [23m0.69 [3m
+Entity ICC =  [23m0.69
+
+----------------------------------------------------------
+                     Est.   S.E.   t val.      d.f.      p
+----------------- ------- ------ -------- --------- ------
+(Intercept)          6.68   0.02   413.08    594.00   0.00
+wks                  0.00   0.00     1.06   3566.00   0.29
+union                0.06   0.03     2.53   3566.00   0.01
+ms                  -0.08   0.03    -2.57   3566.00   0.01
+occ                 -0.08   0.02    -3.32   3566.00   0.00
+----------------------------------------------------------
+
+ [3mp values calculated using Satterthwaite d.f.
+ [23m 
+ [1mRANDOM EFFECTS:
+ [22m------------------------------------
+  Group      Parameter    Std. Dev. 
+---------- ------------- -----------
+    id      (Intercept)    0.3819   
+ Residual                  0.2589   
+------------------------------------</code></pre>
 <p>This can help declutter your output when you really just don’t care
 about the between-subjects effects.</p>
 </div>
@@ -727,47 +727,41 @@ several other assumptions.</p>
 <p><code><a href="../reference/wbgee.html">wbgee()</a></code> builds on <code>geeglm()</code> from the
 <code>geepack</code> package and works just like <code><a href="../reference/wbm.html">wbm()</a></code>.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wbgee.html">wbgee</a></span><span class="op">(</span><span class="va">lwage</span> <span class="op">~</span> <span class="va">wks</span> <span class="op">+</span> <span class="va">union</span> <span class="op">+</span> <span class="va">ms</span> <span class="op">+</span> <span class="va">occ</span> <span class="op">|</span> <span class="va">blk</span> <span class="op">+</span> <span class="va">fem</span>, data <span class="op">=</span> <span class="va">wages</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Loading required namespace: geepack</span></span></code></pre>
-<pre><code><span><span class="co">## Registered S3 methods overwritten by 'broom':</span></span>
-<span><span class="co">##   method            from  </span></span>
-<span><span class="co">##   tidy.glht         jtools</span></span>
-<span><span class="co">##   tidy.summary.glht jtools</span></span></code></pre>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="font-weight: bold;">MODEL INFO:</span></span></span>
-<span><span class="co"><span style="font-weight: bold;">## </span><span style="font-style: italic;">Entities: </span>595</span></span>
-<span><span class="co">## <span style="font-style: italic;">Time periods: </span>1-7</span></span>
-<span><span class="co">## <span style="font-style: italic;">Dependent variable: </span>lwage</span></span>
-<span><span class="co">## <span style="font-style: italic;">Model type:</span> Linear GEE</span></span>
-<span><span class="co">## <span style="font-style: italic;">Variance: </span>ar1 (alpha = 0.79)</span></span>
-<span><span class="co">## <span style="font-style: italic;">Specification: </span>within-between</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="font-weight: bold;">MODEL FIT:</span></span></span>
-<span><span class="co">## <span style="font-style: italic;">QIC = </span>672.19, <span style="font-style: italic;">QICu = </span>669.6, <span style="font-style: italic;">CIC = </span>12.29</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="font-weight: bold;">WITHIN EFFECTS:</span></span></span>
-<span><span class="co"><span style="font-weight: bold;">## </span>------------------------------------------</span></span>
-<span><span class="co">##                Est.   S.E.   z val.      p</span></span>
-<span><span class="co">## ----------- ------- ------ -------- ------</span></span>
-<span><span class="co">## wks            0.00   0.00     0.07   0.94</span></span>
-<span><span class="co">## union          0.03   0.02     1.32   0.19</span></span>
-<span><span class="co">## ms            -0.08   0.03    -2.78   0.01</span></span>
-<span><span class="co">## occ           -0.03   0.02    -1.64   0.10</span></span>
-<span><span class="co">## ------------------------------------------</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="font-weight: bold;">BETWEEN EFFECTS:</span></span></span>
-<span><span class="co"><span style="font-weight: bold;">## </span>-------------------------------------------------</span></span>
-<span><span class="co">##                       Est.   S.E.   z val.      p</span></span>
-<span><span class="co">## ------------------ ------- ------ -------- ------</span></span>
-<span><span class="co">## (Intercept)           6.29   0.22    28.48   0.00</span></span>
-<span><span class="co">## imean(wks)            0.01   0.00     2.09   0.04</span></span>
-<span><span class="co">## imean(union)          0.16   0.03     4.74   0.00</span></span>
-<span><span class="co">## imean(ms)             0.17   0.06     3.01   0.00</span></span>
-<span><span class="co">## imean(occ)           -0.41   0.03   -12.95   0.00</span></span>
-<span><span class="co">## blk                  -0.14   0.05    -2.90   0.00</span></span>
-<span><span class="co">## fem                  -0.30   0.06    -4.89   0.00</span></span>
-<span><span class="co">## -------------------------------------------------</span></span></code></pre>
+<code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wbgee.html">wbgee</a></span><span class="op">(</span><span class="va">lwage</span> <span class="op">~</span> <span class="va">wks</span> <span class="op">+</span> <span class="va">union</span> <span class="op">+</span> <span class="va">ms</span> <span class="op">+</span> <span class="va">occ</span> <span class="op">|</span> <span class="va">blk</span> <span class="op">+</span> <span class="va">fem</span>, data <span class="op">=</span> <span class="va">wages</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></code></pre></div>
+<pre><code> [1mMODEL INFO:
+ [22m [3mEntities:  [23m595
+ [3mTime periods:  [23m1-7
+ [3mDependent variable:  [23mlwage
+ [3mModel type: [23m Linear GEE
+ [3mVariance:  [23mar1 (alpha = 0.79)
+ [3mSpecification:  [23mwithin-between
+
+ [1mMODEL FIT: [22m
+ [3mQIC =  [23m672.19,  [3mQICu =  [23m669.6,  [3mCIC =  [23m12.29
+
+ [1mWITHIN EFFECTS:
+ [22m------------------------------------------
+               Est.   S.E.   z val.      p
+----------- ------- ------ -------- ------
+wks            0.00   0.00     0.07   0.94
+union          0.03   0.02     1.32   0.19
+ms            -0.08   0.03    -2.78   0.01
+occ           -0.03   0.02    -1.64   0.10
+------------------------------------------
+
+ [1mBETWEEN EFFECTS:
+ [22m-------------------------------------------------
+                      Est.   S.E.   z val.      p
+------------------ ------- ------ -------- ------
+(Intercept)           6.29   0.22    28.48   0.00
+imean(wks)            0.01   0.00     2.09   0.04
+imean(union)          0.16   0.03     4.74   0.00
+imean(ms)             0.17   0.06     3.01   0.00
+imean(occ)           -0.41   0.03   -12.95   0.00
+blk                  -0.14   0.05    -2.90   0.00
+fem                  -0.30   0.06    -4.89   0.00
+-------------------------------------------------</code></pre>
 <p>This gives us more conservative estimates, in general. Note that by
 default, <code><a href="../reference/wbgee.html">wbgee()</a></code> uses an AR-1 working error correlation
 structure in estimation. This makes sense in general but at times it may
@@ -821,42 +815,40 @@ contrasts of the <span class="math inline">\(\beta^+\)</span> and <span class="m
 assess the presence of asymmetric effects.</p>
 <p>Here’s how it works with the <code>panelr</code> function,
 <code><a href="../reference/asym.html">asym()</a></code>.</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asym.html">asym</a></span><span class="op">(</span><span class="va">lwage</span> <span class="op">~</span> <span class="va">ms</span> <span class="op">+</span> <span class="va">occ</span> <span class="op">+</span> <span class="va">union</span> <span class="op">+</span> <span class="va">wks</span>, data <span class="op">=</span> <span class="va">wages</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Loading required namespace: car</span></span></code></pre>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="font-weight: bold;">MODEL INFO:</span></span></span>
-<span><span class="co"><span style="font-weight: bold;">## </span><span style="font-style: italic;">Entities: </span>595</span></span>
-<span><span class="co">## <span style="font-style: italic;">Time periods: </span>2-7</span></span>
-<span><span class="co">## <span style="font-style: italic;">Dependent variable: </span>lwage</span></span>
-<span><span class="co">## <span style="font-style: italic;">Model type: </span>Linear asymmetric effects (first differences)</span></span>
-<span><span class="co">## <span style="font-style: italic;">Variance structure: </span>toeplitz-1 (theta = -0.44) </span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="font-style: italic;">Standard errors:</span> Cluster-robust (CR2) </span></span>
-<span><span class="co">## ------------------------------------------------</span></span>
-<span><span class="co">##                      Est.   S.E.   t val.      p</span></span>
-<span><span class="co">## ----------------- ------- ------ -------- ------</span></span>
-<span><span class="co">## (Intercept)          0.10   0.00    41.12   0.00</span></span>
-<span><span class="co">## +ms                 -0.04   0.02    -1.95   0.05</span></span>
-<span><span class="co">## -ms                  0.04   0.04     1.23   0.22</span></span>
-<span><span class="co">## +occ                -0.02   0.02    -0.97   0.33</span></span>
-<span><span class="co">## -occ                 0.03   0.02     1.17   0.24</span></span>
-<span><span class="co">## +union               0.01   0.02     0.64   0.52</span></span>
-<span><span class="co">## -union              -0.03   0.03    -1.11   0.27</span></span>
-<span><span class="co">## +wks                 0.00   0.00     0.48   0.63</span></span>
-<span><span class="co">## -wks                -0.00   0.00    -0.35   0.72</span></span>
-<span><span class="co">## ------------------------------------------------</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="font-weight: bold;">Tests of asymmetric effects:</span></span></span>
-<span><span class="co"><span style="font-weight: bold;">## </span>--------------------------</span></span>
-<span><span class="co">##               chi^2      p</span></span>
-<span><span class="co">## ----------- ------- ------</span></span>
-<span><span class="co">## ms             0.01   0.92</span></span>
-<span><span class="co">## occ            0.19   0.66</span></span>
-<span><span class="co">## union          0.44   0.51</span></span>
-<span><span class="co">## wks            0.00   1.00</span></span>
-<span><span class="co">## --------------------------</span></span></code></pre>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asym.html">asym</a></span><span class="op">(</span><span class="va">lwage</span> <span class="op">~</span> <span class="va">ms</span> <span class="op">+</span> <span class="va">occ</span> <span class="op">+</span> <span class="va">union</span> <span class="op">+</span> <span class="va">wks</span>, data <span class="op">=</span> <span class="va">wages</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></code></pre></div>
+<pre><code> [1mMODEL INFO:
+ [22m [3mEntities:  [23m595
+ [3mTime periods:  [23m2-7
+ [3mDependent variable:  [23mlwage
+ [3mModel type:  [23mLinear asymmetric effects (first differences)
+ [3mVariance structure:  [23mtoeplitz-1 (theta = -0.44) 
+
+ [3mStandard errors: [23m Cluster-robust (CR2) 
+------------------------------------------------
+                     Est.   S.E.   t val.      p
+----------------- ------- ------ -------- ------
+(Intercept)          0.10   0.00    41.12   0.00
++ms                 -0.04   0.02    -1.95   0.05
+-ms                  0.04   0.04     1.23   0.22
++occ                -0.02   0.02    -0.97   0.33
+-occ                 0.03   0.02     1.17   0.24
++union               0.01   0.02     0.64   0.52
+-union              -0.03   0.03    -1.11   0.27
++wks                 0.00   0.00     0.48   0.63
+-wks                -0.00   0.00    -0.35   0.72
+------------------------------------------------
+
+ [1mTests of asymmetric effects:
+ [22m--------------------------
+              chi^2      p
+----------- ------- ------
+ms             0.01   0.92
+occ            0.19   0.66
+union          0.44   0.51
+wks            0.00   1.00
+--------------------------</code></pre>
 <p>As you can see, in a model comparable to our within-between model
 from earlier, the effects seem quite symmetric.</p>
 <p>Let’s look at the <code>teen</code> data from earlier, where
@@ -864,33 +856,33 @@ from earlier, the effects seem quite symmetric.</p>
 spouse, <code>inschool</code> indicates whether the respondent is
 enrolled in school, and <code>hours</code> is the hours worked in the
 week of the survey.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="../reference/asym.html">asym</a></span><span class="op">(</span><span class="va">hours</span> <span class="op">~</span> <span class="va">spouse</span> <span class="op">+</span> <span class="va">inschool</span>, data <span class="op">=</span> <span class="va">teen</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="font-weight: bold;">MODEL INFO:</span></span></span>
-<span><span class="co"><span style="font-weight: bold;">## </span><span style="font-style: italic;">Entities: </span>1151</span></span>
-<span><span class="co">## <span style="font-style: italic;">Time periods: </span>2-5</span></span>
-<span><span class="co">## <span style="font-style: italic;">Dependent variable: </span>hours</span></span>
-<span><span class="co">## <span style="font-style: italic;">Model type: </span>Linear asymmetric effects (first differences)</span></span>
-<span><span class="co">## <span style="font-style: italic;">Variance structure: </span>toeplitz-1 (theta = -0.54) </span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="font-style: italic;">Standard errors:</span> Cluster-robust (CR2) </span></span>
-<span><span class="co">## ------------------------------------------------</span></span>
-<span><span class="co">##                      Est.   S.E.   t val.      p</span></span>
-<span><span class="co">## ----------------- ------- ------ -------- ------</span></span>
-<span><span class="co">## (Intercept)          1.16   0.15     7.74   0.00</span></span>
-<span><span class="co">## +spouse             -4.71   1.15    -4.09   0.00</span></span>
-<span><span class="co">## -spouse             -0.61   2.20    -0.28   0.78</span></span>
-<span><span class="co">## +inschool           -5.65   1.29    -4.38   0.00</span></span>
-<span><span class="co">## -inschool            7.66   0.69    11.09   0.00</span></span>
-<span><span class="co">## ------------------------------------------------</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="font-weight: bold;">Tests of asymmetric effects:</span></span></span>
-<span><span class="co"><span style="font-weight: bold;">## </span>-----------------------------</span></span>
-<span><span class="co">##                  chi^2      p</span></span>
-<span><span class="co">## -------------- ------- ------</span></span>
-<span><span class="co">## spouse            6.21   0.01</span></span>
-<span><span class="co">## inschool          2.14   0.14</span></span>
-<span><span class="co">## -----------------------------</span></span></code></pre>
+<pre><code> [1mMODEL INFO:
+ [22m [3mEntities:  [23m1151
+ [3mTime periods:  [23m2-5
+ [3mDependent variable:  [23mhours
+ [3mModel type:  [23mLinear asymmetric effects (first differences)
+ [3mVariance structure:  [23mtoeplitz-1 (theta = -0.54) 
+
+ [3mStandard errors: [23m Cluster-robust (CR2) 
+------------------------------------------------
+                     Est.   S.E.   t val.      p
+----------------- ------- ------ -------- ------
+(Intercept)          1.16   0.15     7.74   0.00
++spouse             -4.71   1.15    -4.09   0.00
+-spouse             -0.61   2.20    -0.28   0.78
++inschool           -5.65   1.29    -4.38   0.00
+-inschool            7.66   0.69    11.09   0.00
+------------------------------------------------
+
+ [1mTests of asymmetric effects:
+ [22m-----------------------------
+                 chi^2      p
+-------------- ------- ------
+spouse            6.21   0.01
+inschool          2.14   0.14
+-----------------------------</code></pre>
 <p>Here we see an asymmetric effect of marriage: gaining a spouse
 corresponds with fewer hours worked, but there’s no effect on work hours
 when a spouse is lost. You can see in the lower table that this
@@ -928,49 +920,49 @@ in his paper, another option is the GEE with logit link.</p>
 Allison (2019). Here our outcome variable is <code>pov</code>, poverty,
 and there’s a new predictor, <code>mother</code>, an indicator for
 whether the respondent has ever had any children.</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asym_gee.html">asym_gee</a></span><span class="op">(</span><span class="va">pov</span> <span class="op">~</span> <span class="va">mother</span> <span class="op">+</span> <span class="va">spouse</span> <span class="op">+</span> <span class="va">inschool</span> <span class="op">+</span> <span class="va">hours</span>, data <span class="op">=</span> <span class="va">teen</span>, family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">binomial</a></span><span class="op">(</span>link <span class="op">=</span> <span class="st">"logit"</span><span class="op">)</span>, </span>
 <span>                  use.wave <span class="op">=</span> <span class="cn">TRUE</span>, wave.factor <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="color: #00BBBB;">mother does not decrease over time so -mother is not included in the model.</span></span></span>
-<span><span class="co">## <span style="color: #00BBBB;">Unordered factor wave variable was converted to ordered. You should check</span></span></span>
-<span><span class="co"><span style="color: #00BBBB;">## that the order is correct.</span></span></span></code></pre>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<pre><code> [36mmother does not decrease over time so -mother is not included in the model. [39m
+ [36mUnordered factor wave variable was converted to ordered. You should check
+that the order is correct. [39m</code></pre>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="font-weight: bold;">MODEL INFO:</span></span></span>
-<span><span class="co"><span style="font-weight: bold;">## </span><span style="font-style: italic;">Entities: </span>1151</span></span>
-<span><span class="co">## <span style="font-style: italic;">Time periods: </span>2-5</span></span>
-<span><span class="co">## <span style="font-style: italic;">Dependent variable: </span>pov</span></span>
-<span><span class="co">## <span style="font-style: italic;">Model family: </span>binomial, <span style="font-style: italic;">Link: </span>logit</span></span>
-<span><span class="co">## <span style="font-style: italic;">Variance: </span>ar1 (alpha = 0.33)</span></span>
-<span><span class="co">## <span style="font-style: italic;">Specification: </span>Asymmetric effects (via GEE)</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="font-weight: bold;">MODEL FIT:</span></span></span>
-<span><span class="co">## <span style="font-style: italic;">QIC = </span>5898.64, <span style="font-style: italic;">QICu = </span>5897.59, <span style="font-style: italic;">CIC = </span>11.52</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## ------------------------------------------------</span></span>
-<span><span class="co">##                      Est.   S.E.   z val.      p</span></span>
-<span><span class="co">## ----------------- ------- ------ -------- ------</span></span>
-<span><span class="co">## (Intercept)         -0.30   0.06    -5.19   0.00</span></span>
-<span><span class="co">## +mother              0.72   0.11     6.63   0.00</span></span>
-<span><span class="co">## +spouse             -0.70   0.14    -5.14   0.00</span></span>
-<span><span class="co">## -spouse              0.43   0.25     1.71   0.09</span></span>
-<span><span class="co">## +inschool           -0.02   0.16    -0.15   0.88</span></span>
-<span><span class="co">## -inschool           -0.01   0.09    -0.09   0.93</span></span>
-<span><span class="co">## +hours              -0.02   0.00    -8.17   0.00</span></span>
-<span><span class="co">## -hours               0.01   0.00     1.61   0.11</span></span>
-<span><span class="co">## wave.L               0.11   0.07     1.65   0.10</span></span>
-<span><span class="co">## wave.Q              -0.00   0.05    -0.02   0.98</span></span>
-<span><span class="co">## wave.C              -0.05   0.05    -0.97   0.33</span></span>
-<span><span class="co">## ------------------------------------------------</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="font-weight: bold;">Tests of asymmetric effects:</span></span></span>
-<span><span class="co"><span style="font-weight: bold;">## </span>-----------------------------</span></span>
-<span><span class="co">##                  chi^2      p</span></span>
-<span><span class="co">## -------------- ------- ------</span></span>
-<span><span class="co">## spouse            1.10   0.29</span></span>
-<span><span class="co">## inschool          0.04   0.85</span></span>
-<span><span class="co">## hours            25.57   0.00</span></span>
-<span><span class="co">## -----------------------------</span></span></code></pre>
+<pre><code> [1mMODEL INFO:
+ [22m [3mEntities:  [23m1151
+ [3mTime periods:  [23m2-5
+ [3mDependent variable:  [23mpov
+ [3mModel family:  [23mbinomial,  [3mLink:  [23mlogit
+ [3mVariance:  [23mar1 (alpha = 0.33)
+ [3mSpecification:  [23mAsymmetric effects (via GEE)
+
+ [1mMODEL FIT: [22m
+ [3mQIC =  [23m5898.64,  [3mQICu =  [23m5897.59,  [3mCIC =  [23m11.52
+
+------------------------------------------------
+                     Est.   S.E.   z val.      p
+----------------- ------- ------ -------- ------
+(Intercept)         -0.30   0.06    -5.19   0.00
++mother              0.72   0.11     6.63   0.00
++spouse             -0.70   0.14    -5.14   0.00
+-spouse              0.43   0.25     1.71   0.09
++inschool           -0.02   0.16    -0.15   0.88
+-inschool           -0.01   0.09    -0.09   0.93
++hours              -0.02   0.00    -8.17   0.00
+-hours               0.01   0.00     1.61   0.11
+wave.L               0.11   0.07     1.65   0.10
+wave.Q              -0.00   0.05    -0.02   0.98
+wave.C              -0.05   0.05    -0.97   0.33
+------------------------------------------------
+
+ [1mTests of asymmetric effects:
+ [22m-----------------------------
+                 chi^2      p
+-------------- ------- ------
+spouse            1.10   0.29
+inschool          0.04   0.85
+hours            25.57   0.00
+-----------------------------</code></pre>
 <p>The results are broadly similar in terms of coefficient estimates to
 those obtained by Allison. Unlike Allison, we do not have good evidence
 of an asymmetric effect in the case of <code>spouse</code> but we do
