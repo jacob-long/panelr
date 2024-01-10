@@ -1,3 +1,12 @@
+# panelr 0.8.0.9000
+
+* Several improvements to formula parsing in the modeling functions. It is
+now possible to have random effects for factors, have multiple, non-correlated
+random effects, random effects for which there are no fixed effects, and several 
+edge cases relating to non-syntactic variables have been corrected. 
+([#56](https://github.com/jacob-long/panelr/issues/56),
+ [#54](https://github.com/jacob-long/panelr/issues/54)) 
+
 # panelr 0.7.8
 
 * Includes a back-end update for continued compatibility with `tibble`. (#55)

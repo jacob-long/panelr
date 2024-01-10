@@ -5,6 +5,12 @@ wb_formula_parser <- function(formula, dv, data, force.constants = TRUE) {
   # See how many parts the formula has 
   conds <- length(formula)[2]
   
+  # These are NULL unless user specifies random effects
+  ranefs <- NULL
+  ranef_forms <- NULL
+  ranef_vars <- NULL
+  grouping_vars <- NULL
+
   # Need to deal with custom random effects
   if (conds >= 3) { 
     # Capturing those and putting them in a list
@@ -17,13 +23,9 @@ wb_formula_parser <- function(formula, dv, data, force.constants = TRUE) {
       grouping_vars <- stringr::str_split(ranefs, "\\| | \\|\\|")
       grouping_vars <- sapply(grouping_vars, 
                               function(x) stringr::str_trim(x[[2]]))
-    } else {
-      grouping_vars <- NULL
     }
-  } else {
-    ranefs <- NULL
-    grouping_vars <- NULL
   }
+
   # Deal with non-numeric variables
   if (any(!sapply(all.vars(formula), function(x) is.numeric(data[[x]])))) {
     if (conds >= 3) {
@@ -48,29 +50,45 @@ wb_formula_parser <- function(formula, dv, data, force.constants = TRUE) {
     if (!is.null(ranefs)) {
       ranef_forms <- lapply(ranefs, function(x) {
         # Split into left-hand and right-hand side
-        splitted <- stringr::str_split(x, "\\| | \\|\\|")
+        splitted <- lapply(stringr::str_split(x, "\\| |\\|\\|"), trimws)
         lhs <- splitted[[1]][[1]]
         rhs <- splitted[[1]][[2]]
         # Convert LHS to formula
-        lhs_form <- Formula::Formula(as.formula(paste("~", bt(lhs))))
-        # Find the time-varying non-numeric vars 
+        lhs_form <- Formula::Formula(as.formula(paste("~", lhs)))
+        # Capture whether user asked to suppress intercept for this random effect
+        intercept <- attr(terms(lhs_form), "intercept") == 1
+        # Find the non-numeric vars 
         vars <- names(sapply(all.vars(lhs_form), 
                              function(x) is.numeric(data[[x]])) %just% FALSE)
         # Now just loop through and do like I did with the main part of the 
         # formula
         for (var in vars) {
-          lhs_form <- expand_formula(lhs_form, var, data)[[1]]
+          lhs_form <- expand_formula(lhs_form, var, data)
+          # Need to convert back to formula so the input to expand_formula() is
+          # consistent on subsequent loops (if any)
+          lhs_form <- Formula::Formula(as.formula(paste("~", lhs_form)))
         } 
-        if (length(vars) == 0) lhs_form <- lhs_form[[2]]
-        lhs <- to_char(lhs_form)
+        lhs <- to_char(lhs_form[[2]])
+        # Add the +0 back if needed
+        if (!intercept) lhs <- paste0(lhs, " + 0")
         # Convert back to a string format with expanded factors, if any
         paste0("(", lhs, ifelse(stringr::str_detect(x, "\\|\\|"),
-                                yes = "||", no = "|"),  
+                                yes = " || ", no = " | "),  
                rhs, ")")
+      })
+      ranef_vars <-  c(sapply(ranef_forms, function(x) {
+        splitted <- lapply(stringr::str_split(x, "\\| |\\|\\|"), trimws)
+        lhs <- trimws(splitted[[1]][[1]], whitespace = "\\(")
+        lhs_form <- Formula::Formula(as.formula(paste("~", lhs)))
+        rhs <- trimws(splitted[[1]][[2]], whitespace = "\\)")
+        form <- as.formula(paste("~", lhs, " + ", rhs))
+        attr(terms(form), "term.labels")
+      }))
+      ranef_vars <- sapply(ranef_vars, function(x) {
+        if (make.names(x) != x & x %in% names(data)) un_bt(x) else x
       })
     }
   }
-  
   # Save varying variables
   varying <- sapply(get_term_labels(formula), function(x) {
     # If non-syntactic names are inside functions, retain backticks
@@ -102,7 +120,7 @@ wb_formula_parser <- function(formula, dv, data, force.constants = TRUE) {
   }
   
   # Retain list of all variables to go into final model
-  allvars <- c(dv, varying, constants)
+  allvars <- unique(c(dv, varying, constants, ranef_vars))
 
   if (conds >= 3) { # Deal with interactions et al. part of formula
     # Grab all the variables mentioned in this part of the formula
@@ -121,14 +139,14 @@ wb_formula_parser <- function(formula, dv, data, force.constants = TRUE) {
     # Add them onto the allvars vector as long as they aren't redundant
     allvars <- unique(c(allvars, int_vars))
   }
-  
-  if (!is.null(ranefs)) {
-    ranef_forms <- paste(ranef_forms, collapse = " + ")
+
+  if (!is.null(ranef_forms)) {
+    new_3 <- paste(ranef_forms, collapse = " + ")
     new_3 <- 
-      paste("~", to_char(get_rhs(formula, which = 3)), "+", ranef_forms)
+      paste("~", to_char(get_rhs(formula, which = 3)), "+", new_3)
     attr(formula, "rhs")[[3]] <- as.formula(new_3)[[2]]
   }
-  
+
   # Now I want to expand all interactions into their constituent terms in 
   # a conventional, one-part formula so I can deal with complex interactions
   # that may involve redundant variable pairings across formula parts.
@@ -211,11 +229,11 @@ wb_formula_parser <- function(formula, dv, data, force.constants = TRUE) {
     if (make.names(x) != x & x %in% names(data)) bt(x) else x 
   })
   v_info$meanvar <- paste0("imean(", v_info$term, ")")
-  
+
   out <- list(conds = conds, allvars = allvars, varying = varying, 
               constants = constants, v_info = v_info,
               data = data, wint_labs = wint_labs, cint_labs = cint_labs,
-              bint_labs = bint_labs, ranefs = ranefs)
+              bint_labs = bint_labs, ranefs = ranef_forms)
   return(out)
 
 }
@@ -488,12 +506,13 @@ un_bt <- function(x) {
 bt_ranefs <- function(ranefs, data) {
   ranef_forms <- lapply(ranefs, function(x) {
     # Split into left-hand and right-hand side
-    splitted <- stringr::str_split(x, "\\| | \\|\\|")
-    lhs <- splitted[[1]][[1]]
-    rhs <- splitted[[1]][[2]]
+    splitted <- stringr::str_split(x, "\\| |\\|\\|")
+    lhs <- trimws(splitted[[1]][[1]], whitespace = "\\(")
+    rhs <- trimws(splitted[[1]][[2]], whitespace = "\\)")
     # Convert LHS to formula
     lhs_form <- Formula::Formula(as.formula(paste("~", lhs)))
     if (deparse(lhs_form) != "~1") {
+      intercept <- attr(terms(lhs_form), "intercept") == 1
       term.labs <- attr(terms(lhs_form), "term.labels")
       term.labs <- sapply(term.labs, function(y) {
         if (y %in% names(data)) bt(y) else y
@@ -506,6 +525,7 @@ bt_ranefs <- function(ranefs, data) {
         length(attr(terms(reformulate(term.labs)), "term.labels")) < 2) {
       lhs <- bt(lhs)
     }
+    if (!intercept) lhs <- paste0(lhs, " + 0")
     # Convert back to a string format with expanded factors, if any
     paste0("(", lhs, ifelse(stringr::str_detect(x, "\\|\\|"),
                             yes = "||", no = "|"),  
@@ -615,9 +635,9 @@ which_terms <- function(formula, variable) {
 }
 
 # Create a formula with an expanded factor variable (i.e., with dummies)
- expand_formula <- function(formula, variable, data) {
+expand_formula <- function(formula, variable, data) {
   out <- list()
-  for (i in 1:length(formula)[2]) {
+  for (i in 1:length(formula)[length(length(formula))]) {
     tmp_form <- get_rhs(formula, which = i, to.formula = TRUE)
     if (!all(deparse(tmp_form) == "~1") && variable %in% all.vars(tmp_form)) {
       # Get terms that don't have anything to do with variable

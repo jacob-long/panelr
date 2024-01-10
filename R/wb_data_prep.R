@@ -191,7 +191,7 @@ wb_model <- function(model, pf, dv, data, detrend, demean.ints, old.ints) {
     }
     
     # Deal with within interactions
-    if (!is.null(c(pf$wint_labs, pf$cint_labs)) & old.ints == FALSE &
+    if (!is.null(c(pf$wint_labs, pf$cint_labs)) && old.ints == FALSE &&
         detrend == FALSE) {
       ints <- process_interactions(ints = c(pf$wint_labs, pf$cint_labs),
                                    data = data, pf = pf, 
@@ -230,7 +230,6 @@ wb_model <- function(model, pf, dv, data, detrend, demean.ints, old.ints) {
   } else {
     add_form <- ""
   }
-  
   # Put the pieces together
   the_terms <- c(bt(pf$varying), bt(pf$constants), bt(cross_ints), 
                  bt(within_ints), pf$bint_labs, 
@@ -243,6 +242,7 @@ wb_model <- function(model, pf, dv, data, detrend, demean.ints, old.ints) {
         )
       )
   }
+
   fin_formula <- paste(bt(dv), "~", add_form, "+",
                        paste(the_terms, collapse = " + "))
   
