@@ -26,6 +26,14 @@ jobs:
           extra-packages: any::covr
           needs: coverage
 
+      - name: Set CRAN mirror
+        run: echo "options(repos = c(CRAN='https://cloud.r-project.org/'))" > ~/.Rprofile
+
+      - name: Install lme4 from source to fix Matrix errors
+        run: | 
+          install.packages('lme4', type = 'source')
+        shell: Rscript {0}
+
       - name: Test coverage
         run: |
           covr::codecov(
