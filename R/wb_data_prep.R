@@ -9,10 +9,26 @@ wb_prepare_data <- function(formula, data, id = NULL, wave = NULL,
     if ("panel_data" %in% class(data)) {
       id <- attr(data, "id")
       wave <- attr(data, "wave")
+    } else {
+      if (is.null(id)) {
+        id <- attr(data, "id")
+      }
+      if (is.null(wave)) {
+        wave <- attr(data, "wave")
+      }
     }
     
+    # Try to catch plausible data input issues before we go any further
     if (!("data.frame" %in% class(data))) {
-      stop("data argument must be a data frame.")
+      stop_wrap("data argument must be a data frame.")
+    }
+    if (is.null(id)) {
+      stop_wrap("Could not find the id column for the input data. Either 
+                 specify the id argument or provide a panel_data frame.")      
+    }
+    if (is.null(wave)) {
+      stop_wrap("Could not find the wave column for the input data. Either 
+                 specify the wave argument or provide a panel_data frame.")      
     }
     
     # Coerce to panel_data

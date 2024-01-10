@@ -356,7 +356,9 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
   } 
   out@frame <- as.data.frame(data)
   attr(out@frame, "terms") <- terms 
-  attr(out@frame, "formula") <- formula(fit)  
+  attr(out@frame, "formula") <- formula(fit)
+  attr(out@frame, "wave") <- prepped$wave
+  attr(out@frame, "id") <- prepped$id
 
   out@call_info <- list(dv = dv, id = id, wave = wave,
               num_distinct = prepped$num_distinct,
@@ -723,9 +725,8 @@ tidy.summ.wbm <- function(x, ...) {
 update_summ <- function(summ, call.env, ...) {
   
   call <- getCall(summ)
-  
   # Now get the argument names for that version of summ
-  summ_formals <- formals(getFromNamespace(class(summ), "jtools"))
+  summ_formals <- formals(getFromNamespace(class(summ)[1], "jtools"))
   
   extras <- as.list(match.call())
   indices <- which(names(extras) %in% names(summ_formals))

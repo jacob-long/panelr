@@ -381,7 +381,7 @@ formula.wbgee <- function(x, raw = FALSE, ...) {
 #' @export
 #' @importFrom stats terms
 
-terms.wbm <- function(x, fixed.only = TRUE, random.only = FALSE, ...) {
+terms.wbm <- function(x, fixed.only = FALSE, random.only = FALSE, ...) {
     x <- to_merMod(x)
     terms(x, fixed.only = fixed.only, random.only = random.only, ...)
 }
@@ -563,7 +563,7 @@ make_predictions.wbgee <- function(model, pred, pred.values = NULL, at = NULL,
     }
   }
   
-  if (return.orig.data == FALSE & partial.residuals == FALSE) {
+  if (return.orig.data == FALSE && partial.residuals == FALSE) {
     o <- tibble::as_tibble(pm)
   } else {
     if (return.orig.data == TRUE & partial.residuals == FALSE) {
@@ -620,6 +620,11 @@ two_sided <- function(x, ...) {
                  "!", "&", "&&", "|", "||", "~", "<-", "<<-", "=", "?", "%*%",
                  "%x%", "%o%", "%>%", "%<>%", "%T>%")
   is.name(x[[1]]) && deparse(x[[1]]) %in% operators && length(x) == 3
+}
+
+#' @export
+get_formula.wblm <- function(model, ...) {
+  formula(formula(model))
 }
 
 need_package <- function(x) {

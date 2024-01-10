@@ -6,6 +6,10 @@ random effects, random effects for which there are no fixed effects, and several
 edge cases relating to non-syntactic variables have been corrected. 
 ([#56](https://github.com/jacob-long/panelr/issues/56),
  [#54](https://github.com/jacob-long/panelr/issues/54)) 
+ * Models should now be compatible with `sim_slopes()` and `johnson_neyman()`
+ from the `interactions` package. Note that this compatibility is pending an
+ update to that package. 
+ ([#57](https://github.com/jacob-long/panelr/issues/57))
 
 # panelr 0.7.8
 
