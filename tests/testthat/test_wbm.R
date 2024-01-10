@@ -2,12 +2,15 @@ data("WageData")
 
 # Defaults ----------------------------------------------------------------
 context("wbm defaults")
-wages <- WageData
+WageData <- WageData %>% 
+  mutate(
+    south_names = factor(ifelse(south == 0, "north", "south")),
+    union_names = factor(ifelse(union == 1, "yes", "no"))
+  )
+wages <- panel_data(WageData, id = id, wave = t)
 wages <- wages[8:210,] # Reduce runtime
 # Add arbitrary weights for testing
 wages$wts <- runif(nrow(wages), 0.3, 3)
-# Make it a panel data frame
-wages <- panel_data(wages, id = id, wave = t)
 wb <- wbm(wks ~ union + lwage | blk, data = wages)
 
 test_that("wbm defaults work", {
@@ -224,6 +227,34 @@ test_that("wbm works with multiple random effects", {
   })
   expect_s4_class(wb, "wbm")
 })
+
+test_that("wbm works with factors in random effect", {
+  suppressWarnings({
+    wb <- wbm(wks ~ union_names + lag(lwage) | blk | (union_names | id) + 
+              (lag(lwage) | id),
+              data = wages)
+  })
+  expect_s4_class(wb, "wbm")
+})
+
+test_that("wbm works with lagged factors in random effect", {
+  suppressWarnings({
+    wb <- wbm(wks ~ union_names + lag(lwage) | blk | (lag(union_names) | id) + 
+              (lwage | id),
+              data = wages)
+  })
+  expect_s4_class(wb, "wbm")
+})
+
+test_that("wbm works with variable only in random effect", {
+  suppressWarnings({
+    wb <- wbm(wks ~ lag(lwage) | blk | (union_names | id) + 
+              (lag(lwage) | id),
+              data = wages)
+  })
+  expect_s4_class(wb, "wbm")
+})
+
 test_that("wbm summary works", {
   expect_s3_class(swb <- summary(wb), "summary.wbm")
   expect_output(print(swb))
