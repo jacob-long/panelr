@@ -78,11 +78,11 @@ predict.wbm <- function(object, newdata = NULL, se.fit = FALSE,
                         allow.new.levels = TRUE, na.action = na.pass, ...) {
   
   # Need to re-process data when raw is FALSE
-  if (!is.null(newdata) & raw == FALSE) {
+  if (!is.null(newdata) && raw == FALSE) {
     newdata <- process_nonraw_newdata(object, newdata, re.form)
   }
   
-  if (raw == TRUE & !is.null(newdata)) {
+  if (raw == TRUE && !is.null(newdata)) {
     newdata <- process_raw_newdata(object, newdata)
   }
   
@@ -156,12 +156,12 @@ process_nonraw_newdata <- function(object, newdata, re.form) {
 }
 
 process_raw_newdata <- function(object, newdata) {
-  ints <- attr(object@frame, "interactions")
+  ints <- object@call_info$interactions
   if (!is.null(ints)) {
     ints <- gsub(":", "*", ints)
     ints <- gsub("(^.*)(?=\\*)", "`\\1`", ints, perl = TRUE)
     ints <- gsub("(?<=\\*)(.*$)", "`\\1`", ints, perl = TRUE)
-    demean <- attr(object@frame, "interaction.style") == "double-demean"
+    demean <- object@call_info$interaction.style == "double-demean"
     if (object@call_info$model %in% c("between", "contextual", "random")) {
       demean <- FALSE
     }
@@ -397,14 +397,19 @@ make_predictions.wbm <- function(model, pred, pred.values = NULL, at = NULL,
   boot = FALSE, sims = 1000, progress = "txt", set.offset = NULL, 
   new_data = NULL, return.orig.data = FALSE, partial.residuals = FALSE, 
   message = TRUE, raw = TRUE, ...) {
-  
+
   # Check if user provided own new_data
   if (is.null(new_data)) {
+    meanvars <- model@call_info$meanvars
+    if (!is.null(meanvars)) {
+      meanvarlist <- lapply(data[meanvars], mean, na.rm = TRUE)
+      at <- c(at, meanvarlist)
+    }
     # Get the data ready with make_new_data()
     pm <- jtools::make_new_data(model, pred, pred.values = pred.values, at = at, 
                         data = data, center = center, set.offset = set.offset)
   } else {pm <- new_data}
-  
+
   resp <- jtools::get_response_name(model)
   link_or_lm <- ifelse(family(model)$link == "identity",
                        yes = "response", no = "link")
@@ -416,7 +421,7 @@ make_predictions.wbm <- function(model, pred, pred.values = NULL, at = NULL,
   }
   
   # Do the predictions using built-in prediction method if robust is FALSE
-  if (interval == FALSE & is.null(model.offset(model.frame(model)))) {
+  if (interval == FALSE && is.null(model.offset(model.frame(model)))) {
     predicted <- as.data.frame(predict(model, newdata = pm,
                                        type = link_or_lm,
                                        re.form = re.form,

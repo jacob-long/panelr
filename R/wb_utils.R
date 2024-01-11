@@ -233,7 +233,8 @@ wb_formula_parser <- function(formula, dv, data, force.constants = TRUE) {
   out <- list(conds = conds, allvars = allvars, varying = varying, 
               constants = constants, v_info = v_info,
               data = data, wint_labs = wint_labs, cint_labs = cint_labs,
-              bint_labs = bint_labs, ranefs = ranef_forms)
+              bint_labs = bint_labs, ranefs = ranef_forms,
+              meanvars = v_info$meanvar)
   return(out)
 
 }
