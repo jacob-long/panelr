@@ -18,7 +18,7 @@ Description: Provides an object type and associated tools for storing and
   (Allison, 2019 <doi:10.1177/2378023119826441>) as well as a generalized
   linear model extension thereof using GEE. 
 URL: https://panelr.jacob-long.com
-BugReports: https://github.com/jacob-long/panelr
+BugReports: https://github.com/jacob-long/panelr/issues
 Depends: R (>= 3.4.0),
       lme4
 Imports: crayon, 
