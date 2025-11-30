@@ -99,7 +99,7 @@ package](https://tibble.tidyverse.org/)) that are grouped by entity
 (i.e., the ID column).
 
 `panel_data` frames are meant to play nice with the
-[`tidyverse`](https://www.tidyverse.org/). Here’s a quick sample of how a
+[`tidyverse`](https://tidyverse.org/). Here’s a quick sample of how a
 tidy workflow with `panelr` can work:
 
 ``` r
@@ -260,4 +260,4 @@ By participating in this project you agree to abide by its terms.
 ## License
 
 The source code of this package is licensed under the [MIT
-License](https://opensource.org/license/mit/).
+License](https://opensource.org/license/mit).

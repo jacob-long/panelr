@@ -30,7 +30,7 @@ wb_formula_parser <- function(formula, dv, data, force.constants = TRUE) {
   if (any(!sapply(all.vars(formula), function(x) is.numeric(data[[x]])))) {
     if (conds >= 3) {
       # Remove ranefs from formula for now
-      attr(formula, "rhs")[[3]] <- lme4::nobars(attr(formula, "rhs")[[3]])
+      attr(formula, "rhs")[[3]] <- reformulas::nobars(attr(formula, "rhs")[[3]])
     }
     # Find the time-varying non-numeric vars 
     vars <- 
@@ -250,11 +250,11 @@ prepare_lme4_formula <- function(formula, pf, data, use.wave, wave, id, ...) {
   # See if the formula has 3 parts
   if (pf$conds > 2) {
     # See if there are any random effects specified
-    res <- lme4::findbars(as.formula(formula))
+    res <- reformulas::findbars(as.formula(formula))
     # If there are, let's deal with them
     if (!is.null(res)) {
       # Get info on those random effects
-      refs <- lme4::mkReTrms(res, data)$cnms
+      refs <- reformulas::mkReTrms(res, data)$cnms
       # Check if any of those random effects include the id variable
       if (any(names(refs) == id)) {
         # Check if those terms include an intercept
@@ -535,7 +535,7 @@ bt_ranefs <- function(ranefs, data) {
   paste(ranef_forms, collapse = " + ")
 }
 
-# Modified version of helper function inside lme4::findbars
+# Modified version of helper function inside reformulas::findbars
 fb <- function(term) {
   if (is.name(term) || !is.language(term)) 
     return(NULL)
@@ -716,7 +716,7 @@ expand_interactions <- function(x) {
   }
   if (length(attr(x, "rhs")) >= 3) {
     # Remove ranefs from formula for now
-    attr(x, "rhs")[[3]] <- lme4::nobars(attr(x, "rhs")[[3]])
+    attr(x, "rhs")[[3]] <- reformulas::nobars(attr(x, "rhs")[[3]])
   }
   
   for (i in seq_along(attr(x, "rhs"))) {
