@@ -33,7 +33,8 @@ Imports: crayon,
       rlang (>= 0.3.0),
       stringr,
       tibble (>= 2.0.0),
-      tidyr (>= 0.8.3)
+      tidyr (>= 0.8.3),
+      reformulas (>= 0.4.2)
 Suggests: brms,
     broom.mixed,
     car,
