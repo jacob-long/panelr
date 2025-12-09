@@ -311,7 +311,7 @@ long_panel <- function(data, prefix = NULL, suffix = NULL, begin = NULL,
       }
     }
   }
-  
+
   # Remove reshape's saved attributes
   attributes(data)$reshapeLong <- NULL
   # Call reshape

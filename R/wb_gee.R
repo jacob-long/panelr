@@ -208,6 +208,7 @@ wbgee <- function(formula, data, id = NULL, wave = NULL,
                         qic = qics["QIC"], qicu = qics["QICu"],
                         cic = qics["CIC"], cor.str = cor.str[1],
                         alpha = fit_sum$corr, 
+                        interactions = c(e$within_ints, ints),
                         interaction.style = interaction.style)
   
   fit$call <- the_call

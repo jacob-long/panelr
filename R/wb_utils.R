@@ -12,7 +12,7 @@ wb_formula_parser <- function(formula, dv, data, force.constants = TRUE) {
   grouping_vars <- NULL
 
   # Need to deal with custom random effects
-  if (conds >= 3) { 
+  if (conds >= 3) {
     # Capturing those and putting them in a list
     ranefs <- fb(get_rhs(formula, which = 3, to.formula = FALSE))
     if (!is.null(ranefs)) {
@@ -21,8 +21,15 @@ wb_formula_parser <- function(formula, dv, data, force.constants = TRUE) {
       ranefs <- stringr::str_replace_all(ranefs, "~", "")
       # Now I need to know which are the grouping vars
       grouping_vars <- stringr::str_split(ranefs, "\\| | \\|\\|")
-      grouping_vars <- sapply(grouping_vars, 
-                              function(x) stringr::str_trim(x[[2]]))
+      grouping_vars <- sapply(grouping_vars,
+                              function(x) {
+                                if (length(x) >= 2) {
+                                  stringr::str_trim(x[[2]])
+                                } else {
+                                  NA_character_
+                                }
+                              })
+      grouping_vars <- grouping_vars[!is.na(grouping_vars)]
     }
   }
 

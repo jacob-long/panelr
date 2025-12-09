@@ -20,8 +20,8 @@
 
 panel_data <- function(data, id = id, wave = wave, ...) {
 
-  id <- as_name(enexpr(id))
-  wave <- as_name(enexpr(wave))
+  id <- as_name(enquo(id))
+  wave <- as_name(enquo(wave))
   
   if (id %nin% names(data)) {
     stop(id, "was not found in the data.")
@@ -44,19 +44,15 @@ panel_data <- function(data, id = id, wave = wave, ...) {
   if (is.factor(data[[wave]]) & !is.ordered(data[[wave]])) {
     data[[wave]] <- factor(data[[wave]], ordered = TRUE)
     msg_wrap("Unordered factor wave variable was converted to ordered.
-             You should check that the order is correct.")
+             You should check that the order is correct. If you need
+             an unordered wave variable for analysis, create a new 
+             variable to do so.")
     periods <- levels(data[[wave]])
   } else if (!valid_wave(data[[wave]])) {
     stop("The wave variable must be numeric or an ordered factor.")
   } else {
     periods <- sort(unique(data[[wave]]))
   }
-  
-  # if (!is.ordered(wave) && 0 %in% data[[wave]]) {
-  #   message("There cannot be a wave 0. Adding 1 to each wave.\n")
-  #   data[[wave]] <- data[[wave]] + 1
-  #   periods <- periods + 1
-  # }
 
   # Ordering by wave and then group ensures lag functions work right
   data <- arrange(data, !!sym(wave), .by_group = TRUE)
@@ -188,13 +184,17 @@ complete_data <- function(data, ..., formula = NULL, vars = NULL,
 #' @import dplyr 
 #' @import rlang
 
-is_varying <- function(data, variable) {
+## This is the old approach, saving for now...
+## It's a good bit faster than the new approach when it runs into constants,
+## but it's *massively* slower for varying variables. I'm basically gambling
+## that most of the time, it is being fed varying variables.
+is_varying2 <- function(data, variable) {
   
   variable <- ensym(variable)
   
   out <- data %>%
     # For each group, does the variable vary?
-    transmute(variable := n_distinct(!! variable, na.rm = TRUE) %in% c(0L,1L)) %>%
+    transmute(variable := n_distinct(!! variable, na.rm = TRUE) <= 1) %>%
     ungroup()
   
   out <- out[["variable"]]
@@ -206,6 +206,34 @@ is_varying <- function(data, variable) {
   # I now need to return the opposite of out
   return(!out)
   
+}
+
+is_varying <- function(data, variable) {
+  
+  # Get variable name, turn into string
+  variable <- as_name(ensym(variable))
+  # Get id variable name as string
+  id <- group_vars(data)
+  # Drop panel_data class because all these times I index it slow things down
+  # incredibly if it has to reconstruct each time.
+  data <- unpanel(data)
+  # Get unique ids
+  ids <- unique(data[[id]])
+  # Now we loop through each panelist — this is so we can end the function as
+  # soon as we find a panelist who has variance. This is much faster (~10x) than 
+  # the vectorized approach I used to use when there is in fact within-person
+  # variance. It is about 2x slower when the variable is a constant (the old 
+  # approach is the same speed regardless, because it is vectorized).
+  for (i in ids) {
+    # grab this respondent's data
+    group_data <- data[data[[id]] == i, variable]
+    # see how many unique values, if more than one then they are varying 
+    if (n_distinct(group_data[[variable]], na.rm = TRUE) > 1) {
+      return(TRUE)
+    }
+  }
+  # If nobody varies, 
+  return(FALSE)
 }
 
 #' @title Check if variables are constant or variable over time.
@@ -250,6 +278,51 @@ are_varying <- function(data, ..., type = "time") {
   if ("time" %in% type) {
     outt <- map_lgl(dots, function(x, d) {
       is_varying(!! x, data = select(d, !! id, !! x))
+    }, d = data)
+  } 
+  # Get individual variation
+  if ("individual" %in% type) {
+    outi <- map_lgl(dots, function(x, d) {
+      is_varying_individual(!! x, data = select(d, !! id, !! x))
+      }, d = data)
+    # If both, rbind them into a d.f.
+    if (exists("outt")) {
+      out <- as.data.frame(rbind(outt, outi))
+      rownames(out) <- c("time", "individual")
+    } else {out <- outi}
+  }
+  # If not both, make time the out object
+  if (!exists("out", inherits = FALSE)) {
+    out <- outt
+  }
+  
+  names(out) <- as.character(unlist(dots))
+  out
+}
+
+are_varying2 <- function(data, ..., type = "time") {
+  
+  wave <- get_wave(data) 
+  id <- get_id(data)
+  class(data) <- class(data)[class(data) %nin% "panel_data"]
+  
+  dots <- quos(...)
+  if (length(dots) == 0) {
+    dnames <- names(data) %not% c(wave, id)
+    dots <- syms(as.list(dnames))
+  } else {
+    # This gives an unsurprising "adding grouping variable" message
+    suppressMessages(data <- dplyr::select(data, ...))
+    dots <- as.character(enexprs(...))
+    is_wave <- if (wave %in% dots) NULL else wave
+    dots <- syms(
+      as.list(names(data) %not% c(id, is_wave))
+    )
+  }
+  # Get time variation
+  if ("time" %in% type) {
+    outt <- map_lgl(dots, function(x, d) {
+      is_varying2(!! x, data = select(d, !! id, !! x))
     }, d = data)
   } 
   # Get individual variation
