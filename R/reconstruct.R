@@ -28,12 +28,21 @@ reconstruct.panel_data <- function(new, old) {
     return(new)
   }
   
+  # Use lightweight build_panel_data for fast reconstruction
+  # Only call full panel_data() if grouping is broken
   if ("panel_data" %nin% class(new) | id %nin% group_vars(new)) {
+    # Need to rebuild grouping - use build_panel_data with explicit grouping
     atts <- attributes(old)
-    return(panel_data(new, id = !! sym(id), wave = !! sym(wave),
-                      reshaped = atts$reshaped, varying = atts$varying, 
-                      constants = atts$constants)
-           )
+    new <- dplyr::group_by(new, !! sym(id))
+    return(build_panel_data(
+      new,
+      id = id,
+      wave = wave,
+      periods = get_periods(old),
+      reshaped = atts$reshaped,
+      varying = atts$varying,
+      constants = atts$constants
+    ))
   } else {
     return(re_attribute(new, old))
   }
@@ -155,46 +164,6 @@ group_by.panel_data <- function(.data, ...) {
 #' @export
 `[[<-.panel_data` <- function(x, i, j, ..., value) {
   reconstruct(NextMethod(), x)
-}
-
-### Backwards compat support for deprecated standard eval dplyr
-
-# Only a few of them need it. arrange_.tbl_df() directly calls arrange_impl()
-# causing a problem.
-
-#' @export
-#' @importFrom dplyr arrange_
-#'
-arrange_.panel_data <- function(.data, ..., .dots = list()) {
-  reconstruct(NextMethod(), .data)
-}
-
-#' @export
-#' @importFrom dplyr mutate_
-#'
-mutate_.panel_data <- function(.data, ..., .dots = list()) {
-  reconstruct(NextMethod(), .data)
-}
-
-#' @export
-#' @importFrom dplyr summarise_
-#'
-summarise_.panel_data <- function(.data, ..., .dots = list()) {
-  reconstruct(NextMethod(), .data)
-}
-
-#' @export
-#' @importFrom dplyr summarize_
-#'
-summarize_.panel_data <- function(.data, ..., .dots = list()) {
-  reconstruct(NextMethod(), .data)
-}
-
-#' @export
-#' @importFrom dplyr slice_
-#'
-slice_.panel_data <- function(.data, ..., .dots = list()) {
-  reconstruct(NextMethod(), .data)
 }
 
 ##### tidyr ##################################################################
