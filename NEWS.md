@@ -10,6 +10,8 @@ edge cases relating to non-syntactic variables have been corrected.
  from the `interactions` package. Note that this compatibility is pending an
  update to that package. 
  ([#57](https://github.com/jacob-long/panelr/issues/57))
+ * `long_panel()` has been substantially sped up. ([#51](https://github.com/jacob-long/panelr/issues/51))
+
 
 # panelr 0.7.8
 
