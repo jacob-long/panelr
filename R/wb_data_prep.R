@@ -3,7 +3,7 @@ wb_prepare_data <- function(formula, data, id = NULL, wave = NULL,
            wave.factor = FALSE, min.waves = 2,
            balance_correction = FALSE, dt_random = TRUE, dt_order = 1,
            weights = NULL, offset = NULL, demean.ints = TRUE, old.ints = FALSE,
-           ...) {
+           int_config = NULL, ...) {
     
     # Get data prepped
     if ("panel_data" %in% class(data)) {
@@ -92,8 +92,25 @@ wb_prepare_data <- function(formula, data, id = NULL, wave = NULL,
     pf$varying <- un_bt(pf$varying)
     pf$constants <- un_bt(pf$constants)
     
+    # Create InteractionConfig if not provided
+    if (is.null(int_config)) {
+      int_style <- if (old.ints) {
+        "demean"
+      } else if (demean.ints) {
+        "double-demean"
+      } else {
+        "raw"
+      }
+      int_config <- InteractionConfig(
+        style = int_style,
+        model_type = model,
+        detrend = detrend
+      )
+    }
+    
     # Send to helper that will demean, etc.
-    e <- wb_model(model, pf, dv, data, detrend, demean.ints, old.ints)
+    e <- wb_model(model, pf, dv, data, detrend, demean.ints, old.ints,
+                  int_config = int_config)
     
     if (detrend == TRUE) {
       e$data <- detrend(e$data, pf, dt_order, balance_correction, dt_random)
@@ -117,10 +134,7 @@ wb_prepare_data <- function(formula, data, id = NULL, wave = NULL,
     
     int_terms <- c(e$within_ints, e$cross_ints)
     attr(e$data, "interactions") <- int_terms
-    attr(e$data, "interaction.style") <- 
-      if (demean.ints == FALSE & old.ints == FALSE) {
-        "raw"
-      } else if (old.ints == TRUE) "demean" else "double-demean"
+    attr(e$data, "interaction.style") <- int_config$style
     
     list(e = e, num_distinct = num_distinct, maxwave = maxwave,
          minwave = minwave, weights = weights, offset = offset,
@@ -167,7 +181,24 @@ make_wb_data <- function(formula, data, id = NULL, wave = NULL,
 }
 
 
-wb_model <- function(model, pf, dv, data, detrend, demean.ints, old.ints) {
+wb_model <- function(model, pf, dv, data, detrend, demean.ints, old.ints,
+                     int_config = NULL) {
+  # Create InteractionConfig if not provided (backward compatibility)
+  if (is.null(int_config)) {
+    # Reconstruct interaction style from boolean flags
+    int_style <- if (old.ints) {
+      "demean"
+    } else if (demean.ints) {
+      "double-demean"
+    } else {
+      "raw"
+    }
+    int_config <- InteractionConfig(
+      style = int_style,
+      model_type = model,
+      detrend = detrend
+    )
+  }
 
   # Create object to store within interactions
   within_ints <- NULL
@@ -178,56 +209,63 @@ wb_model <- function(model, pf, dv, data, detrend, demean.ints, old.ints) {
   wave <- get_wave(data)
   id <- get_id(data)
   
-  # models that require de-meaning
-  within_family <- c("w-b", "within-between", "within", "fixed")
+  # Check if this model type requires within-transformation
+  needs_within <- is_within_model(int_config)
+  has_ints <- !is.null(c(pf$wint_labs, pf$cint_labs))
   
-  # De-mean varying vars if needed
-  if (model %in% within_family) { # within models
-    # Deal with within by within interactions -- old style is to make the 
-    # interaction term *before* de-meaning constituent variables
-    if (!is.null(c(pf$wint_labs, pf$cint_labs)) &
-        (old.ints == TRUE | detrend == TRUE)) {
-      ints <- process_interactions(ints = c(pf$wint_labs, pf$cint_labs),
-                                   data = data, pf = pf, 
-                                   within_ints = within_ints,
-                                   cross_ints = cross_ints, 
-                                   int_means = int_means, demean.ints = TRUE)
+  # Process interactions and de-mean variables based on model type and config
+  if (needs_within) {
+    # For within-type models, we need to handle interactions carefully
+    # The timing of interaction creation vs demeaning matters
+    
+    if (has_ints && use_old_style_ints(int_config)) {
+      # Old style or detrending: create interaction terms BEFORE demeaning
+      ints <- process_interactions(
+        ints = c(pf$wint_labs, pf$cint_labs),
+        data = data, pf = pf,
+        within_ints = within_ints,
+        cross_ints = cross_ints,
+        int_means = int_means,
+        demean.ints = TRUE
+      )
       data <- ints$data
       within_ints <- ints$within_ints
       cross_ints <- ints$cross_ints
     }
     
-    if (detrend == FALSE) {
-      # Iterate through the varying variables to de-mean them
+    if (!int_config$detrend) {
+      # De-mean the varying variables (detrending handles this differently)
       for (i in seq_along(pf$v_info$term)) {
-        # De-mean
-        data[[un_bt(pf$v_info$term[i])]] <- 
+        data[[un_bt(pf$v_info$term[i])]] <-
           data[[un_bt(pf$v_info$term[i])]] - data[[un_bt(pf$v_info$meanvar[i])]]
       }
     }
     
-    # Deal with within interactions
-    if (!is.null(c(pf$wint_labs, pf$cint_labs)) && old.ints == FALSE &&
-        detrend == FALSE) {
-      ints <- process_interactions(ints = c(pf$wint_labs, pf$cint_labs),
-                                   data = data, pf = pf, 
-                                   within_ints = within_ints,
-                                   cross_ints = cross_ints, 
-                                   int_means = int_means,
-                                   demean.ints = demean.ints)
+    if (has_ints && !use_old_style_ints(int_config)) {
+      # New style: create interaction terms AFTER demeaning
+      ints <- process_interactions(
+        ints = c(pf$wint_labs, pf$cint_labs),
+        data = data, pf = pf,
+        within_ints = within_ints,
+        cross_ints = cross_ints,
+        int_means = int_means,
+        demean.ints = should_demean_ints(int_config)
+      )
       data <- ints$data
       within_ints <- ints$within_ints
       cross_ints <- ints$cross_ints
     }
   } else {
-    # Deal with within interactions
+    # For between/random models, just process interactions without demeaning
     if (!is.null(c(pf$wint_labs, pf$cint_labs, pf$bint_labs))) {
-      ints <- process_interactions(ints = c(pf$wint_labs, pf$cint_labs),
-                                   data = data, pf = pf, 
-                                   within_ints = within_ints,
-                                   cross_ints = cross_ints, 
-                                   int_means = int_means,
-                                   demean.ints = FALSE)
+      ints <- process_interactions(
+        ints = c(pf$wint_labs, pf$cint_labs),
+        data = data, pf = pf,
+        within_ints = within_ints,
+        cross_ints = cross_ints,
+        int_means = int_means,
+        demean.ints = FALSE
+      )
       data <- ints$data
       within_ints <- ints$within_ints
       cross_ints <- ints$cross_ints
@@ -295,8 +333,8 @@ process_interactions <- function(ints, data, pf = NULL, within_ints = NULL,
       int_means <- c(int_means, un_bt(iv_mean_name))
     }
   }
-  # Remove recursive back-ticking 
-  names(data) <- gsub("`", "", names(data))
-  return(list(data = data, within_ints = within_ints, 
+  # Remove recursive back-ticking
+  names(data) <- un_bt(names(data))
+  return(list(data = data, within_ints = within_ints,
               cross_ints = cross_ints, int_means = int_means))
 }

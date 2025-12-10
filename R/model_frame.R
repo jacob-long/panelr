@@ -58,9 +58,9 @@ model_frame <- function(formula, data) {
   # Only keep the model frame vars plus groups and wave if panel_data
   mf <- mf[c(as.character(vars))]
   
-  # Remove recursive back-ticking 
-  names(mf) <- gsub("`", "", names(mf))
-  
+  # Remove recursive back-ticking
+  names(mf) <- un_bt(names(mf))
+
   return(mf)
   
 }

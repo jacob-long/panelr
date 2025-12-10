@@ -2,15 +2,27 @@
 
 * Several improvements to formula parsing in the modeling functions. It is
 now possible to have random effects for factors, have multiple, non-correlated
-random effects, random effects for which there are no fixed effects, and several 
-edge cases relating to non-syntactic variables have been corrected. 
+random effects, random effects for which there are no fixed effects, and several
+edge cases relating to non-syntactic variables have been corrected.
 ([#56](https://github.com/jacob-long/panelr/issues/56),
- [#54](https://github.com/jacob-long/panelr/issues/54)) 
+ [#54](https://github.com/jacob-long/panelr/issues/54))
  * Models should now be compatible with `sim_slopes()` and `johnson_neyman()`
  from the `interactions` package. Note that this compatibility is pending an
- update to that package. 
+ update to that package.
  ([#57](https://github.com/jacob-long/panelr/issues/57))
  * `long_panel()` has been substantially sped up. ([#51](https://github.com/jacob-long/panelr/issues/51))
+
+Internal improvements (no user-facing changes):
+ 
+ * Refactored interaction effects processing in `wbm()` and related functions.
+   The scattered boolean flags (`demean.ints`, `old.ints`, `detrend`) are now
+   encapsulated in an `InteractionConfig` object for cleaner conditional logic.
+ * Added `WBFormula` S3 class for structured representation of parsed formulas
+   (groundwork for future improvements).
+ * Centralized backtick handling utilities (`bt()`, `un_bt()`) and replaced
+   scattered `gsub()` calls with consistent function usage.
+ * Added documented helper functions: `should_demean_ints()`, `use_old_style_ints()`,
+   `is_within_model()`, and `make_interaction_config()`.
 
 
 # panelr 0.7.8

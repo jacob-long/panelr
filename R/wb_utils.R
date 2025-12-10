@@ -233,17 +233,26 @@ wb_formula_parser <- function(formula, dv, data, force.constants = TRUE) {
   # Set all the mean var names to mean(var)
   v_info$term <- sapply(v_info$term, function(x) {
     # If non-syntactic variable name, need to escape it inside the mean function
-    if (make.names(x) != x & x %in% names(data)) bt(x) else x 
+    if (make.names(x) != x & x %in% names(data)) bt(x) else x
   })
   v_info$meanvar <- paste0("imean(", v_info$term, ")")
 
-  out <- list(conds = conds, allvars = allvars, varying = varying, 
-              constants = constants, v_info = v_info,
-              data = data, wint_labs = wint_labs, cint_labs = cint_labs,
-              bint_labs = bint_labs, ranefs = ranef_forms,
-              meanvars = v_info$meanvar)
-  return(out)
-
+  # Return a WBFormula object for structured representation
+  # WBFormula is list-based, so $field access continues to work
+  WBFormula(
+    raw_formula = formula,
+    dv = dv,
+    varying = varying,
+    constants = constants,
+    v_info = v_info,
+    wint_labs = if (length(wint_labs) > 0) wint_labs else NULL,
+    cint_labs = if (length(cint_labs) > 0) cint_labs else NULL,
+    bint_labs = if (length(bint_labs) > 0) bint_labs else NULL,
+    ranefs = ranef_forms,
+    data = data,
+    allvars = allvars,
+    conds = conds
+  )
 }
 
 prepare_lme4_formula <- function(formula, pf, data, use.wave, wave, id, ...) {
@@ -498,6 +507,12 @@ formula_esc <- function(formula, vars) {
 
 }
 
+#' @title Add backticks to names
+#' @description Add backticks to variable names for use in formulas or
+#'   expressions. Handles NULL input and avoids double-backticking.
+#' @param x A character vector of variable names (or NULL)
+#' @return A character vector with backticks added, or NULL if input was NULL
+#' @keywords internal
 bt <- function(x) {
   if (!is.null(x)) {
     btv <- paste0("`", x, "`")
@@ -507,8 +522,115 @@ bt <- function(x) {
   return(btv)
 }
 
+#' @title Remove backticks from names
+#' @description Remove all backticks from variable names. Useful for cleaning
+#'   names after formula parsing.
+#' @param x A character vector potentially containing backticks
+#' @return A character vector with backticks removed
+#' @keywords internal
 un_bt <- function(x) {
-  gsub("`", "", x)
+  gsub("`", "", x, fixed = TRUE)
+}
+
+#' @title Conditionally add backticks based on syntax validity
+#' @description Add backticks only if the name is not a valid R syntactic name.
+#' @param x A character string
+#' @param data Optional data frame to check if x exists as a column name
+#' @return The name, potentially backticked
+#' @keywords internal
+bt_if_needed <- function(x, data = NULL) {
+  if (is.null(x)) return(NULL)
+  sapply(x, function(name) {
+    needs_bt <- make.names(name) != name
+    if (!is.null(data)) {
+      needs_bt <- needs_bt && name %in% names(data)
+    }
+    if (needs_bt) bt(name) else name
+  }, USE.NAMES = FALSE)
+}
+
+#' @title Interaction configuration
+#' @description S3 class to encapsulate interaction processing settings.
+#'   Replaces the scattered boolean flags (demean.ints, old.ints, detrend).
+#' @param style Character: "double-demean", "demean", or "raw"
+#' @param model_type Character: model type (e.g., "w-b", "within", "between")
+#' @param detrend Logical: whether detrending is being used
+#' @return An InteractionConfig S3 object
+#' @keywords internal
+InteractionConfig <- function(style = c("double-demean", "demean", "raw"),
+                               model_type = "w-b",
+                               detrend = FALSE) {
+  style <- match.arg(style, c("double-demean", "demean", "raw"))
+  
+  structure(
+    list(
+      style = style,
+      model_type = model_type,
+      detrend = detrend
+    ),
+    class = "InteractionConfig"
+  )
+}
+
+#' @title Determine if interactions should be de-meaned
+#' @description Based on the interaction configuration, determine whether
+#'   interaction terms should have their means subtracted.
+#' @param config An InteractionConfig object
+#' @return Logical indicating whether to demean interactions
+#' @keywords internal
+should_demean_ints <- function(config) {
+  if (!inherits(config, "InteractionConfig")) {
+    stop("config must be an InteractionConfig object")
+  }
+  # Double-demean style requires demeaning
+  config$style == "double-demean"
+}
+
+#' @title Determine if "old-style" interaction processing is needed
+#' @description Old-style processing creates interaction terms BEFORE
+#'   demeaning the constituent variables.
+#' @param config An InteractionConfig object
+#' @return Logical indicating whether to use old-style processing
+#' @keywords internal
+use_old_style_ints <- function(config) {
+  if (!inherits(config, "InteractionConfig")) {
+    stop("config must be an InteractionConfig object")
+  }
+  # Old style is used when style is "demean" (not double-demean, not raw)
+  # or when detrending is enabled
+
+  config$style == "demean" || config$detrend
+}
+
+#' @title Check if model uses within-transformation
+#' @description Determine if the model type requires de-meaning of variables
+#' @param config An InteractionConfig object (or model_type string for
+#'   backward compatibility)
+#' @return Logical indicating whether this is a within-type model
+#' @keywords internal
+is_within_model <- function(config) {
+  model_type <- if (inherits(config, "InteractionConfig")) {
+    config$model_type
+  } else {
+    config  # Allow passing string directly for backward compat
+  }
+  model_type %in% c("w-b", "within-between", "within", "fixed")
+}
+
+#' @title Create InteractionConfig from wbm() arguments
+#' @description Factory function to create InteractionConfig from the
+#'   arguments passed to wbm() or wbgee().
+#' @param interaction.style The interaction.style argument
+#' @param model The model argument
+#' @param detrend The detrend argument
+#' @return An InteractionConfig object
+#' @keywords internal
+make_interaction_config <- function(interaction.style, model, detrend) {
+  InteractionConfig(
+    style = interaction.style,
+    model_type = model,
+    detrend = detrend
+  )
 }
 
 bt_ranefs <- function(ranefs, data) {

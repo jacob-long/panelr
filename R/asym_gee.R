@@ -200,7 +200,7 @@ summary.asym_gee <- function(object, ...) {
                         cic = x2$cic)
   
   coefs <- x$coefs
-  rownames(coefs) <- gsub("`", "", rownames(coefs), fixed = TRUE)
+  rownames(coefs) <- un_bt(rownames(coefs))
   coefs <- as.data.frame(coefs, make.names = FALSE)
   rows <- rownames(coefs)
   

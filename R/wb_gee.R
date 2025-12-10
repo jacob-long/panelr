@@ -274,9 +274,9 @@ summary.wbgee <- function(object, ...) {
                         cic = x2$cic, model = est_name)
   
   coefs <- x$coefs
-  rownames(coefs) <- gsub("`", "", rownames(coefs), fixed = TRUE)
+  rownames(coefs) <- un_bt(rownames(coefs))
   if (!is.null(x2$ints)) {
-    x2$ints <- gsub("`", "", x2$ints, fixed = TRUE)
+    x2$ints <- un_bt(x2$ints)
   }
   
   varying <- x2$varying
