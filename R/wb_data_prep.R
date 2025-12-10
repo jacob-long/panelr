@@ -37,13 +37,41 @@ wb_prepare_data <- function(formula, data, id = NULL, wave = NULL,
     orig_data <- data
     
     # Get the weights argument like lm() does (can be name or object)
-    weights <- eval_tidy(enquo(weights), data)
+    w_quo <- enquo(weights)
+    if (!rlang::quo_is_null(w_quo)) {
+      w_expr <- rlang::get_expr(w_quo)
+      if (is.character(w_expr) && length(w_expr) == 1 && w_expr %in% names(data)) {
+        # Treat single string matching a column name as a column selector
+        weights <- data[[w_expr]]
+      } else {
+        # Fall back to standard tidy evaluation (covers bare names and vectors)
+        weights <- eval_tidy(w_quo, data)
+      }
+    } else {
+      weights <- NULL
+    }
     # Append to data with special name
-    if (!is.null(weights)) {data[".weights"] <- weights}
+    if (!is.null(weights)) {
+      data[[".weights"]] <- weights
+    }
     # Get the offset argument like lm() does (can be name or object)
-    offset <- eval_tidy(enquo(offset), data)
+    o_quo <- enquo(offset)
+    if (!rlang::quo_is_null(o_quo)) {
+      o_expr <- rlang::get_expr(o_quo)
+      if (is.character(o_expr) && length(o_expr) == 1 && o_expr %in% names(data)) {
+        # Treat single string matching a column name as a column selector
+        offset <- data[[o_expr]]
+      } else {
+        # Fall back to standard tidy evaluation (covers bare names and vectors)
+        offset <- eval_tidy(o_quo, data)
+      }
+    } else {
+      offset <- NULL
+    }
     # Append to data with special name
-    if (!is.null(offset)) {data[".offset"] <- offset}
+    if (!is.null(offset)) {
+      data[[".offset"]] <- offset
+    }
     
     # Get the left-hand side
     dv <- as.character((attr(formula, "lhs")))
