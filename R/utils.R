@@ -772,6 +772,11 @@ get_formula.wblm <- function(model, ...) {
   formula(formula(model))
 }
 
+#' @export
+get_formula.wbgee <- function(model, ...) {
+  stats::formula(formula(model))
+}
+
 need_package <- function(x) {
   stop_wrap("You must have '", x, "' installed to use this function.")
 }

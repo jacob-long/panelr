@@ -169,6 +169,7 @@ wbgee <- function(formula, data, id = NULL, wave = NULL,
   fit <- geepack::geeglm(fin_formula, data = data, weights = weights, 
                          offset = offset, id = id, waves = wave,
                          corstr = cor.str[1], family = family, ...)
+  gee_terms <- stats::terms(fit)
   
   ints <- e$cross_ints
   
@@ -185,7 +186,7 @@ wbgee <- function(formula, data, id = NULL, wave = NULL,
   #   data <- data[names(data) %nin% wave]
   # } 
   fit$frame <- as.data.frame(data)
-  attr(fit$frame, "terms") <- terms 
+  attr(fit$frame, "terms") <- gee_terms
   attr(fit$frame, "formula") <- formula(fit)  
   
   if (calc.fit.stats == TRUE) {

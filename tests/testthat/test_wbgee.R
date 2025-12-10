@@ -21,6 +21,13 @@ test_that("wbgee summary works (defaults)", {
   expect_output(print(swb))
 })
 
+test_that("wbgee exposes standard formula and terms", {
+  f <- get_formula(wb)
+  expect_s3_class(f, "formula")
+  expect_true(all(c("union", "lwage") %in% all.vars(f)))
+  expect_s3_class(attr(wb$frame, "terms"), "terms")
+})
+
 
 # Lags --------------------------------------------------------------------
 context("wbgee with lags")
