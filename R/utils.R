@@ -58,6 +58,39 @@ getCall.wbm <- function(x, ...) {
 #' @title Predictions and simulations from within-between models
 #' @description These methods facilitate fairly straightforward predictions
 #'  and simulations from `wbm` models.
+#'
+#' @details
+#' For `wbm` models, `predict()` operates in two main modes:
+#'
+#' * `raw = FALSE` (the default): `newdata` is treated as panel-style data. If it
+#'   is not already a [panel_data](R/panel_data.R:21) object, it is converted
+#'   using the `id` and `wave` variables from the original model. The within /
+#'   between decomposition and any detrending are recomputed for `newdata`
+#'   before passing the resulting design matrix to `lme4` via
+#'   [jtools::predict_merMod()] on the underlying `merMod` object.
+#' * `raw = TRUE`: `newdata` is expected to already be on the "model matrix"
+#'   scale used by the fitted `wbm` object, including internal columns such as
+#'   `imean(...)` and any processed interaction terms. In this case, panelr
+#'   does not recompute within / between pieces and simply forwards `newdata`
+#'   to [jtools::predict_merMod()].
+#'
+#' When `newdata` is not `panel_data` and `raw = FALSE`, `predict.wbm()` will
+#' synthesize missing `id` or `wave` columns when possible in order to build a
+#' valid panel structure (for example, when `re.form = ~0`). Informational
+#' messages are emitted in these cases. For most within between use cases it is
+#' safer and more transparent to explicitly create a `panel_data` object with
+#' the desired `id` and `wave` variables before calling `predict()`.
+#'
+#' For models fit with `model = "within"`, predictions from `predict.wbm()`
+#' reflect the within specification, which is parameterized using centered
+#' within unit effects and any specified between components. As a consequence,
+#' `predict(wbm_obj)` for a within model is not in general identical to
+#' `predict(to_merMod(wbm_obj))` on the internal `lmerMod` / `glmerMod` object,
+#' even when using the same `re.form` argument, because the fixed effect
+#' structure differs. This is by design: `predict.wbm()` always works on the
+#' within between representation defined by the original `wbm()` call, while
+#' `to_merMod()` exposes the underlying mixed model fit directly.
+#'
 #' @param raw Is `newdata` a `merMod` model frame or `panel_data`? TRUE
 #'  indicates a `merMod`-style newdata, with all of the extra columns 
 #'  created by `wbm`. 
@@ -127,6 +160,10 @@ process_nonraw_newdata <- function(object, newdata, re.form = NULL) {
   
   # Ensure newdata has the required variables
   if (!is_panel(newdata)) {
+    # Track whether we synthesize id / wave so we can inform the user.
+    id_created <- FALSE
+    wave_created <- FALSE
+
     if (inherits(object, "wbm")) {
       # Need valid ID variable if using random effects
       if (is.null(re.form) || to_char(re.form) != "~0") {
@@ -136,16 +173,18 @@ process_nonraw_newdata <- function(object, newdata, re.form = NULL) {
         }
       } else if (id %nin% names(newdata)) {
         # Otherwise ID can be anything, just need the column there for
-        # valid panel_data object
+        # valid panel_data object. We create a synthetic id and inform the user.
         newdata[[id]] <- 1
+        id_created <- TRUE
       }
       # Need user to provide wave if it's part of the model
       if (wave %nin% names(newdata) & wave %in% pf_allvars) {
         stop_wrap("newdata must contain the '", wave, "' variable unless
                     re.form = ~0.")
       } else if (wave %nin% names(newdata)) {
-        # Otherwise it can be anything
+        # Otherwise it can be anything; use a simple 1:nrow(newdata) sequence.
         newdata[[wave]] <- 1:nrow(newdata)
+        wave_created <- TRUE
       }
     } else if (inherits(object, "wbgee")) {
       if (id %nin% names(newdata)) {
@@ -155,13 +194,53 @@ process_nonraw_newdata <- function(object, newdata, re.form = NULL) {
       if (wave %nin% names(newdata) & wave %in% pf_allvars) {
         stop_wrap("newdata must contain the '", wave, "' variable.")
       } else if (wave %nin% names(newdata)) {
-        # Otherwise it can be anything
+        # Otherwise it can be anything; use a simple 1:nrow(newdata) sequence.
         newdata[[wave]] <- 1:nrow(newdata)
+        wave_created <- TRUE
       }
     }
     
     # Coerce newdata to panel_data
     newdata <- panel_data(newdata, id = !!sym(id), wave = !!sym(wave))
+
+    # If we had to synthesize id and/or wave, emit an informational message.
+    if (inherits(object, "wbm") && (id_created || wave_created)) {
+      synth_msg <- "newdata was not a panel_data object and is being converted for prediction. "
+      if (id_created) {
+        synth_msg <- paste0(
+          synth_msg,
+          "A synthetic '", id,
+          "' column with value 1 was created because it was not supplied and re.form = ~0. "
+        )
+      }
+      if (wave_created) {
+        synth_msg <- paste0(
+          synth_msg,
+          "A synthetic '", wave,
+          "' sequence 1:nrow(newdata) was created because it was not supplied. "
+        )
+      }
+      synth_msg <- paste0(
+        synth_msg,
+        "For most within-between use cases, it is safer to supply a panel_data object explicitly via panel_data(newdata, id = ..., wave = ...)."
+      )
+      msg_wrap(synth_msg)
+    }
+  }
+
+  # Warn if user appears to be passing preprocessed mean variables while using raw = FALSE.
+  meanvars <- call_info$meanvars
+  if (!is.null(meanvars)) {
+    overlap_meanvars <- intersect(meanvars, names(newdata))
+    if (length(overlap_meanvars) > 0) {
+      msg_wrap(paste0(
+        "newdata contains internal mean variables used by wbm (e.g., ",
+        paste(overlap_meanvars, collapse = ", "),
+        "). With raw = FALSE these variables are recomputed based on newdata. ",
+        "If you intend to pass model-matrix-style data that already includes these columns, ",
+        "consider using predict(..., raw = TRUE)."
+      ))
+    }
   }
   
   # Get the formula and dv from the model

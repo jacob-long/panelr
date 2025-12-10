@@ -428,3 +428,4 @@ test_that("wbm predictions work w/ raw newdata", {
     t = 5, check.names = FALSE
   ), raw = TRUE, re.form = ~0), "numeric")
 })
+
