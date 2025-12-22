@@ -7,3 +7,5 @@ diagnostics\.R
 docs/
 doc
 Meta
+.DS_Store
+JSS-draft/

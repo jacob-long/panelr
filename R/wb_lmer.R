@@ -210,6 +210,22 @@
 #' @import jtools
 #' @rdname wbm
 #' @seealso [wbm_stan()] for a Bayesian estimation option.
+#' @details
+#' Matrix-returning transformations in the time-varying part of the formula
+#' are supported for common basis expansion functions such as
+#' `splines::ns()`, `splines::bs()`, and `stats::poly()`.
+#'
+#' For a term like `ns(x, df = 3)` in the varying part, `wbm()` expands it into
+#' multiple columns representing:
+#' 
+#' * a within-person component: spline bases are computed on deviations
+#'   `x_it - xbar_i` and then each resulting basis column is de-meaned within
+#'   person (double-demean for nonlinear terms)
+#' * a between-person component: spline bases are computed on the person means
+#'   `xbar_i`
+#'
+#' This avoids the per-group knot selection that would otherwise occur when
+#' splines are evaluated inside grouped `mutate()`.
 #' @importFrom stats as.formula gaussian terms confint drop.terms reformulate
 #' @importFrom stats model.matrix
 
@@ -447,9 +463,9 @@ summary.wbm <- function(object, ...) {
                         model = est_name)
 
   coefs <- j$coeftable
-  rownames(coefs) <- gsub("`", "", rownames(coefs), fixed = TRUE)
+  rownames(coefs) <- un_bt(rownames(coefs))
   if (!is.null(x2$ints)) {
-    x2$ints <- gsub("`", "", x2$ints, fixed = TRUE)
+    x2$ints <- un_bt(x2$ints)
   }
 
   varying <- x2$varying

@@ -9,8 +9,9 @@ WageData <- WageData %>%
   )
 wages <- panel_data(WageData, id = id, wave = t)
 wages <- wages[8:210,] # Reduce runtime
-# Add arbitrary weights for testing
+# Add arbitrary weights and offsets for testing
 wages$wts <- runif(nrow(wages), 0.3, 3)
+wages$offs <- rnorm(nrow(wages), 0, 1)
 wb <- wbm(wks ~ union + lwage | blk, data = wages)
 
 test_that("wbm defaults work", {
@@ -185,6 +186,36 @@ test_that("wbm works", {
 test_that("wbm summary works", {
   expect_s3_class(swb <- summary(wb), "summary.wbm")
   expect_output(print(swb))
+})
+
+context("wbm weights input forms")
+wb_w_name <- wbm(wks ~ union + lag(lwage) | blk, data = wages, weights = wts)
+wb_w_col_str <- wbm(wks ~ union + lag(lwage) | blk, data = wages, weights = "wts")
+wb_w_vec <- wbm(wks ~ union + lag(lwage) | blk, data = wages, weights = wages$wts)
+
+test_that("wbm accepts all documented weights input forms", {
+  expect_s4_class(wb_w_name, "wbm")
+  expect_s4_class(wb_w_col_str, "wbm")
+  expect_s4_class(wb_w_vec, "wbm")
+})
+
+test_that("wbm weights input forms give equivalent estimates", {
+  fe_name <- lme4::fixef(wb_w_name)
+  fe_str  <- lme4::fixef(wb_w_col_str)
+  fe_vec  <- lme4::fixef(wb_w_vec)
+  expect_equal(fe_name, fe_str, tolerance = 1e-8)
+  expect_equal(fe_name, fe_vec, tolerance = 1e-8)
+})
+
+context("wbm offsets input forms")
+wb_o_name <- wbm(wks ~ union + lag(lwage) | blk, data = wages, offset = offs)
+wb_o_col_str <- wbm(wks ~ union + lag(lwage) | blk, data = wages, offset = "offs")
+wb_o_vec <- wbm(wks ~ union + lag(lwage) | blk, data = wages, offset = wages$offs)
+
+test_that("wbm accepts all documented offset input forms", {
+  expect_s4_class(wb_o_name, "wbm")
+  expect_s4_class(wb_o_col_str, "wbm")
+  expect_s4_class(wb_o_vec, "wbm")
 })
 
 
@@ -364,6 +395,51 @@ test_that("wbm_stan works w/ balance correction", {
   expect_s3_class(model$stan_data, "standata")
   expect_s3_class(model$stan_code, "brmsmodel")
 })
+
+context("wbm_stan weights and offsets input forms")
+model_w_name <- wbm_stan(lwage ~ lag(union) + wks | blk + fem,
+                         data = wages,
+                         chains = 1, iter = 2000, fit_model = FALSE,
+                         weights = wts)
+model_w_col_str <- wbm_stan(lwage ~ lag(union) + wks | blk + fem,
+                            data = wages,
+                            chains = 1, iter = 2000, fit_model = FALSE,
+                            weights = "wts")
+model_w_vec <- wbm_stan(lwage ~ lag(union) + wks | blk + fem,
+                        data = wages,
+                        chains = 1, iter = 2000, fit_model = FALSE,
+                        weights = wages$wts)
+
+test_that("wbm_stan accepts all documented weights input forms", {
+  expect_s3_class(model_w_name$stan_data, "standata")
+  expect_s3_class(model_w_name$stan_code, "brmsmodel")
+  expect_s3_class(model_w_col_str$stan_data, "standata")
+  expect_s3_class(model_w_col_str$stan_code, "brmsmodel")
+  expect_s3_class(model_w_vec$stan_data, "standata")
+  expect_s3_class(model_w_vec$stan_code, "brmsmodel")
+})
+
+model_o_name <- wbm_stan(lwage ~ lag(union) + wks | blk + fem,
+                         data = wages,
+                         chains = 1, iter = 2000, fit_model = FALSE,
+                         offset = offs)
+model_o_col_str <- wbm_stan(lwage ~ lag(union) + wks | blk + fem,
+                            data = wages,
+                            chains = 1, iter = 2000, fit_model = FALSE,
+                            offset = "offs")
+model_o_vec <- wbm_stan(lwage ~ lag(union) + wks | blk + fem,
+                        data = wages,
+                        chains = 1, iter = 2000, fit_model = FALSE,
+                        offset = wages$offs)
+
+test_that("wbm_stan accepts all documented offset input forms", {
+  expect_s3_class(model_o_name$stan_data, "standata")
+  expect_s3_class(model_o_name$stan_code, "brmsmodel")
+  expect_s3_class(model_o_col_str$stan_data, "standata")
+  expect_s3_class(model_o_col_str$stan_code, "brmsmodel")
+  expect_s3_class(model_o_vec$stan_data, "standata")
+  expect_s3_class(model_o_vec$stan_code, "brmsmodel")
+})
 }
 
 # predictions -----------------------------------------------------------------
@@ -428,3 +504,4 @@ test_that("wbm predictions work w/ raw newdata", {
     t = 5, check.names = FALSE
   ), raw = TRUE, re.form = ~0), "numeric")
 })
+

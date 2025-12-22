@@ -93,6 +93,39 @@ passed to \code{lme4::bootMer()}.}
 These methods facilitate fairly straightforward predictions
 and simulations from \code{wbm} models.
 }
+\details{
+For \code{wbm} models, \code{predict()} operates in two main modes:
+\itemize{
+\item \code{raw = FALSE} (the default): \code{newdata} is treated as panel-style data. If it
+is not already a \href{R/panel_data.R:21}{panel_data} object, it is converted
+using the \code{id} and \code{wave} variables from the original model. The within /
+between decomposition and any detrending are recomputed for \code{newdata}
+before passing the resulting design matrix to \code{lme4} via
+\code{\link[jtools:predict_merMod]{jtools::predict_merMod()}} on the underlying \code{merMod} object.
+\item \code{raw = TRUE}: \code{newdata} is expected to already be on the "model matrix"
+scale used by the fitted \code{wbm} object, including internal columns such as
+\code{imean(...)} and any processed interaction terms. In this case, panelr
+does not recompute within / between pieces and simply forwards \code{newdata}
+to \code{\link[jtools:predict_merMod]{jtools::predict_merMod()}}.
+}
+
+When \code{newdata} is not \code{panel_data} and \code{raw = FALSE}, \code{predict.wbm()} will
+synthesize missing \code{id} or \code{wave} columns when possible in order to build a
+valid panel structure (for example, when \code{re.form = ~0}). Informational
+messages are emitted in these cases. For most within between use cases it is
+safer and more transparent to explicitly create a \code{panel_data} object with
+the desired \code{id} and \code{wave} variables before calling \code{predict()}.
+
+For models fit with \code{model = "within"}, predictions from \code{predict.wbm()}
+reflect the within specification, which is parameterized using centered
+within unit effects and any specified between components. As a consequence,
+\code{predict(wbm_obj)} for a within model is not in general identical to
+\code{predict(to_merMod(wbm_obj))} on the internal \code{lmerMod} / \code{glmerMod} object,
+even when using the same \code{re.form} argument, because the fixed effect
+structure differs. This is by design: \code{predict.wbm()} always works on the
+within between representation defined by the original \code{wbm()} call, while
+\code{to_merMod()} exposes the underlying mixed model fit directly.
+}
 \examples{
 data("WageData")
 wages <- panel_data(WageData, id = id, wave = t)

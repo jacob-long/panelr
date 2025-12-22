@@ -87,8 +87,8 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
                              min.waves = min.waves,
                              balance_correction = balance.correction,
                              dt_random = dt.random, dt_order = dt.order,
-                             weights = UQ(enquo(weights)),
-                             offset = UQ(enquo(offset)), 
+                             weights = !! enquo(weights),
+                             offset = !! enquo(offset),
                              demean.ints = interaction.style == "double-demean",
                              old.ints = interaction.style == "demean")
   
@@ -117,20 +117,34 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
                                       e$cross_ints, dv)  
 
   # TODO: test this
-  # Give brms the weights in the desired formula syntax
+  # Give brms the weights in the desired formula syntax using the .weights column
   if (!is.null(weights)) {
-    weights <- make.names(weights) # Also give syntactically valid name for wts
     lhs <- paste(dv, "~")
-    new_lhs <- paste0(dv, " | weights(", weights, ") ~ ")
-    fin_formula <- sub(lhs, new_lhs, as.character(deparse(fin_formula)),
-                       fixed = TRUE)
+    new_lhs <- paste0(dv, " | weights(.weights) ~ ")
+    ff <- paste(as.character(deparse(fin_formula)), collapse = " ")
+    ff <- sub(lhs, new_lhs, ff, fixed = TRUE)
+    fin_formula <- ff
+  }
+  # Wire offsets into brms via an offset(.offset) term
+  if (!is.null(offset)) {
+    ff <- paste(as.character(deparse(fin_formula)), collapse = " ")
+    if (!is.null(weights)) {
+      lhs <- paste0(dv, " | weights(.weights) ~ ")
+      new_lhs <- paste0(dv, " | weights(.weights) ~ offset(.offset) + ")
+    } else {
+      lhs <- paste(dv, "~")
+      new_lhs <- paste0(dv, " ~ offset(.offset) + ")
+    }
+    ff <- sub(lhs, new_lhs, ff, fixed = TRUE)
+    fin_formula <- ff
   }
 
   if (model.cor == TRUE) {
-    cor_append <- paste0("+ arma(time = ", wave, ",", " gr = ", id, 
+    cor_append <- paste0("+ arma(time = ", wave, ",", " gr = ", id,
                          ", p = 1, q = 0, cov = FALSE)")
-    fin_formula <- paste(as.character(deparse(fin_formula)), cor_append)
-  } 
+    ff <- paste(as.character(deparse(fin_formula)), collapse = " ")
+    fin_formula <- paste(ff, cor_append)
+  }
   
   fin_formula <- brms::brmsformula(fin_formula)
   
@@ -138,8 +152,9 @@ wbm_stan <- function(formula, data, id = NULL, wave = NULL, model = "w-b",
 
   if (scale == TRUE) {
 
-    scale_names <- names(data)
-    scale_names <- scale_names[!(names(data) %in% c(id, wave, dv, weights))]
+    # Do not scale id, wave, dv, weights, or offsets
+    exclude <- c(id, wave, dv, ".weights", ".offset")
+    scale_names <- setdiff(names(data), exclude)
     data <- jtools::gscale(x = scale_names, data = data, n.sd = 1,
                            binary.inputs = "0/1")
 

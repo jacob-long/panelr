@@ -218,6 +218,36 @@ them $w$ and $x$) by taking
 the product of their individual-demeaned forms. That is, you are **not**
 supposed to generate the interaction term $xw_{it}$ by doing this:
 
+### A note on splines and other basis expansions
+
+`wbm()` supports common basis expansion functions in the time-varying part of
+the formula that return multiple columns, including `splines::ns()`,
+`splines::bs()`, and `stats::poly()`.
+
+For a nonlinear term like `ns(exp, df = 3)`, `panelr` expands the term into
+multiple within and between columns:
+
+* **Within component**: compute spline bases on the within-person deviations
+  `exp_it - expbar_i`, and then de-mean each resulting basis column within
+  person (a double-demean analogue for nonlinear terms).
+* **Between component**: compute spline bases on the person means `expbar_i`.
+
+This approach avoids the error you would get if spline knots were chosen within
+each person due to grouped `mutate()`.
+
+```{r, eval = do_eval}
+library(panelr)
+library(splines)
+data("WageData")
+wages <- panel_data(WageData, id = id, wave = t)
+
+mod_spline <- wbm(lwage ~ ns(exp, df = 3) | blk, data = wages)
+mod_spline
+```
+
+Note: for `bs()`, after demeaning some values may fall outside the original
+boundary knots, which can produce a warning about ill-conditioned bases.
+
 $$
 xw_{it} = (x_{it} - \bar{x_{i}}) \times (w_{it} - \bar{w_i})
 $$
@@ -538,4 +568,3 @@ https://doi.org/10.1177/0049124120914934
 McNeish, D. (2019). Effect partitioning in cross-sectionally clustered data
 without multilevel models. *Multivariate Behavioral Research*, Advance online
 publication. https://doi.org/10.1080/00273171.2019.1602504
-

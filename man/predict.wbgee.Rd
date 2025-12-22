@@ -7,9 +7,9 @@
 \method{predict}{wbgee}(
   object,
   newdata = NULL,
+  type = c("link", "response"),
   se.fit = FALSE,
   raw = FALSE,
-  type = c("link", "response"),
   ...
 )
 }
@@ -19,13 +19,13 @@
 \item{newdata}{An optional data frame in which to look for variables with
     which to predict.  If omitted, the fitted values are used.}
 
+\item{type}{Type of prediction (response or model term).  Can be abbreviated.}
+
 \item{se.fit}{A switch indicating if standard errors are required.}
 
 \item{raw}{Is \code{newdata} a \code{geeglm} model frame or \code{panel_data}? TRUE
 indicates a \code{geeglm}-style newdata, with all of the extra columns
 created by \code{wbgee}.}
-
-\item{type}{Type of prediction (response or model term).  Can be abbreviated.}
 
 \item{...}{further arguments passed to or from other methods.}
 }

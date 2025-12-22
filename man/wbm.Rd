@@ -238,6 +238,23 @@ To fit a fixed effects model, use either \code{"within"} or \code{"fixed"}. Any
 between-subjects terms in the formula will be ignored. The time-varying
 variables will be de-meaned, but the individual-level mean is not included
 in the model.
+
+Matrix-returning transformations in the time-varying part of the formula
+are supported for common basis expansion functions such as
+\code{splines::ns()}, \code{splines::bs()}, and \code{stats::poly()}.
+
+For a term like \code{ns(x, df = 3)} in the varying part, \code{wbm()} expands it into
+multiple columns representing:
+\itemize{
+\item a within-person component: spline bases are computed on deviations
+\code{x_it - xbar_i} and then each resulting basis column is de-meaned within
+person (double-demean for nonlinear terms)
+\item a between-person component: spline bases are computed on the person means
+\code{xbar_i}
+}
+
+This avoids the per-group knot selection that would otherwise occur when
+splines are evaluated inside grouped \code{mutate()}.
 }
 \examples{
 data("WageData")

@@ -1,16 +1,67 @@
-# panelr 0.8.0.9000
+# panelr 1.0.0.9000
+
+This is a point release, albeit without breaking changes. There are numerous
+long-delayed improvements to performance as well as some new features.
+
+## Upgrades
+
+* **vctrs integration**: Added vctrs support for `panel_data` objects. This
+  improves attribute preservation during tidyverse operations and provides
+  better type-safe coercion. New methods include `vec_restore.panel_data`,
+  `vec_proxy.panel_data`, `vec_ptype2`, and `vec_cast` methods.
+
+* **Panel balancing functions**: Three new functions help work with unbalanced
+  panel data:
+  - `has_gaps()`: Check if panel data has implicit missing rows
+  - `scan_gaps()`: Identify which entity-wave combinations are missing
+  - `balance_panel()`: Make implicit gaps explicit by adding NA rows for
+    missing entity-wave combinations. Optionally fill with custom values.
+
+* `wbm()` now supports matrix-returning basis expansion terms in the time-varying
+  part of the formula, including `splines::ns()`, `splines::bs()`, and
+  `stats::poly()`. These terms are expanded into within- and between-person
+  components during data preparation. ([#36](https://github.com/jacob-long/panelr/issues/36))
+
+## Internal improvements
+
+* New `build_panel_data()` internal helper provides fast reconstruction of
+  `panel_data` objects without full re-validation, improving performance of
+  operations that preserve panel structure (~8x faster than full reconstruction).
+
+* New `is_panel_sorted()` internal function provides O(n) validation that data
+  is properly sorted by id then wave, avoiding unnecessary O(n log n) sorting.
+  If data is out of order, it is automatically re-sorted.
+
+* Updated `reconstruct.panel_data()` to use the lightweight `build_panel_data()`
+  helper for faster attribute restoration.
+
+* Removed deprecated dplyr method overrides (`arrange_`, `mutate_`, `summarise_`,
+  `summarize_`, `slice_`). These were deprecated in dplyr 0.7.0 (2017) and are
+  no longer needed.
+
+* Refactored interaction effects processing in `wbm()` and related functions.
+The scattered boolean flags (`demean.ints`, `old.ints`, `detrend`) are now
+encapsulated in an `InteractionConfig` object for cleaner conditional logic.
+
+* Added `WBFormula` S3 class for structured representation of parsed formulas
+(groundwork for future improvements).
+
+
+## Other changes
 
 * Several improvements to formula parsing in the modeling functions. It is
 now possible to have random effects for factors, have multiple, non-correlated
-random effects, random effects for which there are no fixed effects, and several 
-edge cases relating to non-syntactic variables have been corrected. 
+random effects, random effects for which there are no fixed effects, and several
+edge cases relating to non-syntactic variables have been corrected.
 ([#56](https://github.com/jacob-long/panelr/issues/56),
- [#54](https://github.com/jacob-long/panelr/issues/54)) 
+ [#54](https://github.com/jacob-long/panelr/issues/54))
  * Models should now be compatible with `sim_slopes()` and `johnson_neyman()`
  from the `interactions` package. Note that this compatibility is pending an
- update to that package. 
+ update to `jtools`.
  ([#57](https://github.com/jacob-long/panelr/issues/57))
-
+ * `long_panel()` has been substantially sped up. ([#51](https://github.com/jacob-long/panelr/issues/51))
+ 
+ 
 # panelr 0.7.8
 
 * Includes a back-end update for continued compatibility with `tibble`. (#55)
@@ -265,4 +316,3 @@ effects when panels are unbalanced.
 computers.
 * Added WageData example, documentation, etc.
 * Unit testing and automated tests through Travis and Appveyor.
-

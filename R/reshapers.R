@@ -226,69 +226,72 @@ long_panel <- function(data, prefix = NULL, suffix = NULL, begin = NULL,
     post_reg <- if (use.regex == FALSE) escapeRegex(paste0(suffix)) else suffix
   } else {post_reg <- NULL}
   
-  if (label_location[1] == "end" & (is.null(prefix) || nchar(prefix) == 0) |
-      label_location[1] == "beginning" & (is.null(suffix) || nchar(suffix) == 0)) {
+  label_location <- label_location[1]
+  
+  if (label_location == "end" & (is.null(prefix) || nchar(prefix) == 0) |
+      label_location == "beginning" & (is.null(suffix) || nchar(suffix) == 0)) {
     no_sep <- TRUE
-    if (label_location[1] == "end") {
+    if (label_location == "end") {
       sep <- prefix <- "__"
     } else {
       sep <- suffix <- "__"
     }
   } else {no_sep <- FALSE}
   
-  # Programmatically building vector of regex patterns for each period
-  patterns <- c()
-  # Something I need if label is at beginning where I capture the entire varname
-  replace_patterns <- c()
-  if (label_location[1] == "beginning") {
-    for (i in periods) {
-      patterns <- c(patterns,
-        paste0("(?<=^", pre_reg, escapeRegex(i), post_reg, ")(", match, ")")
-      )
-      replace_patterns <- c(replace_patterns,
-        paste0("^", pre_reg, "(", escapeRegex(i), ")(", post_reg, ")(", match, ")")
-      )
-    }
+  period_strings <- as.character(periods)
+  period_regex <- paste0(escapeRegex(period_strings), collapse = "|")
+  sanitize_match <- function(pattern) {
+    gsub("(?<!\\\\)\\((?!\\?)", "(?:", pattern, perl = TRUE)
+  }
+  to_empty <- function(x) {
+    if (length(x) == 0 || is.null(x)) "" else x
+  }
+  match_pattern <- sanitize_match(match)
+  pre_pattern <- to_empty(pre_reg)
+  post_pattern <- to_empty(post_reg)
+  
+  if (label_location == "beginning") {
+    pattern <- paste0("^", pre_pattern, "(", period_regex, ")", post_pattern,
+                      "(", match_pattern, ")$")
     sep <- suffix
     sep <- prefix <- paste0("__", sep, prefix)
     suffix <- NULL
-  } else if (label_location[1] == "end") {
-    for (i in periods) {
-      patterns <- c(patterns,
-        paste0("(", match, ")(?=", pre_reg, escapeRegex(i), post_reg, "$)")
-      )
-      replace_patterns <- c(replace_patterns,
-        paste0("(", match, ")(", pre_reg, ")(", escapeRegex(i), ")(", post_reg, "$)")
-      )
-    }
+    parsed <- stringr::str_match(wvars, pattern)
+    wave_col <- 2
+    stub_col <- 3
+  } else if (label_location == "end") {
+    pattern <- paste0("^(", match_pattern, ")", pre_pattern, "(", period_regex, ")",
+                      post_pattern, "$")
     sep <- paste0("__", prefix)
+    parsed <- stringr::str_match(wvars, pattern)
+    stub_col <- 2
+    wave_col <- 3
   } else {stop("label_location must be 'beginning' or 'end'.")}
   
-  # Using regex patterns to build up a list of variable names for 
-  # reshape's "varying" argument
-  varying_by_period <- as.list(rep(NA, times = length(periods)))
-  names(varying_by_period) <- periods
-  stubs_by_period <- as.list(rep(NA, times = length(periods)))
-  names(stubs_by_period) <- periods
-  for (p in patterns) {
-    stubs <- str_extract(wvars, p) 
-    matches <- str_detect(wvars, p)
-    which_period <- as.character(periods[which(patterns == p)])
-    stubs_by_period[[which_period]] <- stubs[matches]
-    # Deal with the problem of there being no separator by adding it myself
-    if (label_location[1] == "end") {
-      replace <- paste0("\\1", sep, "\\3") # this also deletes suffix
-      wvars <- str_replace(wvars, replace_patterns[which(patterns == p)], replace)
-      names(data)[names(data) %nin% id] <- wvars
+  matched_idx <- which(!is.na(parsed[, 1]))
+  parsed_df <- data.frame(idx = matched_idx,
+                          stub = parsed[matched_idx, stub_col],
+                          period = parsed[matched_idx, wave_col],
+                          stringsAsFactors = FALSE)
+  parsed_df$new_name <- paste0(parsed_df$stub, sep, parsed_df$period)
+  
+  new_wvars <- wvars
+  if (nrow(parsed_df) > 0) {
+    new_wvars[parsed_df$idx] <- parsed_df$new_name
+  }
+  names(data)[names(data) %nin% id] <- new_wvars
+  
+  init_list <- stats::setNames(rep(list(character()), length(period_strings)),
+                        period_strings)
+  stubs_by_period <- init_list
+  varying_by_period <- init_list
+  if (nrow(parsed_df) > 0) {
+    parsed_df <- parsed_df[order(parsed_df$idx), ]
+    for (period in period_strings) {
+      rows <- parsed_df$period == period
+      stubs_by_period[[period]] <- parsed_df$stub[rows]
+      varying_by_period[[period]] <- parsed_df$new_name[rows]
     }
-    # If label is at beginning, I'm moving it to the end
-    if (label_location[1] == "beginning") {
-      # Notice that I omit match 2, which is the suffix 
-      replace <- paste0("\\3", sep, "\\1")
-      wvars <- str_replace(wvars, replace_patterns[which(patterns == p)], replace)
-      names(data)[names(data) %nin% id] <- wvars
-    }
-    varying_by_period[[which_period]] <-  wvars[matches]
   }
   
   # Count up how many instances of each stub there are
@@ -311,7 +314,7 @@ long_panel <- function(data, prefix = NULL, suffix = NULL, begin = NULL,
       }
     }
   }
-  
+
   # Remove reshape's saved attributes
   attributes(data)$reshapeLong <- NULL
   # Call reshape
@@ -326,43 +329,54 @@ long_panel <- function(data, prefix = NULL, suffix = NULL, begin = NULL,
   if (is.character(periods)) {
     out[[wave]] <- ordered(out[[wave]], levels = periods)
   }
-  # Dropping any rows that are all NA that are created for reasons unclear to me
-  # out <- out[!is.na(out[[id]]),]
-  # Now I check for variables that are only quasi-varying because of poor 
-  # labeling in the long format (e.g., W1_race)
   v.names <- unique(unname(unlist(stubs_by_period))) 
   
-  # If user doesn't want me to impute constants or get a panel data frame, 
-  # just return what I've got
-  if (!as_panel_data & !check.varying) {
-    return(as_tibble(out)) # Converting to tibble for reverse compatibility
+  out <- as_tibble(out)
+  needs_panel <- as_panel_data || check.varying
+  if (!needs_panel) {
+    return(out)
   }
   
-  # Create panel_data object to use for these checks
   tmp_pd <- panel_data(out, id = !!sym(id), wave = !!sym(wave))
-  # Check whether the variables really are varying
   if (check.varying) {
-    varying <- are_varying(tmp_pd, !!! syms(v.names))
-    if (any(varying == FALSE)) {
-      # Loop through the non-varying vars and make them constant by returning the
-      # sole non-NA value.
-      for (var in names(varying)[!varying]) {
-        tmp_pd <- mutate(tmp_pd, !! un_bt(var) := uniq_nomiss(!! sym(un_bt(var))))
+    if (length(v.names) == 0) {
+      varying <- logical(0)
+      constants <- logical(0)
+    } else {
+      tmp_raw <- unpanel(tmp_pd)
+      id_col <- get_id(tmp_pd)
+      groups <- split(seq_len(nrow(tmp_raw)), tmp_raw[[id_col]])
+      var_names <- un_bt(v.names)
+      vary_flags <- vapply(seq_along(var_names), function(idx) {
+        values <- tmp_raw[[var_names[idx]]]
+        for (g in groups) {
+          gvals <- values[g]
+          if (n_distinct(gvals, na.rm = TRUE) > 1) {
+            return(TRUE)
+          }
+        }
+        FALSE
+      }, logical(1))
+      names(vary_flags) <- v.names
+      if (any(vary_flags == FALSE)) {
+        const_vars <- un_bt(names(vary_flags)[!vary_flags])
+        for (var in const_vars) {
+          tmp_pd <- mutate(tmp_pd, !! sym(var) := uniq_nomiss(!! sym(var)))
+        }
       }
+      constants <- vary_flags[!vary_flags]
+      varying <- vary_flags[vary_flags]
     }
-    constants <- varying[!varying]
-    varying <- varying[varying]
   } else {
     varying <- unlist(stubs_by_period)
     constants <- names(out) %not% varying
   }
-  if (as_panel_data == TRUE) { # Return panel_data object if requested
-    out <- panel_data(tmp_pd, id = !! sym(id), wave = !! sym(wave),
-                      reshaped = TRUE, varying = un_bt(names(varying)), 
-                      constants = un_bt(names(constants)))
-  } else { # Otherwise unpanel
-    out <- unpanel(tmp_pd)
+  if (as_panel_data) {
+    attr(tmp_pd, "reshaped") <- TRUE
+    attr(tmp_pd, "varying") <- un_bt(names(varying))
+    attr(tmp_pd, "constants") <- un_bt(names(constants))
+    return(tmp_pd)
   }
-  return(out)
+  return(unpanel(tmp_pd))
   
 }

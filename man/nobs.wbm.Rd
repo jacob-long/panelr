@@ -7,13 +7,13 @@
 \method{nobs}{wbm}(object, entities = TRUE, ...)
 }
 \arguments{
-\item{object}{A fitted model object.}
+\item{object}{a fitted model object.}
 
 \item{entities}{Should \code{nobs} return the number of entities in the panel
 or the number of rows in the \code{panel_data} frame? Default is TRUE, returning
 the number of entities.}
 
-\item{...}{Further arguments to be passed to methods.}
+\item{...}{further arguments to be passed to methods.}
 }
 \description{
 This S3 method allows you to retrieve either the number of

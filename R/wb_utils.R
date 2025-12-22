@@ -2,7 +2,7 @@
 #' @import stringr
 
 wb_formula_parser <- function(formula, dv, data, force.constants = TRUE) {
-  # See how many parts the formula has 
+  # See how many parts the formula has
   conds <- length(formula)[2]
   
   # These are NULL unless user specifies random effects
@@ -10,9 +10,12 @@ wb_formula_parser <- function(formula, dv, data, force.constants = TRUE) {
   ranef_forms <- NULL
   ranef_vars <- NULL
   grouping_vars <- NULL
+  
+  # Track matrix/basis term metadata (splines, poly, etc.)
+  matrix_terms <- list()
 
   # Need to deal with custom random effects
-  if (conds >= 3) { 
+  if (conds >= 3) {
     # Capturing those and putting them in a list
     ranefs <- fb(get_rhs(formula, which = 3, to.formula = FALSE))
     if (!is.null(ranefs)) {
@@ -21,8 +24,15 @@ wb_formula_parser <- function(formula, dv, data, force.constants = TRUE) {
       ranefs <- stringr::str_replace_all(ranefs, "~", "")
       # Now I need to know which are the grouping vars
       grouping_vars <- stringr::str_split(ranefs, "\\| | \\|\\|")
-      grouping_vars <- sapply(grouping_vars, 
-                              function(x) stringr::str_trim(x[[2]]))
+      grouping_vars <- sapply(grouping_vars,
+                              function(x) {
+                                if (length(x) >= 2) {
+                                  stringr::str_trim(x[[2]])
+                                } else {
+                                  NA_character_
+                                }
+                              })
+      grouping_vars <- grouping_vars[!is.na(grouping_vars)]
     }
   }
 
@@ -94,6 +104,32 @@ wb_formula_parser <- function(formula, dv, data, force.constants = TRUE) {
     # If non-syntactic names are inside functions, retain backticks
     if (make.names(x) != x & x %in% names(data)) un_bt(x) else x
   })
+  
+  # Detect and process matrix-returning terms (splines, poly, etc.)
+  if (length(varying) > 0) {
+    is_matrix <- detect_matrix_terms(varying, data)
+    if (any(is_matrix)) {
+      matrix_varying <- varying[is_matrix]
+      scalar_varying <- varying[!is_matrix]
+      
+      # Process each matrix term
+      for (term in matrix_varying) {
+        term_info <- process_matrix_term(term, data)
+        matrix_terms[[term]] <- term_info
+        
+        # The within columns become new varying terms
+        # The between columns will be handled separately (like constants with meanvar)
+      }
+      
+      # Replace matrix terms with their within columns in varying
+      # The original term is removed, within_cols are added
+      new_varying <- scalar_varying
+      for (term in names(matrix_terms)) {
+        new_varying <- c(new_varying, matrix_terms[[term]]$within_cols)
+      }
+      varying <- new_varying
+    }
+  }
 
   if (conds == 1) {
     # There are no constants
@@ -187,11 +223,20 @@ wb_formula_parser <- function(formula, dv, data, force.constants = TRUE) {
     cint_labs <- cint_labs[!sapply(cint_labs, is.null)]
   }
 
-  v_info <- tibble::tibble(term = varying, root = NA, lag = NA, meanvar = NA)
+  # For v_info, only include non-matrix varying terms
+  # Matrix terms have their own v_info handling via matrix_terms
+  matrix_within_cols <- if (length(matrix_terms) > 0) {
+    unlist(lapply(matrix_terms, function(x) x$within_cols))
+  } else {
+    character(0)
+  }
+  scalar_varying_for_vinfo <- setdiff(varying, matrix_within_cols)
   
-  # If there's a lag function call, set lag to 1 and 0 otherwise. We'll go 
+  v_info <- tibble::tibble(term = scalar_varying_for_vinfo, root = NA, lag = NA, meanvar = NA)
+  
+  # If there's a lag function call, set lag to 1 and 0 otherwise. We'll go
   # back and look for the n argument in a second
-  v_info$lag <- as.numeric(stringr::str_detect(varying, "(?<=lag\\().*(?=\\))"))
+  v_info$lag <- as.numeric(stringr::str_detect(scalar_varying_for_vinfo, "(?<=lag\\().*(?=\\))"))
 
   # If there are lagged vars, we need the original varname for taking
   # the mean later
@@ -226,17 +271,27 @@ wb_formula_parser <- function(formula, dv, data, force.constants = TRUE) {
   # Set all the mean var names to mean(var)
   v_info$term <- sapply(v_info$term, function(x) {
     # If non-syntactic variable name, need to escape it inside the mean function
-    if (make.names(x) != x & x %in% names(data)) bt(x) else x 
+    if (make.names(x) != x & x %in% names(data)) bt(x) else x
   })
   v_info$meanvar <- paste0("imean(", v_info$term, ")")
 
-  out <- list(conds = conds, allvars = allvars, varying = varying, 
-              constants = constants, v_info = v_info,
-              data = data, wint_labs = wint_labs, cint_labs = cint_labs,
-              bint_labs = bint_labs, ranefs = ranef_forms,
-              meanvars = v_info$meanvar)
-  return(out)
-
+  # Return a WBFormula object for structured representation
+  # WBFormula is list-based, so $field access continues to work
+  WBFormula(
+    raw_formula = formula,
+    dv = dv,
+    varying = varying,
+    constants = constants,
+    v_info = v_info,
+    wint_labs = if (length(wint_labs) > 0) wint_labs else NULL,
+    cint_labs = if (length(cint_labs) > 0) cint_labs else NULL,
+    bint_labs = if (length(bint_labs) > 0) bint_labs else NULL,
+    ranefs = ranef_forms,
+    data = data,
+    allvars = allvars,
+    conds = conds,
+    matrix_terms = if (length(matrix_terms) > 0) matrix_terms else NULL
+  )
 }
 
 prepare_lme4_formula <- function(formula, pf, data, use.wave, wave, id, ...) {
@@ -491,6 +546,12 @@ formula_esc <- function(formula, vars) {
 
 }
 
+#' @title Add backticks to names
+#' @description Add backticks to variable names for use in formulas or
+#'   expressions. Handles NULL input and avoids double-backticking.
+#' @param x A character vector of variable names (or NULL)
+#' @return A character vector with backticks added, or NULL if input was NULL
+#' @keywords internal
 bt <- function(x) {
   if (!is.null(x)) {
     btv <- paste0("`", x, "`")
@@ -500,8 +561,115 @@ bt <- function(x) {
   return(btv)
 }
 
+#' @title Remove backticks from names
+#' @description Remove all backticks from variable names. Useful for cleaning
+#'   names after formula parsing.
+#' @param x A character vector potentially containing backticks
+#' @return A character vector with backticks removed
+#' @keywords internal
 un_bt <- function(x) {
-  gsub("`", "", x)
+  gsub("`", "", x, fixed = TRUE)
+}
+
+#' @title Conditionally add backticks based on syntax validity
+#' @description Add backticks only if the name is not a valid R syntactic name.
+#' @param x A character string
+#' @param data Optional data frame to check if x exists as a column name
+#' @return The name, potentially backticked
+#' @keywords internal
+bt_if_needed <- function(x, data = NULL) {
+  if (is.null(x)) return(NULL)
+  sapply(x, function(name) {
+    needs_bt <- make.names(name) != name
+    if (!is.null(data)) {
+      needs_bt <- needs_bt && name %in% names(data)
+    }
+    if (needs_bt) bt(name) else name
+  }, USE.NAMES = FALSE)
+}
+
+#' @title Interaction configuration
+#' @description S3 class to encapsulate interaction processing settings.
+#'   Replaces the scattered boolean flags (demean.ints, old.ints, detrend).
+#' @param style Character: "double-demean", "demean", or "raw"
+#' @param model_type Character: model type (e.g., "w-b", "within", "between")
+#' @param detrend Logical: whether detrending is being used
+#' @return An InteractionConfig S3 object
+#' @keywords internal
+InteractionConfig <- function(style = c("double-demean", "demean", "raw"),
+                               model_type = "w-b",
+                               detrend = FALSE) {
+  style <- match.arg(style, c("double-demean", "demean", "raw"))
+  
+  structure(
+    list(
+      style = style,
+      model_type = model_type,
+      detrend = detrend
+    ),
+    class = "InteractionConfig"
+  )
+}
+
+#' @title Determine if interactions should be de-meaned
+#' @description Based on the interaction configuration, determine whether
+#'   interaction terms should have their means subtracted.
+#' @param config An InteractionConfig object
+#' @return Logical indicating whether to demean interactions
+#' @keywords internal
+should_demean_ints <- function(config) {
+  if (!inherits(config, "InteractionConfig")) {
+    stop("config must be an InteractionConfig object")
+  }
+  # Double-demean style requires demeaning
+  config$style == "double-demean"
+}
+
+#' @title Determine if "old-style" interaction processing is needed
+#' @description Old-style processing creates interaction terms BEFORE
+#'   demeaning the constituent variables.
+#' @param config An InteractionConfig object
+#' @return Logical indicating whether to use old-style processing
+#' @keywords internal
+use_old_style_ints <- function(config) {
+  if (!inherits(config, "InteractionConfig")) {
+    stop("config must be an InteractionConfig object")
+  }
+  # Old style is used when style is "demean" (not double-demean, not raw)
+  # or when detrending is enabled
+
+  config$style == "demean" || config$detrend
+}
+
+#' @title Check if model uses within-transformation
+#' @description Determine if the model type requires de-meaning of variables
+#' @param config An InteractionConfig object (or model_type string for
+#'   backward compatibility)
+#' @return Logical indicating whether this is a within-type model
+#' @keywords internal
+is_within_model <- function(config) {
+  model_type <- if (inherits(config, "InteractionConfig")) {
+    config$model_type
+  } else {
+    config  # Allow passing string directly for backward compat
+  }
+  model_type %in% c("w-b", "within-between", "within", "fixed")
+}
+
+#' @title Create InteractionConfig from wbm() arguments
+#' @description Factory function to create InteractionConfig from the
+#'   arguments passed to wbm() or wbgee().
+#' @param interaction.style The interaction.style argument
+#' @param model The model argument
+#' @param detrend The detrend argument
+#' @return An InteractionConfig object
+#' @keywords internal
+make_interaction_config <- function(interaction.style, model, detrend) {
+  InteractionConfig(
+    style = interaction.style,
+    model_type = model,
+    detrend = detrend
+  )
 }
 
 bt_ranefs <- function(ranefs, data) {

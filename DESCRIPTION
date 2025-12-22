@@ -1,6 +1,6 @@
 Package: panelr
 Title: Regression Models and Utilities for Repeated Measures and Panel Data
-Version: 0.8.0.9000
+Version: 1.0.0.9000
 Authors@R: person("Jacob A.", "Long", email = "jacob.long@sc.edu", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-1582-6214"))
 Description: Provides an object type and associated tools for storing and 
   wrangling panel data. Implements several methods for creating regression
@@ -21,11 +21,11 @@ URL: https://panelr.jacob-long.com
 BugReports: https://github.com/jacob-long/panelr/issues
 Depends: R (>= 3.4.0),
       lme4
-Imports: crayon, 
+Imports: crayon,
       dplyr,
       Formula,
       ggplot2,
-      jtools (>= 2.0.1), 
+      jtools (>= 2.0.1),
       lmerTest,
       magrittr,
       methods,
@@ -35,6 +35,7 @@ Imports: crayon,
       tibble (>= 2.0.0),
       tidyr (>= 0.8.3),
       reformulas (>= 0.4.2)
+      vctrs (>= 0.4.0)
 Suggests: brms,
     broom.mixed,
     car,
@@ -45,6 +46,7 @@ Suggests: brms,
     plm,
     sandwich,
     skimr,
+    splines,
       testthat,
       covr,
       knitr,
@@ -52,6 +54,6 @@ Suggests: brms,
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr
