@@ -13,13 +13,17 @@ NULL
 #' @param varying Character vector of time-varying predictor terms
 #' @param constants Character vector of time-invariant predictor terms
 #' @param v_info Tibble with columns: term, root, lag, meanvar
-#' @param wint_labs Character vector of within×within interaction labels
+#' @param wint_labs Character vector of within x within interaction labels
 #' @param cint_labs Character vector of cross-level interaction labels
-#' @param bint_labs Character vector of between×between interaction labels
+#' @param bint_labs Character vector of between x between interaction labels
 #' @param ranefs Character vector of random effects specifications
 #' @param data The data frame (with any expanded factors)
 #' @param allvars Character vector of all variables needed (passed from parser)
 #' @param conds Integer number of formula conditions/parts
+#' @param matrix_terms Optional list of metadata for matrix-returning terms
+#'   detected in the varying part of the formula (e.g., `splines::ns()`,
+#'   `splines::bs()`, `stats::poly()`). These terms are expanded into
+#'   within- and between- component columns during data preparation.
 #' @return A WBFormula S3 object
 #' @keywords internal
 WBFormula <- function(raw_formula,
@@ -33,7 +37,8 @@ WBFormula <- function(raw_formula,
                       ranefs = NULL,
                       data = NULL,
                       allvars = NULL,
-                      conds = NULL) {
+                      conds = NULL,
+                      matrix_terms = NULL) {
   
   # Ensure v_info has the right structure
   if (is.null(v_info) && length(varying) > 0) {
@@ -79,7 +84,9 @@ WBFormula <- function(raw_formula,
       # Computed fields for backward compatibility
       allvars = allvars,
       conds = conds,
-      meanvars = if (!is.null(v_info)) v_info$meanvar else character(0)
+      meanvars = if (!is.null(v_info)) v_info$meanvar else character(0),
+      # Matrix/basis terms (splines, poly, etc.)
+      matrix_terms = matrix_terms
     ),
     class = "WBFormula"
   )
@@ -185,20 +192,20 @@ print.WBFormula <- function(x, ...) {
   cat("  DV:", x$dv, "\n")
   cat("  Varying:", length(x$varying), "terms\n")
   if (length(x$varying) > 0) {
-    cat("    ", paste(head(x$varying, 5), collapse = ", "))
+    cat("    ", paste(utils::head(x$varying, 5), collapse = ", "))
     if (length(x$varying) > 5) cat(" ...")
     cat("\n")
   }
   cat("  Constants:", length(x$constants), "terms\n")
   if (length(x$constants) > 0) {
-    cat("    ", paste(head(x$constants, 5), collapse = ", "))
+    cat("    ", paste(utils::head(x$constants, 5), collapse = ", "))
     if (length(x$constants) > 5) cat(" ...")
     cat("\n")
   }
   cat("  Interactions:\n")
-  cat("    Within×Within:", length(x$wint_labs), "\n")
+  cat("    Within x Within:", length(x$wint_labs), "\n")
   cat("    Cross-level:", length(x$cint_labs), "\n")
-  cat("    Between×Between:", length(x$bint_labs), "\n")
+  cat("    Between x Between:", length(x$bint_labs), "\n")
   if (!is.null(x$ranefs)) {
     cat("  Random effects:", length(x$ranefs), "terms\n")
   }

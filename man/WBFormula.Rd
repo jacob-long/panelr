@@ -16,7 +16,8 @@ WBFormula(
   ranefs = NULL,
   data = NULL,
   allvars = NULL,
-  conds = NULL
+  conds = NULL,
+  matrix_terms = NULL
 )
 }
 \arguments{
@@ -30,11 +31,11 @@ WBFormula(
 
 \item{v_info}{Tibble with columns: term, root, lag, meanvar}
 
-\item{wint_labs}{Character vector of within×within interaction labels}
+\item{wint_labs}{Character vector of within x within interaction labels}
 
 \item{cint_labs}{Character vector of cross-level interaction labels}
 
-\item{bint_labs}{Character vector of between×between interaction labels}
+\item{bint_labs}{Character vector of between x between interaction labels}
 
 \item{ranefs}{Character vector of random effects specifications}
 
@@ -43,6 +44,11 @@ WBFormula(
 \item{allvars}{Character vector of all variables needed (passed from parser)}
 
 \item{conds}{Integer number of formula conditions/parts}
+
+\item{matrix_terms}{Optional list of metadata for matrix-returning terms
+detected in the varying part of the formula (e.g., \code{splines::ns()},
+\code{splines::bs()}, \code{stats::poly()}). These terms are expanded into
+within- and between- component columns during data preparation.}
 }
 \value{
 A WBFormula S3 object

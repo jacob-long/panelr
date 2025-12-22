@@ -281,7 +281,7 @@ long_panel <- function(data, prefix = NULL, suffix = NULL, begin = NULL,
   }
   names(data)[names(data) %nin% id] <- new_wvars
   
-  init_list <- setNames(rep(list(character()), length(period_strings)),
+  init_list <- stats::setNames(rep(list(character()), length(period_strings)),
                         period_strings)
   stubs_by_period <- init_list
   varying_by_period <- init_list

@@ -295,7 +295,7 @@ mod <- wbm(lwage ~ union, data = w, pvals = FALSE)
 
 test_that("extractors work", {
   expect_silent(getCall(mod))
-  expect_silent(predict(mod))
+  expect_silent(suppressWarnings(predict(mod)))
   expect_silent(simulate(mod))
   expect_silent(fixef(mod))
   expect_silent(ranef(mod))

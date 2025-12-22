@@ -2,7 +2,7 @@
 #' @import stringr
 
 wb_formula_parser <- function(formula, dv, data, force.constants = TRUE) {
-  # See how many parts the formula has 
+  # See how many parts the formula has
   conds <- length(formula)[2]
   
   # These are NULL unless user specifies random effects
@@ -10,6 +10,9 @@ wb_formula_parser <- function(formula, dv, data, force.constants = TRUE) {
   ranef_forms <- NULL
   ranef_vars <- NULL
   grouping_vars <- NULL
+  
+  # Track matrix/basis term metadata (splines, poly, etc.)
+  matrix_terms <- list()
 
   # Need to deal with custom random effects
   if (conds >= 3) {
@@ -101,6 +104,32 @@ wb_formula_parser <- function(formula, dv, data, force.constants = TRUE) {
     # If non-syntactic names are inside functions, retain backticks
     if (make.names(x) != x & x %in% names(data)) un_bt(x) else x
   })
+  
+  # Detect and process matrix-returning terms (splines, poly, etc.)
+  if (length(varying) > 0) {
+    is_matrix <- detect_matrix_terms(varying, data)
+    if (any(is_matrix)) {
+      matrix_varying <- varying[is_matrix]
+      scalar_varying <- varying[!is_matrix]
+      
+      # Process each matrix term
+      for (term in matrix_varying) {
+        term_info <- process_matrix_term(term, data)
+        matrix_terms[[term]] <- term_info
+        
+        # The within columns become new varying terms
+        # The between columns will be handled separately (like constants with meanvar)
+      }
+      
+      # Replace matrix terms with their within columns in varying
+      # The original term is removed, within_cols are added
+      new_varying <- scalar_varying
+      for (term in names(matrix_terms)) {
+        new_varying <- c(new_varying, matrix_terms[[term]]$within_cols)
+      }
+      varying <- new_varying
+    }
+  }
 
   if (conds == 1) {
     # There are no constants
@@ -194,11 +223,20 @@ wb_formula_parser <- function(formula, dv, data, force.constants = TRUE) {
     cint_labs <- cint_labs[!sapply(cint_labs, is.null)]
   }
 
-  v_info <- tibble::tibble(term = varying, root = NA, lag = NA, meanvar = NA)
+  # For v_info, only include non-matrix varying terms
+  # Matrix terms have their own v_info handling via matrix_terms
+  matrix_within_cols <- if (length(matrix_terms) > 0) {
+    unlist(lapply(matrix_terms, function(x) x$within_cols))
+  } else {
+    character(0)
+  }
+  scalar_varying_for_vinfo <- setdiff(varying, matrix_within_cols)
   
-  # If there's a lag function call, set lag to 1 and 0 otherwise. We'll go 
+  v_info <- tibble::tibble(term = scalar_varying_for_vinfo, root = NA, lag = NA, meanvar = NA)
+  
+  # If there's a lag function call, set lag to 1 and 0 otherwise. We'll go
   # back and look for the n argument in a second
-  v_info$lag <- as.numeric(stringr::str_detect(varying, "(?<=lag\\().*(?=\\))"))
+  v_info$lag <- as.numeric(stringr::str_detect(scalar_varying_for_vinfo, "(?<=lag\\().*(?=\\))"))
 
   # If there are lagged vars, we need the original varname for taking
   # the mean later
@@ -251,7 +289,8 @@ wb_formula_parser <- function(formula, dv, data, force.constants = TRUE) {
     ranefs = ranef_forms,
     data = data,
     allvars = allvars,
-    conds = conds
+    conds = conds,
+    matrix_terms = if (length(matrix_terms) > 0) matrix_terms else NULL
   )
 }
 

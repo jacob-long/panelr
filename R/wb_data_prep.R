@@ -78,6 +78,14 @@ wb_prepare_data <- function(formula, data, id = NULL, wave = NULL,
     # Pass to helper function
     pf <- wb_formula_parser(formula, dv, data)
     
+    # Handle matrix terms (splines, poly, etc.) BEFORE model_frame
+    # These need to be evaluated on ungrouped data with consistent knots
+    if (!is.null(pf$matrix_terms) && length(pf$matrix_terms) > 0) {
+      expanded <- expand_matrix_terms_in_data(pf$matrix_terms, pf$data)
+      pf$data <- expanded$data
+      pf <- update_pf_for_matrix_terms(pf, expanded)
+    }
+    
     # models that don't use constants
     within_only <- c("within", "fixed")
     if (model %in% within_only) {
@@ -90,12 +98,14 @@ wb_prepare_data <- function(formula, data, id = NULL, wave = NULL,
     }
 
     # Create formula to pass to model_frame
-    mf_form <- paste(" ~ ",
-                     paste(pf$allvars, collapse = " + "),
-                     " + ",
-                     paste(pf$v_info$meanvar, collapse = " + "),
-                     collapse = ""
-    )
+    # Note: pf$v_info$meanvar may be empty (e.g., when all varying terms are
+    # matrix/basis terms that were expanded prior to model_frame).
+    mf_form <- paste(" ~ ", paste(pf$allvars, collapse = " + "), collapse = "")
+    meanvars <- if (!is.null(pf$v_info)) pf$v_info$meanvar else character(0)
+    meanvars <- meanvars[!is.na(meanvars) & nzchar(meanvars)]
+    if (length(meanvars) > 0) {
+      mf_form <- paste(mf_form, "+", paste(meanvars, collapse = " + "))
+    }
     # Escape non-syntactic variables that are in the data
     mf_form <- formula_ticks(mf_form, names(pf$data))
     
@@ -303,12 +313,20 @@ wb_model <- function(model, pf, dv, data, detrend, demean.ints, old.ints,
   # Create extra piece of formula based on model
   if (model %in% c("w-b", "within-between", "contextual")) {
     # Avoid redundant mean variables when multiple lags of the same variable
-    # are included... e.g., imean(lag(x)) and imean(x). I want whichever is 
+    # are included... e.g., imean(lag(x)) and imean(x). I want whichever is
     # the most recent (or covering the most waves in the case of there being
     # leads)
     pf$v_info <- set_meanvars(pf)
+    # Get unique meanvars, but exclude those already in constants
+    # (this happens for matrix term between columns)
+    meanvars_to_add <- unique(pf$v_info$meanvar)
+    meanvars_to_add <- setdiff(meanvars_to_add, pf$constants)
     # Make formula add-on
-    add_form <- paste(bt(unique(pf$v_info$meanvar)), collapse = " + ")
+    if (length(meanvars_to_add) > 0) {
+      add_form <- paste(bt(meanvars_to_add), collapse = " + ")
+    } else {
+      add_form <- ""
+    }
   } else {
     add_form <- ""
   }

@@ -17,6 +17,11 @@ long-delayed improvements to performance as well as some new features.
   - `balance_panel()`: Make implicit gaps explicit by adding NA rows for
     missing entity-wave combinations. Optionally fill with custom values.
 
+* `wbm()` now supports matrix-returning basis expansion terms in the time-varying
+  part of the formula, including `splines::ns()`, `splines::bs()`, and
+  `stats::poly()`. These terms are expanded into within- and between-person
+  components during data preparation. ([#36](https://github.com/jacob-long/panelr/issues/36))
+
 ## Internal improvements
 
 * New `build_panel_data()` internal helper provides fast reconstruction of
@@ -311,4 +316,3 @@ effects when panels are unbalanced.
 computers.
 * Added WageData example, documentation, etc.
 * Unit testing and automated tests through Travis and Appveyor.
-
