@@ -34,7 +34,7 @@ Imports: crayon,
       stringr,
       tibble (>= 2.0.0),
       tidyr (>= 0.8.3),
-      reformulas (>= 0.4.2)
+      reformulas (>= 0.4.2),
       vctrs (>= 0.4.0)
 Suggests: brms,
     broom.mixed,
