@@ -1,7 +1,9 @@
 Package: panelr
 Title: Regression Models and Utilities for Repeated Measures and Panel Data
-Version: 1.0.0.9000
+Version: 1.0.0
 Authors@R: person("Jacob A.", "Long", email = "jacob.long@sc.edu", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-1582-6214"))
+Author: Jacob A. Long [aut, cre] (<https://orcid.org/0000-0002-1582-6214>)
+Maintainer: Jacob A. Long <jacob.long@sc.edu>
 Description: Provides an object type and associated tools for storing and 
   wrangling panel data. Implements several methods for creating regression
   models that take advantage of the unique aspects of 
@@ -25,7 +27,7 @@ Imports: crayon,
       dplyr,
       Formula,
       ggplot2,
-      jtools (>= 2.0.1),
+      jtools (>= 2.3.1),
       lmerTest,
       magrittr,
       methods,
@@ -36,7 +38,8 @@ Imports: crayon,
       tidyr (>= 0.8.3),
       reformulas (>= 0.4.2),
       vctrs (>= 0.4.0)
-Suggests: brms,
+Suggests: AER,
+    brms,
     broom.mixed,
     car,
     clubSandwich,

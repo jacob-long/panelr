@@ -1,11 +1,9 @@
 ## Test environments
-* local Intel macOS install, R 4.3.2
-* Ubuntu 18.04 (devel and release; via Github Actions)
-* Windows 2012 Server (devel and release; on Appveyor)
+* local macOS (aarch64), R 4.5.1
 
 ## R CMD check results
 
-0 ERRORs | 0 WARNINGs | 1 NOTEs
+0 ERRORs | 0 WARNINGs | 1 NOTE
 
-1 note is due to the checker being unsure whether the name "McNeish"
-is a misspelling. 
+* NOTE: CRAN incoming checks report this as a new submission and note the
+  prior archive; the issues triggering the archive have been addressed.

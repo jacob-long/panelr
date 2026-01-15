@@ -1,4 +1,4 @@
-# panelr 1.0.0.9000
+# panelr 1.0.0
 
 This is a point release, albeit without breaking changes. There are numerous
 long-delayed improvements to performance as well as some new features.
@@ -56,11 +56,9 @@ edge cases relating to non-syntactic variables have been corrected.
 ([#56](https://github.com/jacob-long/panelr/issues/56),
  [#54](https://github.com/jacob-long/panelr/issues/54))
  * Models should now be compatible with `sim_slopes()` and `johnson_neyman()`
- from the `interactions` package. Note that this compatibility is pending an
- update to `jtools`.
+ from the `interactions` package (requires `jtools` >= 2.3.1).
  ([#57](https://github.com/jacob-long/panelr/issues/57))
  * `long_panel()` has been substantially sped up. ([#51](https://github.com/jacob-long/panelr/issues/51))
- 
  
 # panelr 0.7.8
 
