@@ -63,7 +63,7 @@ getCall.wbm <- function(x, ...) {
 #' For `wbm` models, `predict()` operates in two main modes:
 #'
 #' * `raw = FALSE` (the default): `newdata` is treated as panel-style data. If it
-#'   is not already a [panel_data](R/panel_data.R:21) object, it is converted
+#'   is not already a [panel_data()] object, it is converted
 #'   using the `id` and `wave` variables from the original model. The within /
 #'   between decomposition and any detrending are recomputed for `newdata`
 #'   before passing the resulting design matrix to `lme4` via

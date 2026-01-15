@@ -97,7 +97,7 @@ and simulations from \code{wbm} models.
 For \code{wbm} models, \code{predict()} operates in two main modes:
 \itemize{
 \item \code{raw = FALSE} (the default): \code{newdata} is treated as panel-style data. If it
-is not already a \href{R/panel_data.R:21}{panel_data} object, it is converted
+is not already a \code{\link[=panel_data]{panel_data()}} object, it is converted
 using the \code{id} and \code{wave} variables from the original model. The within /
 between decomposition and any detrending are recomputed for \code{newdata}
 before passing the resulting design matrix to \code{lme4} via

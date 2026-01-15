@@ -7,3 +7,4 @@
 
 * NOTE: CRAN incoming checks report this as a new submission and note the
   prior archive; the issues triggering the archive have been addressed.
+* NOTE: "McNeish" in the DESCRIPTION is a proper noun.
