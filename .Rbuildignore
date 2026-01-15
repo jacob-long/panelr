@@ -22,3 +22,4 @@
 ^CRAN-SUBMISSION$
 ^JSS\-Draft$
 ^JSS\-Draft\.md$
+^.*\.Rcheck$

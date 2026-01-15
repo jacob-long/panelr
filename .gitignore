@@ -9,3 +9,6 @@ doc
 Meta
 .DS_Store
 JSS-draft/
+JSS-Draft.md
+*.Rcheck/
+*.tar.gz
