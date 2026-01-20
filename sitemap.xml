@@ -1,129 +1,82 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>/404.html</loc>
-  </url>
-  <url>
-    <loc>/CONDUCT.html</loc>
-  </url>
-  <url>
-    <loc>/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>/articles/reshape.html</loc>
-  </url>
-  <url>
-    <loc>/articles/wbm.html</loc>
-  </url>
-  <url>
-    <loc>/authors.html</loc>
-  </url>
-  <url>
-    <loc>/index.html</loc>
-  </url>
-  <url>
-    <loc>/news/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/WageData.html</loc>
-  </url>
-  <url>
-    <loc>/reference/are_varying.html</loc>
-  </url>
-  <url>
-    <loc>/reference/asym.html</loc>
-  </url>
-  <url>
-    <loc>/reference/asym_gee.html</loc>
-  </url>
-  <url>
-    <loc>/reference/complete_data.html</loc>
-  </url>
-  <url>
-    <loc>/reference/fdm.html</loc>
-  </url>
-  <url>
-    <loc>/reference/fdm_tidiers.html</loc>
-  </url>
-  <url>
-    <loc>/reference/formula.wbm.html</loc>
-  </url>
-  <url>
-    <loc>/reference/get_wave.html</loc>
-  </url>
-  <url>
-    <loc>/reference/heise.html</loc>
-  </url>
-  <url>
-    <loc>/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/is_panel.html</loc>
-  </url>
-  <url>
-    <loc>/reference/line_plot.html</loc>
-  </url>
-  <url>
-    <loc>/reference/long_panel.html</loc>
-  </url>
-  <url>
-    <loc>/reference/make_diff_data.html</loc>
-  </url>
-  <url>
-    <loc>/reference/make_wb_data.html</loc>
-  </url>
-  <url>
-    <loc>/reference/model_frame.html</loc>
-  </url>
-  <url>
-    <loc>/reference/nlsy.html</loc>
-  </url>
-  <url>
-    <loc>/reference/nobs.wbm.html</loc>
-  </url>
-  <url>
-    <loc>/reference/panel_data.html</loc>
-  </url>
-  <url>
-    <loc>/reference/predict.wbgee.html</loc>
-  </url>
-  <url>
-    <loc>/reference/predict.wbm.html</loc>
-  </url>
-  <url>
-    <loc>/reference/reexports.html</loc>
-  </url>
-  <url>
-    <loc>/reference/summary.panel_data.html</loc>
-  </url>
-  <url>
-    <loc>/reference/teen_poverty.html</loc>
-  </url>
-  <url>
-    <loc>/reference/unpanel.html</loc>
-  </url>
-  <url>
-    <loc>/reference/wbgee.html</loc>
-  </url>
-  <url>
-    <loc>/reference/wbgee_tidiers.html</loc>
-  </url>
-  <url>
-    <loc>/reference/wbm-class.html</loc>
-  </url>
-  <url>
-    <loc>/reference/wbm.html</loc>
-  </url>
-  <url>
-    <loc>/reference/wbm_stan.html</loc>
-  </url>
-  <url>
-    <loc>/reference/wbm_tidiers.html</loc>
-  </url>
-  <url>
-    <loc>/reference/widen_panel.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://panelr.jacob-long.com/404.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/CONDUCT.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/LICENSE-text.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/articles/index.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/articles/reshape.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/articles/wbm.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/authors.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/index.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/news/index.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/InteractionConfig.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/WBFormula.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/WBFormula_from_parser.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/WageData.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/are_varying.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/as_parser_list.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/asym.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/asym_gee.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/balance_panel.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/basis_function_registry.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/basis_utils.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/bt.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/bt_if_needed.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/build_panel_data.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/complete_data.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/detect_matrix_terms.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/evaluate_basis_term.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/expand_basis_columns.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/expand_matrix_terms_in_data.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/extract_basis_variable.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/extract_fn_name.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/extract_ranef_vars.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/fdm.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/fdm_tidiers.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/formula.wbm.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/generate_basis_colnames.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/get_interactions.WBFormula.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/get_meanvar.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/get_wave.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/has_gaps.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/has_interactions.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/heise.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/index.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/is_known_basis_fn.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/is_matrix_term.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/is_panel.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/is_panel_sorted.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/is_varying_term.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/is_within_model.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/line_plot.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/long_panel.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/make_diff_data.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/make_interaction_config.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/make_wb_data.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/model_frame.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/nlsy.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/nobs.wbm.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/panel_data-vctrs.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/panel_data.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/predict.wbgee.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/predict.wbm.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/print.WBFormula.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/process_matrix_term.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/reconstruct_basis_call.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/reexports.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/scan_gaps.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/should_demean_ints.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/summary.panel_data.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/teen_poverty.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/un_bt.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/unpanel.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/update_pf_for_matrix_terms.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/use_old_style_ints.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/wbgee.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/wbgee_tidiers.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/wbm-class.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/wbm.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/wbm_stan.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/wbm_tidiers.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/widen_panel.html</loc></url>
 </urlset>
+

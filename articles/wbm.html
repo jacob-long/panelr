@@ -5,90 +5,45 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="description" content="panelr">
 <title>Introduction to the `panelr` package • panelr</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Lato-0.4.8/font.css" rel="stylesheet">
-<link href="../deps/IBM_Plex_Mono-0.4.8/font.css" rel="stylesheet">
-<link href="../deps/Raleway-0.4.8/font.css" rel="stylesheet">
-<!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Introduction to the `panelr` package">
-<meta property="og:description" content="panelr">
-<!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
-<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<![endif]-->
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Lato-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/IBM_Plex_Mono-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/Raleway-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Introduction to the `panelr` package">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
-    
 
-    <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-dark"><div class="container">
-    
+
+    <nav class="navbar navbar-expand-lg fixed-top bg-dark" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+
     <a class="navbar-brand me-2" href="../index.html">panelr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
-    
+
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item">
-  <a class="nav-link" href="../index.html">
-    <span class="fa fa-home"></span>
-     
-  </a>
-</li>
-<li class="active nav-item">
-  <a class="nav-link" href="../articles/wbm.html">
-    <span class="fa fa-book"></span>
-     
-    Package Introduction
-  </a>
-</li>
-<li class="nav-item">
-  <a class="nav-link" href="../articles/reshape.html">
-    <span class="fa fa-arrows"></span>
-     
-    Reshaping Tutorial
-  </a>
-</li>
-<li class="nav-item">
-  <a class="nav-link" href="../reference/index.html">
-    <span class="fa fa-file-code-o"></span>
-     
-    Documentation
-  </a>
-</li>
-<li class="nav-item">
-  <a class="nav-link" href="../news/index.html">
-    <span class="fa fa-newspaper-o"></span>
-     
-    News
-  </a>
-</li>
+<li class="nav-item"><a class="nav-link" href="../index.html" aria-label="Home"><span class="fa fa-home"></span></a></li>
+<li class="active nav-item"><a class="nav-link" href="../articles/wbm.html"><span class="fa fa-book"></span> Package Introduction</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/reshape.html"><span class="fa fa-arrows"></span> Reshaping Tutorial</a></li>
+<li class="nav-item"><a class="nav-link" href="../reference/index.html"><span class="fa fa-file-code-o"></span> Documentation</a></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html"><span class="fa fa-newspaper-o"></span> News</a></li>
       </ul>
-<form class="form-inline my-2 my-lg-0" role="search">
-        <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off">
-</form>
-
-      <ul class="navbar-nav">
-<li class="nav-item">
-  <a class="external-link nav-link" href="https://github.com/jacob-long/panelr">
-    <span class="fa fa-github fa-lg"></span>
-     
-    Github
-  </a>
-</li>
+<ul class="navbar-nav">
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/jacob-long/panelr"><span class="fa fa-github fa-lg"></span> Github</a></li>
       </ul>
 </div>
 
-    
+
   </div>
 </nav><div class="container template-article">
 
@@ -97,13 +52,14 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="" class="logo" alt=""><h1>Introduction to the `panelr` package</h1>
+
+      <h1>Introduction to the `panelr` package</h1>
                         <h4 data-toc-skip class="author">Jacob A.
 Long</h4>
             
-            <h4 data-toc-skip class="date">2024-01-11</h4>
+            <h4 data-toc-skip class="date">2026-01-20</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/jacob-long/panelr/blob/HEAD/vignettes/wbm.Rmd" class="external-link"><code>vignettes/wbm.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/jacob-long/panelr/blob/master/vignettes/wbm.Rmd" class="external-link"><code>vignettes/wbm.Rmd</code></a></small>
       <div class="d-none name"><code>wbm.Rmd</code></div>
     </div>
 
@@ -216,92 +172,151 @@ That is, you can subtract the entity’s own mean for each predictor and
 the dependent variable and fit a model via OLS that is equivalent to the
 so-called least squares dummy variable approach (in which dummy
 variables for every entity ID are included as predictors).</p>
-<p>Let’s get a bit more technical. We have entities <span class="math inline">\(i = 1, ..., n\)</span> who are measured at times
-<span class="math inline">\(t = 1, ..., T\)</span>. We have as our
-dependent variable <span class="math inline">\(y_{it}\)</span>, the
-variable <span class="math inline">\(y\)</span> for individual <span class="math inline">\(i\)</span> at time <span class="math inline">\(t\)</span>. We have predictors that vary over time
-<span class="math inline">\(x_{it}\)</span>, variables that do not vary
-over time <span class="math inline">\(z_i\)</span>, and variables we did
-not measure that do not vary over time <span class="math inline">\(\alpha_i\)</span> as well as random error <span class="math inline">\(\epsilon_{it}\)</span></p>
+<p>Let’s get a bit more technical. We have entities
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">i = 1, ..., n</annotation></semantics></math>
+who are measured at times
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><mi>T</mi></mrow><annotation encoding="application/x-tex">t = 1, ..., T</annotation></semantics></math>.
+We have as our dependent variable
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">y_{it}</annotation></semantics></math>,
+the variable
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
+for individual
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+at time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>.
+We have predictors that vary over time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">x_{it}</annotation></semantics></math>,
+variables that do not vary over time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>z</mi><mi>i</mi></msub><annotation encoding="application/x-tex">z_i</annotation></semantics></math>,
+and variables we did not measure that do not vary over time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>α</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\alpha_i</annotation></semantics></math>
+as well as random error
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ϵ</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">\epsilon_{it}</annotation></semantics></math></p>
 <p>The fixed effects model, then, looks like this:</p>
-<p><span class="math display">\[
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><mo>=</mo><msub><mi>μ</mi><mi>t</mi></msub><mo>+</mo><msub><mi>β</mi><mn>1</mn></msub><msub><mi>x</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><mo>+</mo><mi>γ</mi><msub><mi>z</mi><mi>i</mi></msub><mo>+</mo><msub><mi>α</mi><mi>i</mi></msub><mo>+</mo><msub><mi>ϵ</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub></mrow><annotation encoding="application/x-tex">
 y_{it} = \mu_t + \beta_1x_{it} + \gamma z_i + \alpha_i + \epsilon_{it}
-\]</span></p>
-<p>Although <span class="math inline">\(\alpha_i\)</span> is not
-observed, it can be estimated by including a dummy variable for each
-<span class="math inline">\(i\)</span>. The <span class="math inline">\(\gamma\)</span> is undefined because the <span class="math inline">\(z_i\)</span> are perfectly collinear with the
-<span class="math inline">\(\alpha_i\)</span> dummy variables.</p>
+</annotation></semantics></math></p>
+<p>Although
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>α</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\alpha_i</annotation></semantics></math>
+is not observed, it can be estimated by including a dummy variable for
+each
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>.
+The
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>γ</mi><annotation encoding="application/x-tex">\gamma</annotation></semantics></math>
+is undefined because the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>z</mi><mi>i</mi></msub><annotation encoding="application/x-tex">z_i</annotation></semantics></math>
+are perfectly collinear with the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>α</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\alpha_i</annotation></semantics></math>
+dummy variables.</p>
 <p>The individual-mean-centered version of the fixed effects models is
-based on calculating a mean of <span class="math inline">\(y\)</span>
-and <span class="math inline">\(x\)</span> for each <span class="math inline">\(i\)</span> — so <span class="math inline">\(\bar{y_i}\)</span> and <span class="math inline">\(\bar{x_i}\)</span> and subtracting it from each
-<span class="math inline">\(y_{it}\)</span> and <span class="math inline">\(x_{it}\)</span>. The model can be expressed like
-this, including <span class="math inline">\(\bar{z_i}\)</span> and <span class="math inline">\(\bar{\alpha_i}\)</span> for demonstration:</p>
-<p><span class="math display">\[
-y_{it} - \bar{y_i} = \mu_t + \beta_1(x_{it} - \bar{x_i}) +
-(z_i - \bar{z_i} = 0) +
+based on calculating a mean of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+for each
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+— so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><msub><mi>y</mi><mi>i</mi></msub><mo accent="true">‾</mo></mover><annotation encoding="application/x-tex">\bar{y_i}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><msub><mi>x</mi><mi>i</mi></msub><mo accent="true">‾</mo></mover><annotation encoding="application/x-tex">\bar{x_i}</annotation></semantics></math>
+and subtracting it from each
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">y_{it}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">x_{it}</annotation></semantics></math>.
+The model can be expressed like this, including
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><msub><mi>z</mi><mi>i</mi></msub><mo accent="true">‾</mo></mover><annotation encoding="application/x-tex">\bar{z_i}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><msub><mi>α</mi><mi>i</mi></msub><mo accent="true">‾</mo></mover><annotation encoding="application/x-tex">\bar{\alpha_i}</annotation></semantics></math>
+for demonstration:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><mo>−</mo><mover><msub><mi>y</mi><mi>i</mi></msub><mo accent="true">‾</mo></mover><mo>=</mo><msub><mi>μ</mi><mi>t</mi></msub><mo>+</mo><msub><mi>β</mi><mn>1</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><mo>−</mo><mover><msub><mi>x</mi><mi>i</mi></msub><mo accent="true">‾</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>z</mi><mi>i</mi></msub><mo>−</mo><mover><msub><mi>z</mi><mi>i</mi></msub><mo accent="true">‾</mo></mover><mo>=</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>α</mi><mi>i</mi></msub><mo>−</mo><mover><msub><mi>α</mi><mi>i</mi></msub><mo accent="true">‾</mo></mover><mo>=</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>ϵ</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><mo>−</mo><mover><msub><mi>ϵ</mi><mi>i</mi></msub><mo accent="true">‾</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+y_{it} - \bar{y_i} = \mu_t + \beta_1(x_{it} - \bar{x_i}) + 
+(z_i - \bar{z_i} = 0) + 
 (\alpha_i - \bar{\alpha_i} = 0) + (\epsilon_{it} - \bar{\epsilon_i})
-\]</span></p>
+</annotation></semantics></math></p>
 <p>By de-meaning everything, all the time-invariant variables drop
 out:</p>
-<p><span class="math display">\[
-y_{it} - \bar{y_i} = \mu_t + \beta_1(x_{it} - \bar{x_i}) +
-(\epsilon_{it} - \bar{\epsilon_i})
-\]</span></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><mo>−</mo><mover><msub><mi>y</mi><mi>i</mi></msub><mo accent="true">‾</mo></mover><mo>=</mo><msub><mi>μ</mi><mi>t</mi></msub><mo>+</mo><msub><mi>β</mi><mn>1</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><mo>−</mo><mover><msub><mi>x</mi><mi>i</mi></msub><mo accent="true">‾</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>ϵ</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><mo>−</mo><mover><msub><mi>ϵ</mi><mi>i</mi></msub><mo accent="true">‾</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+y_{it} - \bar{y_i} = \mu_t + \beta_1(x_{it} - \bar{x_i}) + (\epsilon_{it} - \bar{\epsilon_i})
+</annotation></semantics></math></p>
 <p>This is often called the “within” estimator. You can take these
 de-meaned variables and fit an OLS regression and get valid estimates
 (with some adjustments to the standard errors).</p>
 <p>You can also do something slightly different and get the same results
 with multilevel models. Take this, for example:</p>
-<p><span class="math display">\[
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><mo>=</mo><msub><mi>β</mi><mrow><mn>0</mn><mi>i</mi></mrow></msub><mo>+</mo><msub><mi>β</mi><mn>1</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><mo>−</mo><mover><msub><mi>x</mi><mi>i</mi></msub><mo accent="true">‾</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>ϵ</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><mo>−</mo><mover><msub><mi>ϵ</mi><mi>i</mi></msub><mo accent="true">‾</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
 y_{it} = \beta_{0i} + \beta_1(x_{it} - \bar{x_i}) + (\epsilon_{it} -
 \bar{\epsilon_i})
-\]</span></p>
-<p>Where <span class="math inline">\(\beta_{0i}\)</span> is a random
-intercept estimated for each <span class="math inline">\(i\)</span>.
-This is equivalent to subtracting <span class="math inline">\(\bar{y_i}\)</span> in terms of the estimation of
-<span class="math inline">\(\beta_1\)</span>. But in the multilevel
-modeling framework, we can include those time-invariant <span class="math inline">\(z_i\)</span> as well. Conceptually, they are
-basically being included in a model predicting <span class="math inline">\(\beta_{0i}\)</span>:</p>
-<p><span class="math display">\[
+</annotation></semantics></math></p>
+<p>Where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mrow><mn>0</mn><mi>i</mi></mrow></msub><annotation encoding="application/x-tex">\beta_{0i}</annotation></semantics></math>
+is a random intercept estimated for each
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>.
+This is equivalent to subtracting
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><msub><mi>y</mi><mi>i</mi></msub><mo accent="true">‾</mo></mover><annotation encoding="application/x-tex">\bar{y_i}</annotation></semantics></math>
+in terms of the estimation of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mn>1</mn></msub><annotation encoding="application/x-tex">\beta_1</annotation></semantics></math>.
+But in the multilevel modeling framework, we can include those
+time-invariant
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>z</mi><mi>i</mi></msub><annotation encoding="application/x-tex">z_i</annotation></semantics></math>
+as well. Conceptually, they are basically being included in a model
+predicting
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mrow><mn>0</mn><mi>i</mi></mrow></msub><annotation encoding="application/x-tex">\beta_{0i}</annotation></semantics></math>:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>β</mi><mrow><mn>0</mn><mi>i</mi></mrow></msub><mo>=</mo><msub><mi>β</mi><mn>0</mn></msub><mo>+</mo><mi>γ</mi><msub><mi>z</mi><mi>i</mi></msub><mo>+</mo><msub><mi>u</mi><mrow><mn>0</mn><mi>i</mi></mrow></msub></mrow><annotation encoding="application/x-tex">
 \beta_{0i} = \beta_0 + \gamma z_i + u_{0i}
-\]</span></p>
-<p>Where <span class="math inline">\(u_{0i}\)</span> is the random error
-of the model predicting <span class="math inline">\(\beta_{0i}\)</span>.</p>
-<p>In fact, we can include the <span class="math inline">\(\bar{x_i}\)</span> in our multilevel model as well
-and they are used just like the <span class="math inline">\(z_i\)</span>:</p>
-<p><span class="math display">\[
+</annotation></semantics></math></p>
+<p>Where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>u</mi><mrow><mn>0</mn><mi>i</mi></mrow></msub><annotation encoding="application/x-tex">u_{0i}</annotation></semantics></math>
+is the random error of the model predicting
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mrow><mn>0</mn><mi>i</mi></mrow></msub><annotation encoding="application/x-tex">\beta_{0i}</annotation></semantics></math>.</p>
+<p>In fact, we can include the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><msub><mi>x</mi><mi>i</mi></msub><mo accent="true">‾</mo></mover><annotation encoding="application/x-tex">\bar{x_i}</annotation></semantics></math>
+in our multilevel model as well and they are used just like the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>z</mi><mi>i</mi></msub><annotation encoding="application/x-tex">z_i</annotation></semantics></math>:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>β</mi><mrow><mn>0</mn><mi>i</mi></mrow></msub><mo>=</mo><msub><mi>β</mi><mn>0</mn></msub><mo>+</mo><msub><mi>β</mi><mn>2</mn></msub><mover><msub><mi>x</mi><mi>i</mi></msub><mo accent="true">‾</mo></mover><mo>+</mo><mi>γ</mi><msub><mi>z</mi><mi>i</mi></msub><mo>+</mo><msub><mi>u</mi><mrow><mn>0</mn><mi>i</mi></mrow></msub></mrow><annotation encoding="application/x-tex">
 \beta_{0i} = \beta_0 + \beta_2 \bar{x_i} + \gamma z_i +  u_{0i}
-\]</span></p>
+</annotation></semantics></math></p>
 <p>Now we can substitute into the previous multilevel equation and we
 have our within-between model:</p>
-<p><span class="math display">\[
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><mo>=</mo><msub><mi>β</mi><mn>0</mn></msub><mo>+</mo><msub><mi>β</mi><mn>1</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><mo>−</mo><mover><msub><mi>x</mi><mi>i</mi></msub><mo accent="true">‾</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><msub><mi>β</mi><mn>2</mn></msub><mover><msub><mi>x</mi><mi>i</mi></msub><mo accent="true">‾</mo></mover><mo>+</mo><mi>γ</mi><msub><mi>z</mi><mi>i</mi></msub><mo>+</mo><msub><mi>u</mi><mrow><mn>0</mn><mi>i</mi></mrow></msub><mo>+</mo><msub><mi>ϵ</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub></mrow><annotation encoding="application/x-tex">
 y_{it} = \beta_{0} + \beta_1(x_{it} - \bar{x_i})  
 + \beta_2 \bar{x_i} + \gamma z_i +  u_{0i} + \epsilon_{it}
-\]</span></p>
-<p>The <span class="math inline">\(\beta_1\)</span> has the same
-interpretation as in the fixed effects model, these are the effects of
-within-entity deviations of <span class="math inline">\(x\)</span> on
-within-entity deviations of <span class="math inline">\(y\)</span>. The
-<span class="math inline">\(\beta_2\)</span> is basically predicting the
-<span class="math inline">\(\bar{y_i}\)</span>, however, so these
-coefficients are helpful for predicting differences in mean levels
-across entities. The same is true for the <span class="math inline">\(z_i\)</span>.</p>
+</annotation></semantics></math></p>
+<p>The
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mn>1</mn></msub><annotation encoding="application/x-tex">\beta_1</annotation></semantics></math>
+has the same interpretation as in the fixed effects model, these are the
+effects of within-entity deviations of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+on within-entity deviations of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>.
+The
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mn>2</mn></msub><annotation encoding="application/x-tex">\beta_2</annotation></semantics></math>
+is basically predicting the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><msub><mi>y</mi><mi>i</mi></msub><mo accent="true">‾</mo></mover><annotation encoding="application/x-tex">\bar{y_i}</annotation></semantics></math>,
+however, so these coefficients are helpful for predicting differences in
+mean levels across entities. The same is true for the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>z</mi><mi>i</mi></msub><annotation encoding="application/x-tex">z_i</annotation></semantics></math>.</p>
 <p>A similar model that I call the “contextual” model because this is
 how it is often interpreted (see, e.g., Raudenbush &amp; Bryk, 2002).
-Here we do not demean the <span class="math inline">\(x_i\)</span>:</p>
-<p><span class="math display">\[
-y_{it} = \beta_{0} + \beta_1 x_{it}
+Here we do not demean the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mi>i</mi></msub><annotation encoding="application/x-tex">x_i</annotation></semantics></math>:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><mo>=</mo><msub><mi>β</mi><mn>0</mn></msub><mo>+</mo><msub><mi>β</mi><mn>1</mn></msub><msub><mi>x</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><mo>+</mo><msub><mi>β</mi><mn>2</mn></msub><mover><msub><mi>x</mi><mi>i</mi></msub><mo accent="true">‾</mo></mover><mo>+</mo><mi>γ</mi><msub><mi>z</mi><mi>i</mi></msub><mo>+</mo><msub><mi>u</mi><mrow><mn>0</mn><mi>i</mi></mrow></msub><mo>+</mo><msub><mi>ϵ</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub></mrow><annotation encoding="application/x-tex">
+y_{it} = \beta_{0} + \beta_1 x_{it} 
 + \beta_2 \bar{x_i} + \gamma z_i +  u_{0i} + \epsilon_{it}
-\]</span></p>
-<p>Believe it or not, the <span class="math inline">\(\beta_1\)</span>
-is unchanged in this model; it is the <span class="math inline">\(\beta_2\)</span> that changes. The interpretation
-of <span class="math inline">\(\beta_2\)</span> becomes a the
-<em>difference</em> between the within- and between-entities effects. A
-significant coefficient for <span class="math inline">\(\beta_2\)</span>
+</annotation></semantics></math></p>
+<p>Believe it or not, the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mn>1</mn></msub><annotation encoding="application/x-tex">\beta_1</annotation></semantics></math>
+is unchanged in this model; it is the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mn>2</mn></msub><annotation encoding="application/x-tex">\beta_2</annotation></semantics></math>
+that changes. The interpretation of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mn>2</mn></msub><annotation encoding="application/x-tex">\beta_2</annotation></semantics></math>
+becomes a the <em>difference</em> between the within- and
+between-entities effects. A significant coefficient for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mn>2</mn></msub><annotation encoding="application/x-tex">\beta_2</annotation></semantics></math>
 means significant differences between the within- and between-entity
 effects. For those who are familiar, this is like a variable-by-variable
-Hausman test. Substantively, <span class="math inline">\(\beta_2\)</span> is often interpreted as a
-<em>contextual</em> effect.</p>
+Hausman test. Substantively,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mn>2</mn></msub><annotation encoding="application/x-tex">\beta_2</annotation></semantics></math>
+is often interpreted as a <em>contextual</em> effect.</p>
 <p>From this framework, we can do cross-level interactions, random
 slopes, generalized linear models, and all kinds of interesting
 stuff.</p>
@@ -310,34 +325,97 @@ stuff.</p>
 </h4>
 <p>In the fixed effects framework, it is generally considered wrong to
 operationalize an interaction between two time-varying variables (let’s
-call them <span class="math inline">\(w\)</span> and <span class="math inline">\(x\)</span>) by taking the product of their
-individual-demeaned forms. That is, you are <strong>not</strong>
-supposed to generate the interaction term <span class="math inline">\(xw_{it}\)</span> by doing this:</p>
-<p><span class="math display">\[
+call them
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>w</mi><annotation encoding="application/x-tex">w</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>)
+by taking the product of their individual-demeaned forms. That is, you
+are <strong>not</strong> supposed to generate the interaction term
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><msub><mi>w</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub></mrow><annotation encoding="application/x-tex">xw_{it}</annotation></semantics></math>
+by doing this:</p>
+</div>
+<div class="section level4">
+<h4 id="a-note-on-splines-and-other-basis-expansions">A note on splines and other basis expansions<a class="anchor" aria-label="anchor" href="#a-note-on-splines-and-other-basis-expansions"></a>
+</h4>
+<p><code><a href="../reference/wbm.html">wbm()</a></code> supports common basis expansion functions in the
+time-varying part of the formula that return multiple columns, including
+<code><a href="https://rdrr.io/r/splines/ns.html" class="external-link">splines::ns()</a></code>, <code><a href="https://rdrr.io/r/splines/bs.html" class="external-link">splines::bs()</a></code>, and
+<code><a href="https://rdrr.io/r/stats/poly.html" class="external-link">stats::poly()</a></code>.</p>
+<p>For a nonlinear term like <code>ns(exp, df = 3)</code>,
+<code>panelr</code> expands the term into multiple within and between
+columns:</p>
+<ul>
+<li>
+<strong>Within component</strong>: compute spline bases on the
+within-person deviations <code>exp_it - expbar_i</code>, and then
+de-mean each resulting basis column within person (a double-demean
+analogue for nonlinear terms).</li>
+<li>
+<strong>Between component</strong>: compute spline bases on the
+person means <code>expbar_i</code>.</li>
+</ul>
+<p>This approach avoids the error you would get if spline knots were
+chosen within each person due to grouped <code><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate()</a></code>.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://panelr.jacob-long.com">panelr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">splines</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"WageData"</span><span class="op">)</span></span>
+<span><span class="va">wages</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/panel_data.html">panel_data</a></span><span class="op">(</span><span class="va">WageData</span>, id <span class="op">=</span> <span class="va">id</span>, wave <span class="op">=</span> <span class="va">t</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">mod_spline</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wbm.html">wbm</a></span><span class="op">(</span><span class="va">lwage</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/splines/ns.html" class="external-link">ns</a></span><span class="op">(</span><span class="va">exp</span>, df <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="op">|</span> <span class="va">blk</span>, data <span class="op">=</span> <span class="va">wages</span><span class="op">)</span></span>
+<span><span class="va">mod_spline</span></span></code></pre></div>
+<pre><code>Linear mixed model fit by REML ['wblm']
+Formula: lwage ~ ns(exp, df = 3) | blk
+   Data: wages
+REML criterion at convergence: -1586.533
+Random effects:
+ Groups   Name        Std.Dev.
+ id       (Intercept) 0.3668  
+ Residual             0.1532  
+Number of obs: 4165, groups:  id, 595
+Fixed Effects:
+(Intercept)    ns_exp.w1    ns_exp.w2          blk    ns_exp.b1    ns_exp.b2  
+    6.58202    -65.06281    -24.85345     -0.32938      0.49589     -0.00382  
+  ns_exp.b3  
+   -0.31440  
+fit warnings:
+fixed-effect model matrix is rank deficient so dropping 1 column / coefficient</code></pre>
+<p>Note: for <code><a href="https://rdrr.io/r/splines/bs.html" class="external-link">bs()</a></code>, after demeaning some values may fall
+outside the original boundary knots, which can produce a warning about
+ill-conditioned bases.</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><msub><mi>w</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><mo>−</mo><mover><msub><mi>x</mi><mi>i</mi></msub><mo accent="true">‾</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow><mo>×</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>w</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><mo>−</mo><mover><msub><mi>w</mi><mi>i</mi></msub><mo accent="true">‾</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
 xw_{it} = (x_{it} - \bar{x_{i}}) \times (w_{it} - \bar{w_i})
-\]</span></p>
+</annotation></semantics></math></p>
 <p>Instead, the conventional wisdom goes, you should first take the
 product of the observed variables and subtract the individual-level mean
 of that product, like so:</p>
-<p><span class="math display">\[
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><msub><mi>w</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><mo>=</mo><msub><mi>x</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><msub><mi>w</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><mo>−</mo><msub><mover><mrow><mi>x</mi><mi>w</mi></mrow><mo accent="true">¯</mo></mover><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">
 xw_{it} = x_{it}w_{it} - \overline{xw}_i
-\]</span></p>
-<p>Where <span class="math inline">\(\overline{xw}_i\)</span> can also
-be expressed as <span class="math inline">\(\frac{\sum_{t=1}^{T_i}{x_{it}w_{it}}}{T_i}\)</span>,
-the sum of all products for each <span class="math inline">\(i\)</span>
-divided by the number of time points for each <span class="math inline">\(i\)</span>, <span class="math inline">\(T_i\)</span>.</p>
+</annotation></semantics></math></p>
+<p>Where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mrow><mi>x</mi><mi>w</mi></mrow><mo accent="true">¯</mo></mover><mi>i</mi></msub><annotation encoding="application/x-tex">\overline{xw}_i</annotation></semantics></math>
+can also be expressed as
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac><mrow><msubsup><mo>∑</mo><mrow><mi>t</mi><mo>=</mo><mn>1</mn></mrow><msub><mi>T</mi><mi>i</mi></msub></msubsup><mrow><msub><mi>x</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><msub><mi>w</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub></mrow></mrow><msub><mi>T</mi><mi>i</mi></msub></mfrac><annotation encoding="application/x-tex">\frac{\sum_{t=1}^{T_i}{x_{it}w_{it}}}{T_i}</annotation></semantics></math>,
+the sum of all products for each
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+divided by the number of time points for each
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mi>i</mi></msub><annotation encoding="application/x-tex">T_i</annotation></semantics></math>.</p>
 <p><a href="https://doi.org/10.1177/0049124120914934" class="external-link">Giesselmann and
 Schmidt-Catran (2020)</a> show that this conventional method for
-generating <span class="math inline">\(xw_{it}\)</span> does not have
-the unbiasedness that the individual terms do. I’ll leave it to them to
-explain why exactly this is, but the solution is to start with the
-first, wrong version of <span class="math inline">\(xw_{it}\)</span>,
-which I’ll call <span class="math inline">\(xw_{it}^*\)</span>, and
-subtract <em>its</em> mean too:</p>
-<p><span class="math display">\[
+generating
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><msub><mi>w</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub></mrow><annotation encoding="application/x-tex">xw_{it}</annotation></semantics></math>
+does not have the unbiasedness that the individual terms do. I’ll leave
+it to them to explain why exactly this is, but the solution is to start
+with the first, wrong version of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><msub><mi>w</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub></mrow><annotation encoding="application/x-tex">xw_{it}</annotation></semantics></math>,
+which I’ll call
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><msubsup><mi>w</mi><mrow><mi>i</mi><mi>t</mi></mrow><mo>*</mo></msubsup></mrow><annotation encoding="application/x-tex">xw_{it}^*</annotation></semantics></math>,
+and subtract <em>its</em> mean too:</p>
+<p><span class="math display">$$
 xw_{it}^* = (x_{it} - \bar{x_{i}}) \times (w_{it} - \bar{w_i}) \\
 xw_{it} = xw_{it}^* - \overline{xw_i^*}
-\]</span></p>
+$$</span></p>
 <p>I call this the “double-demeaning” approach to interactions, in
 contrast to the one-time demeaning in the conventional approach. By
 default, <code><a href="../reference/wbm.html">wbm()</a></code> calculates interactions via the
@@ -378,7 +456,7 @@ looked at briefly earlier. We’ll predict the logarithm of wages
 membership (<code>union</code>), marital status (<code>ms</code>), blue
 (vs. white) collar job status (<code>occ</code>), black race
 (<code>blk</code>), and female sex (<code>fem</code>).</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wbm.html">wbm</a></span><span class="op">(</span><span class="va">lwage</span> <span class="op">~</span> <span class="va">wks</span> <span class="op">+</span> <span class="va">union</span> <span class="op">+</span> <span class="va">ms</span> <span class="op">+</span> <span class="va">occ</span> <span class="op">|</span> <span class="va">blk</span> <span class="op">+</span> <span class="va">fem</span>, data <span class="op">=</span> <span class="va">wages</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></code></pre></div>
 <pre><code> [1mMODEL INFO:
@@ -437,7 +515,7 @@ in earnings from joining a union (<code>union</code>).</p>
 <p>Maybe we think the timing of the marriage effect is off and the true
 effect occurs the time period after a person becomes married. We can ask
 for the lagged effect using <code><a href="https://dplyr.tidyverse.org/reference/lead-lag.html" class="external-link">lag()</a></code>.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wbm.html">wbm</a></span><span class="op">(</span><span class="va">lwage</span> <span class="op">~</span> <span class="va">wks</span> <span class="op">+</span> <span class="va">union</span> <span class="op">+</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/lead-lag.html" class="external-link">lag</a></span><span class="op">(</span><span class="va">ms</span><span class="op">)</span> <span class="op">+</span> <span class="va">occ</span> <span class="op">|</span> <span class="va">blk</span> <span class="op">+</span> <span class="va">fem</span>, data <span class="op">=</span> <span class="va">wages</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></code></pre></div>
 <pre><code> [1mMODEL INFO:
@@ -501,7 +579,7 @@ needed.</p>
 up for everyone, on average, over time. We can just include the time
 variable in the formula or set <code>use.wave</code> to
 <code>TRUE</code>.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wbm.html">wbm</a></span><span class="op">(</span><span class="va">lwage</span> <span class="op">~</span> <span class="va">wks</span> <span class="op">+</span> <span class="va">union</span> <span class="op">+</span> <span class="va">ms</span> <span class="op">+</span> <span class="va">occ</span> <span class="op">|</span> <span class="va">blk</span> <span class="op">+</span> <span class="va">fem</span>, data <span class="op">=</span> <span class="va">wages</span>, use.wave <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></code></pre></div>
 <pre><code> [1mMODEL INFO:
@@ -531,8 +609,8 @@ occ           -0.03   0.01    -1.81   3565.00   0.07
  [22m-----------------------------------------------------------
                       Est.   S.E.   t val.      d.f.      p
 ------------------ ------- ------ -------- --------- ------
-(Intercept)           5.91   0.20    28.95    588.63   0.00
-imean(wks)            0.01   0.00     2.25    587.99   0.02
+(Intercept)           5.91   0.20    28.95    588.64   0.00
+imean(wks)            0.01   0.00     2.25    588.00   0.02
 imean(union)          0.15   0.03     4.67    588.00   0.00
 imean(ms)             0.17   0.05     3.07    588.00   0.00
 imean(occ)           -0.41   0.03   -13.31    588.00   0.00
@@ -555,7 +633,7 @@ effects. Believe it or not, we just fit a growth curve model!</p>
 <p>Now, we might think people have different trajectories. We can
 include that as a random slope, which will go in the third part of the
 formula.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wbm.html">wbm</a></span><span class="op">(</span><span class="va">lwage</span> <span class="op">~</span> <span class="va">wks</span> <span class="op">+</span> <span class="va">union</span> <span class="op">+</span> <span class="va">ms</span> <span class="op">+</span> <span class="va">occ</span> <span class="op">|</span> <span class="va">blk</span> <span class="op">+</span> <span class="va">fem</span> <span class="op">|</span> <span class="op">(</span><span class="va">t</span> <span class="op">|</span> <span class="va">id</span><span class="op">)</span>, use.wave <span class="op">=</span> <span class="cn">TRUE</span>, data <span class="op">=</span> <span class="va">wages</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></code></pre></div>
 <pre><code> [1mMODEL INFO:
@@ -586,7 +664,7 @@ occ           -0.02   0.01    -1.42   3563.73   0.16
                       Est.   S.E.   t val.     d.f.      p
 ------------------ ------- ------ -------- -------- ------
 (Intercept)           5.93   0.20    29.69   588.53   0.00
-imean(wks)            0.01   0.00     2.12   587.98   0.03
+imean(wks)            0.01   0.00     2.12   587.97   0.03
 imean(union)          0.16   0.03     4.90   587.97   0.00
 imean(ms)             0.17   0.05     3.25   588.06   0.00
 imean(occ)           -0.39   0.03   -13.16   588.01   0.00
@@ -621,7 +699,7 @@ curve will make it harder for you to see the true effect of
 you’d rather have the contextual model described earlier, in which the
 means are not subtracted from the time varying variables, that’s an
 option too.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wbm.html">wbm</a></span><span class="op">(</span><span class="va">lwage</span> <span class="op">~</span> <span class="va">wks</span> <span class="op">+</span> <span class="va">union</span> <span class="op">+</span> <span class="va">ms</span> <span class="op">+</span> <span class="va">occ</span> <span class="op">|</span> <span class="va">blk</span> <span class="op">+</span> <span class="va">fem</span>, data <span class="op">=</span> <span class="va">wages</span>, model <span class="op">=</span> <span class="st">"contextual"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></code></pre></div>
 <pre><code> [1mMODEL INFO:
@@ -673,7 +751,7 @@ fem                  -0.32   0.06    -4.96    588.00   0.00
 in effect compared to the within-entity estimates.</p>
 <p>If you don’t want to use any of the time-invariant variables, you can
 also just ask for the “within” estimator:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wbm.html">wbm</a></span><span class="op">(</span><span class="va">lwage</span> <span class="op">~</span> <span class="va">wks</span> <span class="op">+</span> <span class="va">union</span> <span class="op">+</span> <span class="va">ms</span> <span class="op">+</span> <span class="va">occ</span>, data <span class="op">=</span> <span class="va">wages</span>, model <span class="op">=</span> <span class="st">"within"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></code></pre></div>
 <pre><code> [1mMODEL INFO:
@@ -726,7 +804,7 @@ doesn’t require you to be right about the distribution of effects and
 several other assumptions.</p>
 <p><code><a href="../reference/wbgee.html">wbgee()</a></code> builds on <code>geeglm()</code> from the
 <code>geepack</code> package and works just like <code><a href="../reference/wbm.html">wbm()</a></code>.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wbgee.html">wbgee</a></span><span class="op">(</span><span class="va">lwage</span> <span class="op">~</span> <span class="va">wks</span> <span class="op">+</span> <span class="va">union</span> <span class="op">+</span> <span class="va">ms</span> <span class="op">+</span> <span class="va">occ</span> <span class="op">|</span> <span class="va">blk</span> <span class="op">+</span> <span class="va">fem</span>, data <span class="op">=</span> <span class="va">wages</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></code></pre></div>
 <pre><code> [1mMODEL INFO:
@@ -786,36 +864,42 @@ that one is the exact opposite of the other) in their effects on other
 outcomes. Allison (2019) described a method for estimating models with
 asymmetric effects based on first differences.</p>
 <p>First, you take first differences:</p>
-<p><span class="math display">\[
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><mo>−</mo><msub><mi>y</mi><mrow><mi>i</mi><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mi>t</mi></msub><mo>−</mo><msub><mi>μ</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mi>β</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><mo>−</mo><msub><mi>x</mi><mrow><mi>i</mi><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>ϵ</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><mo>−</mo><msub><mi>ϵ</mi><mrow><mi>i</mi><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
 y_{it} - y_{it-1} = (\mu_t - \mu_{t-1}) + \beta(x_{it} - x_{it -1}) +
 (\epsilon_{it} - \epsilon_{it-1})
-\]</span></p>
+</annotation></semantics></math></p>
 <p>We need a slightly different model for asymmetric effects in which we
 decompose the differences into positive and negative variables.</p>
 <p>Our asymmetric effects model will be:</p>
-<p><span class="math display">\[
-y_{it} - y_{it-1} = (\mu_t - \mu_{t-1}) + \beta^+x_{it}^+ +
-\beta^-x_{it}^- +
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><mo>−</mo><msub><mi>y</mi><mrow><mi>i</mi><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mi>t</mi></msub><mo>−</mo><msub><mi>μ</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><msup><mi>β</mi><mo>+</mo></msup><msubsup><mi>x</mi><mrow><mi>i</mi><mi>t</mi></mrow><mo>+</mo></msubsup><mo>+</mo><msup><mi>β</mi><mo>−</mo></msup><msubsup><mi>x</mi><mrow><mi>i</mi><mi>t</mi></mrow><mo>−</mo></msubsup><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>ϵ</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><mo>−</mo><msub><mi>ϵ</mi><mrow><mi>i</mi><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+y_{it} - y_{it-1} = (\mu_t - \mu_{t-1}) + \beta^+x_{it}^+ + \beta^-x_{it}^- +
 (\epsilon_{it} - \epsilon_{it-1})
-\]</span></p>
+</annotation></semantics></math></p>
 <p>Where</p>
-<p><span class="math display">\[
+<p><span class="math display">$$
 x_{it}^+ = x_{it} - x_{it -1} \text{ if } (x_{it} - x_{it -1}) &gt; 0,
 \text{otherwise } 0 \\
 x_{it}^- = -(x_{it} - x_{it -1}) \text{ if } (x_{it} - x_{it -1}) &lt;
 0,
 \text{otherwise } 0
-\]</span></p>
+$$</span></p>
 <p>In other words, if the difference is positive, it becomes part of the
-<span class="math inline">\(x_{it}^+\)</span> and if it is negative, it
-is multiplied by -1 to be made positive and is made part of the <span class="math inline">\(x_{it}^-\)</span> variable. If the effects are
-symmetric, <span class="math inline">\(\beta^+ = -\beta^-\)</span>.</p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>x</mi><mrow><mi>i</mi><mi>t</mi></mrow><mo>+</mo></msubsup><annotation encoding="application/x-tex">x_{it}^+</annotation></semantics></math>
+and if it is negative, it is multiplied by -1 to be made positive and is
+made part of the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>x</mi><mrow><mi>i</mi><mi>t</mi></mrow><mo>−</mo></msubsup><annotation encoding="application/x-tex">x_{it}^-</annotation></semantics></math>
+variable. If the effects are symmetric,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>β</mi><mo>+</mo></msup><mo>=</mo><mo>−</mo><msup><mi>β</mi><mo>−</mo></msup></mrow><annotation encoding="application/x-tex">\beta^+ = -\beta^-</annotation></semantics></math>.</p>
 <p>After fitting the model via GLS, we can then do a test of the
-contrasts of the <span class="math inline">\(\beta^+\)</span> and <span class="math inline">\(\beta^-\)</span> coefficients as a formal way to
-assess the presence of asymmetric effects.</p>
+contrasts of the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>β</mi><mo>+</mo></msup><annotation encoding="application/x-tex">\beta^+</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>β</mi><mo>−</mo></msup><annotation encoding="application/x-tex">\beta^-</annotation></semantics></math>
+coefficients as a formal way to assess the presence of asymmetric
+effects.</p>
 <p>Here’s how it works with the <code>panelr</code> function,
 <code><a href="../reference/asym.html">asym()</a></code>.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asym.html">asym</a></span><span class="op">(</span><span class="va">lwage</span> <span class="op">~</span> <span class="va">ms</span> <span class="op">+</span> <span class="va">occ</span> <span class="op">+</span> <span class="va">union</span> <span class="op">+</span> <span class="va">wks</span>, data <span class="op">=</span> <span class="va">wages</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></code></pre></div>
 <pre><code> [1mMODEL INFO:
@@ -856,7 +940,7 @@ from earlier, the effects seem quite symmetric.</p>
 spouse, <code>inschool</code> indicates whether the respondent is
 enrolled in school, and <code>hours</code> is the hours worked in the
 week of the survey.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="../reference/asym.html">asym</a></span><span class="op">(</span><span class="va">hours</span> <span class="op">~</span> <span class="va">spouse</span> <span class="op">+</span> <span class="va">inschool</span>, data <span class="op">=</span> <span class="va">teen</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code> [1mMODEL INFO:
  [22m [3mEntities:  [23m1151
@@ -896,37 +980,43 @@ entering/leaving school.</p>
 generalize to non-continuous dependent variables — you can’t run a logit
 model with a differenced binary outcome. Allison (2019) showed that you
 can do a modified form for such situations.</p>
-<p>Instead of including the <span class="math inline">\(x_{it}^+\)</span> and <span class="math inline">\(x_{it}^-\)</span> as predictors, you instead
-create new variables <span class="math inline">\(z_{it}^+\)</span> and
-<span class="math inline">\(z_{it}^-\)</span> that are the cumulative
-sum of all differences prior to time <span class="math inline">\(t\)</span>.</p>
-<p><span class="math display">\[
+<p>Instead of including the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>x</mi><mrow><mi>i</mi><mi>t</mi></mrow><mo>+</mo></msubsup><annotation encoding="application/x-tex">x_{it}^+</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>x</mi><mrow><mi>i</mi><mi>t</mi></mrow><mo>−</mo></msubsup><annotation encoding="application/x-tex">x_{it}^-</annotation></semantics></math>
+as predictors, you instead create new variables
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>z</mi><mrow><mi>i</mi><mi>t</mi></mrow><mo>+</mo></msubsup><annotation encoding="application/x-tex">z_{it}^+</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>z</mi><mrow><mi>i</mi><mi>t</mi></mrow><mo>−</mo></msubsup><annotation encoding="application/x-tex">z_{it}^-</annotation></semantics></math>
+that are the cumulative sum of all differences prior to time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>.</p>
+<p><span class="math display">$$
 z_{it}^+ = \sum_{s = 1}^{t}{x_{is}^+} \\
 z_{it}^- = \sum_{s = 1}^{t}{x_{is}^-} \\
-\]</span></p>
-<p>Note that at <span class="math inline">\(t = 1\)</span>, both are set
-to 0. I’ll leave the details as to <em>why</em> this works to the
-manuscript, but he shows that we’re left with the following
+$$</span></p>
+<p>Note that at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">t = 1</annotation></semantics></math>,
+both are set to 0. I’ll leave the details as to <em>why</em> this works
+to the manuscript, but he shows that we’re left with the following
 equation:</p>
-<p><span class="math display">\[
-y_{it} = \mu_t + \beta^+ z_{it}^+ + \beta^-z_{it}^- + \alpha_i +
-\epsilon_{it}
-\]</span></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub><mo>=</mo><msub><mi>μ</mi><mi>t</mi></msub><mo>+</mo><msup><mi>β</mi><mo>+</mo></msup><msubsup><mi>z</mi><mrow><mi>i</mi><mi>t</mi></mrow><mo>+</mo></msubsup><mo>+</mo><msup><mi>β</mi><mo>−</mo></msup><msubsup><mi>z</mi><mrow><mi>i</mi><mi>t</mi></mrow><mo>−</mo></msubsup><mo>+</mo><msub><mi>α</mi><mi>i</mi></msub><mo>+</mo><msub><mi>ϵ</mi><mrow><mi>i</mi><mi>t</mi></mrow></msub></mrow><annotation encoding="application/x-tex">
+y_{it} = \mu_t + \beta^+ z_{it}^+ + \beta^-z_{it}^- + \alpha_i + \epsilon_{it}
+</annotation></semantics></math></p>
 <p>So we can treat this like a fixed effects model in which we just need
-to address the <span class="math inline">\(\alpha_i\)</span>. For
-situations like this that call for a conditional logit, as Allison used
-in his paper, another option is the GEE with logit link.</p>
+to address the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>α</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\alpha_i</annotation></semantics></math>.
+For situations like this that call for a conditional logit, as Allison
+used in his paper, another option is the GEE with logit link.</p>
 <p>Let’s try with the <code>teen</code> data, which also appears in
 Allison (2019). Here our outcome variable is <code>pov</code>, poverty,
 and there’s a new predictor, <code>mother</code>, an indicator for
 whether the respondent has ever had any children.</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asym_gee.html">asym_gee</a></span><span class="op">(</span><span class="va">pov</span> <span class="op">~</span> <span class="va">mother</span> <span class="op">+</span> <span class="va">spouse</span> <span class="op">+</span> <span class="va">inschool</span> <span class="op">+</span> <span class="va">hours</span>, data <span class="op">=</span> <span class="va">teen</span>, family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">binomial</a></span><span class="op">(</span>link <span class="op">=</span> <span class="st">"logit"</span><span class="op">)</span>, </span>
 <span>                  use.wave <span class="op">=</span> <span class="cn">TRUE</span>, wave.factor <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<pre><code> [36mmother does not decrease over time so -mother is not included in the model. [39m
- [36mUnordered factor wave variable was converted to ordered. You should check
-that the order is correct. [39m</code></pre>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<pre><code> [36mmother does not decrease over time so -mother is not included in the
+model. [39m</code></pre>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></code></pre></div>
 <pre><code> [1mMODEL INFO:
  [22m [3mEntities:  [23m1151
@@ -942,7 +1032,7 @@ that the order is correct. [39m</code></pre>
 ------------------------------------------------
                      Est.   S.E.   z val.      p
 ----------------- ------- ------ -------- ------
-(Intercept)         -0.30   0.06    -5.19   0.00
+(Intercept)         -0.37   0.06    -5.78   0.00
 +mother              0.72   0.11     6.63   0.00
 +spouse             -0.70   0.14    -5.14   0.00
 -spouse              0.43   0.25     1.71   0.09
@@ -950,9 +1040,9 @@ that the order is correct. [39m</code></pre>
 -inschool           -0.01   0.09    -0.09   0.93
 +hours              -0.02   0.00    -8.17   0.00
 -hours               0.01   0.00     1.61   0.11
-wave.L               0.11   0.07     1.65   0.10
-wave.Q              -0.00   0.05    -0.02   0.98
-wave.C              -0.05   0.05    -0.97   0.33
+wave3                0.01   0.08     0.09   0.93
+wave4                0.12   0.08     1.48   0.14
+wave5                0.13   0.09     1.37   0.17
 ------------------------------------------------
 
  [1mTests of asymmetric effects:
@@ -991,28 +1081,26 @@ Research</em>, 1–28. <a href="https://doi.org/10.1177/0049124120914934" class=
 clustered data without multilevel models. <em>Multivariate Behavioral
 Research</em>, Advance online publication. <a href="https://doi.org/10.1080/00273171.2019.1602504" class="external-link uri">https://doi.org/10.1080/00273171.2019.1602504</a></p>
 </div>
-  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
 </div>
 
 
 
     <footer><div class="pkgdown-footer-left">
-  <p></p>
-<p>Developed by Jacob A. Long.</p>
+  <p>Developed by Jacob A. Long.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>
 </div>
 
-  
 
-  
+
+
 
   </body>
 </html>

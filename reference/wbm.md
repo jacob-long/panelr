@@ -1,0 +1,410 @@
+# Panel regression models fit via multilevel modeling
+
+Fit "within-between" and several other regression variants for panel
+data in a multilevel modeling framework.
+
+## Usage
+
+``` r
+wbm(
+  formula,
+  data,
+  id = NULL,
+  wave = NULL,
+  model = "w-b",
+  detrend = FALSE,
+  use.wave = FALSE,
+  wave.factor = FALSE,
+  min.waves = 2,
+  family = gaussian,
+  balance.correction = FALSE,
+  dt.random = TRUE,
+  dt.order = 1,
+  pR2 = TRUE,
+  pvals = TRUE,
+  t.df = "Satterthwaite",
+  weights = NULL,
+  offset = NULL,
+  interaction.style = c("double-demean", "demean", "raw"),
+  scale = FALSE,
+  scale.response = FALSE,
+  n.sd = 1,
+  dt_random = dt.random,
+  dt_order = dt.order,
+  balance_correction = balance.correction,
+  ...
+)
+```
+
+## Arguments
+
+- formula:
+
+  Model formula. See details for crucial info on `panelr`'s formula
+  syntax.
+
+- data:
+
+  The data, either a `panel_data` object or `data.frame`.
+
+- id:
+
+  If `data` is not a `panel_data` object, then the name of the
+  individual id column as a string. Otherwise, leave as NULL, the
+  default.
+
+- wave:
+
+  If `data` is not a `panel_data` object, then the name of the panel
+  wave column as a string. Otherwise, leave as NULL, the default.
+
+- model:
+
+  One of `"w-b"`, `"within"`, `"between"`, `"contextual"`. See details
+  for more on these options.
+
+- detrend:
+
+  Adjust within-subject effects for trends in the predictors? Default is
+  FALSE, but some research suggests this is a better idea (see Curran
+  and Bauer (2011) reference).
+
+- use.wave:
+
+  Should the wave be included as a predictor? Default is FALSE.
+
+- wave.factor:
+
+  Should the wave variable be treated as an unordered factor instead of
+  continuous? Default is FALSE.
+
+- min.waves:
+
+  What is the minimum number of waves an individual must have
+  participated in to be included in the analysis? Default is `2` and any
+  valid number is accepted. `"all"` is also acceptable if you want to
+  include only complete panelists.
+
+- family:
+
+  Use this to specify GLM link families. Default is `gaussian`, the
+  linear model.
+
+- balance.correction:
+
+  Correct between-subject effects for unbalanced panels following the
+  procedure in Curran and Bauer (2011)? Default is FALSE.
+
+- dt.random:
+
+  Should the detrending procedure be performed with a random slope for
+  each entity? Default is TRUE but for short panels FALSE may be better,
+  fitting a trend for all entities.
+
+- dt.order:
+
+  If detrending using `detrend`, what order polynomial would you like to
+  specify for the relationship between time and the predictors? Default
+  is 1, a linear model.
+
+- pR2:
+
+  Calculate a pseudo R-squared? Default is TRUE, but in some cases may
+  cause errors or add computation time.
+
+- pvals:
+
+  Calculate p values? Default is TRUE but for some complex linear
+  models, this may take a long time to compute using the `pbkrtest`
+  package.
+
+- t.df:
+
+  For linear models only. User may choose the method for calculating the
+  degrees of freedom in t-tests. Default is `"Satterthwaite"`, but you
+  may also choose `"Kenward-Roger"`. Kenward-Roger standard
+  errors/degrees of freedom requires the `pbkrtest` package.
+
+- weights:
+
+  If using weights, either the name of the column in the data that
+  contains the weights or a vector of the weights.
+
+- offset:
+
+  this can be used to specify an *a priori* known component to be
+  included in the linear predictor during fitting. This should be `NULL`
+  or a numeric vector of length equal to the number of cases. One or
+  more [`offset`](https://rdrr.io/r/stats/offset.html) terms can be
+  included in the formula instead or as well, and if more than one is
+  specified their sum is used. See
+  [`model.offset`](https://rdrr.io/r/stats/model.extract.html).
+
+- interaction.style:
+
+  The best way to calculate interactions in within models is in some
+  dispute. The conventional way (`"demean"`) is to first calculate the
+  product of the variables involved in the interaction before those
+  variables have their means subtracted and then subtract the mean of
+  the product from the product term (see Schunk and Perales (2017)).
+  Giesselmann and Schmidt-Catran (2020) show this method carries
+  between-entity differences that within models are designed to model
+  out. They suggest an alternate method (`"double-demean"`) in which the
+  product term is first calculated using the de-meaned lower-order
+  variables and then the subject means are subtracted from this product
+  term. Another option is to simply use the product term of the
+  de-meaned variables (`"raw"`), but Giesselmann and
+  Schmidt-Catran (2020) show this method biases the results towards zero
+  effect. The default is `"double-demean"` but if emulating other
+  software is the goal, `"demean"` might be preferred.
+
+- scale:
+
+  If `TRUE`, reports standardized regression coefficients by scaling and
+  mean-centering input data (the latter can be changed via the
+  `scale.only` argument). Default is `FALSE`.
+
+- scale.response:
+
+  Should the response variable also be rescaled? Default is `FALSE`.
+
+- n.sd:
+
+  How many standard deviations should you divide by for standardization?
+  Default is 1, though some prefer 2.
+
+- dt_random:
+
+  Deprecated. Equivalent to `dt.random`.
+
+- dt_order:
+
+  Deprecated. Equivalent to `dt.order`.
+
+- balance_correction:
+
+  Deprecated. Equivalent to `balance.correction`.
+
+- ...:
+
+  Additional arguments provided to
+  [`lme4::lmer()`](https://rdrr.io/pkg/lme4/man/lmer.html),
+  [`lme4::glmer()`](https://rdrr.io/pkg/lme4/man/glmer.html), or
+  [`lme4::glmer.nb()`](https://rdrr.io/pkg/lme4/man/glmer.nb.html).
+
+## Value
+
+A `wbm` object, which inherits from `merMod`.
+
+## Details
+
+**Formula syntax**
+
+The within-between models, and multilevel panel models more generally,
+distinguish between time-varying and time-invariant predictors. These
+are, as they sound, variables that are either measured repeatedly (in
+every wave) in the case of time-varying predictors or only once in the
+case of time-invariant predictors. You need to specify these separately
+in the formula to tell the model which variables you expect to change
+over time and which will not. The primary way of doing so is via the `|`
+operator.
+
+As an example, we can look at the
+[WageData](https://panelr.jacob-long.com/reference/WageData.md) included
+in this package. We will create a model that predicts the logarithm of
+the individual's wages (`lwage`) with their union status (`union`),
+which can change over time, and their race (`blk`; dichotomized as black
+or non-black), which does not change throughout the period of study. Our
+formula will look like this:
+
+`lwage ~ union | blk`
+
+Put time-varying variables before the first `|` and time-invariant
+variables afterwards. You can specify lags like `lag(union)` for
+time-varying variables; for more than 1 lag, include the number:
+`lag(union, 2)`.
+
+After the first `|` go the time-invariant variables. Note that if you
+put a time-varying variable here, what you get is the observed value
+rather than one adjusted to isolate within-entity effects. You may also
+take a time-varying variable — let's say weeks worked (`wks`) — and use
+`imean(wks)` to include the individual's mean across all waves as a
+predictor while omitting the per-wave measures.
+
+There is also a place for a second `|`. Here you can specify cross-level
+interactions (within-level interactions can be specified here as well).
+If I wanted the interaction term for `union` and `blk` — to see whether
+the effect of union status depended on one's race — I would specify the
+formula this way:
+
+`lwage ~ union | blk | union * blk`
+
+Another use for the post-second `|` section of the formula is for
+changing the random effects specification. By default, only a random
+intercept is specified in the call to
+[`lme4::lmer()`](https://rdrr.io/pkg/lme4/man/lmer.html)/[`lme4::glmer()`](https://rdrr.io/pkg/lme4/man/glmer.html).
+If you would like to specify other random slopes, include them here
+using the typical `lme4` syntax:
+
+`lwage ~ union | blk | (union | id)`
+
+You can also include the wave variable in a random effects term to
+specify a latent growth curve model:
+
+`lwage ~ union | blk + t | (t | id)`
+
+One last thing to know: If you want to use the second `|` but not the
+first, put a 1 or 0 after the first, like this:
+
+`lwage ~ union | 1 | (union | id)`
+
+Of course, with no time-invariant variables, you need no `|` operators
+at all.
+
+**Models**
+
+As a convenience, `wbm` does the heavy lifting for specifying the
+within-between model correctly. As a side effect it only takes a few
+easy tweaks to specify the model slightly differently. You can change
+this behavior with the `model` argument.
+
+By default, the argument is `"w-b"` (equivalently, `"within-between"`).
+This means, for each time-varying predictor, you have two types of
+variables in the model. The "between" effect is represented by the
+individual-level mean for each entity (e.g., each respondent to a panel
+survey). The "within" effect is represented by each wave's measure *with
+the individual-level mean* subtracted. Some refer to this as
+"de-meaning." Thinking in a Hausman test framework — with the
+within-between model as described here — you should expect the within
+and between coefficients to be the same if a random effects model were
+appropriate.
+
+The contextual model is very similar (use argument `"contextual"`). In
+some situations, this will be more intuitive to interpret. Empirically,
+the only difference compared to the within-between specification is that
+the contextual model does not subtract the individual-level means from
+the wave-level measures. This also changes the interpretation of the
+between-subject coefficients: In the contextual model, they are the
+*difference* between the within and between effects. If there's no
+difference between within and between effects, then, the coefficients
+will be 0.
+
+To fit a random effects model, use either `"between"` or `"random"`.
+This involves no de-meaning and no individual-level means whatsoever.
+
+To fit a fixed effects model, use either `"within"` or `"fixed"`. Any
+between-subjects terms in the formula will be ignored. The time-varying
+variables will be de-meaned, but the individual-level mean is not
+included in the model.
+
+Matrix-returning transformations in the time-varying part of the formula
+are supported for common basis expansion functions such as
+[`splines::ns()`](https://rdrr.io/r/splines/ns.html),
+[`splines::bs()`](https://rdrr.io/r/splines/bs.html), and
+[`stats::poly()`](https://rdrr.io/r/stats/poly.html).
+
+For a term like `ns(x, df = 3)` in the varying part, `wbm()` expands it
+into multiple columns representing:
+
+- a within-person component: spline bases are computed on deviations
+  `x_it - xbar_i` and then each resulting basis column is de-meaned
+  within person (double-demean for nonlinear terms)
+
+- a between-person component: spline bases are computed on the person
+  means `xbar_i`
+
+This avoids the per-group knot selection that would otherwise occur when
+splines are evaluated inside grouped
+[`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html).
+
+## References
+
+Allison, P. (2009). *Fixed effects regression models*. Thousand Oaks,
+CA: SAGE Publications. https://doi.org/10.4135/9781412993869.d33
+
+Bell, A., & Jones, K. (2015). Explaining fixed effects: Random effects
+modeling of time-series cross-sectional and panel data. *Political
+Science Research and Methods*, *3*, 133–153.
+https://doi.org/10.1017/psrm.2014.7
+
+Curran, P. J., & Bauer, D. J. (2011). The disaggregation of
+within-person and between-person effects in longitudinal models of
+change. *Annual Review of Psychology*, *62*, 583–619.
+https://doi.org/10.1146/annurev.psych.093008.100356
+
+Giesselmann, M., & Schmidt-Catran, A. (2018). Interactions in fixed
+effects regression models (Discussion Papers of DIW Berlin No. 1748).
+*DIW Berlin, German Institute for Economic Research*. Retrieved from
+https://ideas.repec.org/p/diw/diwwpp/dp1748.html
+
+Schunck, R., & Perales, F. (2017). Within- and between-cluster effects
+in generalized linear mixed models: A discussion of approaches and the
+`xthybrid` command. *The Stata Journal*, *17*, 89–115.
+https://doi.org/10.1177/1536867X1701700106
+
+## See also
+
+[`wbm_stan()`](https://panelr.jacob-long.com/reference/wbm_stan.md) for
+a Bayesian estimation option.
+
+## Author
+
+Jacob A. Long
+
+## Examples
+
+``` r
+data("WageData")
+wages <- panel_data(WageData, id = id, wave = t)
+model <- wbm(lwage ~ lag(union) + wks | blk + fem | blk * lag(union),
+         data = wages)
+summary(model)
+#> MODEL INFO:
+#> Entities: 595
+#> Time periods: 2-7
+#> Dependent variable: lwage
+#> Model type: Linear mixed effects
+#> Specification: within-between
+#> 
+#> MODEL FIT:
+#> AIC = 1386.31, BIC = 1448.11
+#> Pseudo-R² (fixed effects) = 0.13
+#> Pseudo-R² (total) = 0.74
+#> Entity ICC = 0.7
+#> 
+#> WITHIN EFFECTS:
+#> ---------------------------------------------------------
+#>                     Est.   S.E.   t val.      d.f.      p
+#> ---------------- ------- ------ -------- --------- ------
+#> lag(union)          0.06   0.03     2.28   2972.01   0.02
+#> wks                -0.00   0.00    -1.51   2994.31   0.13
+#> ---------------------------------------------------------
+#> 
+#> BETWEEN EFFECTS:
+#> ---------------------------------------------------------------
+#>                            Est.   S.E.   t val.     d.f.      p
+#> ----------------------- ------- ------ -------- -------- ------
+#> (Intercept)                6.60   0.23    28.53   589.99   0.00
+#> imean(lag(union))         -0.03   0.03    -0.80   589.98   0.42
+#> imean(wks)                 0.00   0.00     0.91   589.99   0.36
+#> blk                       -0.23   0.06    -3.85   589.98   0.00
+#> fem                       -0.44   0.05    -8.89   589.98   0.00
+#> ---------------------------------------------------------------
+#> 
+#> CROSS-LEVEL INTERACTIONS:
+#> -------------------------------------------------------------
+#>                         Est.   S.E.   t val.      d.f.      p
+#> -------------------- ------- ------ -------- --------- ------
+#> lag(union):blk         -0.13   0.12    -1.03   2971.99   0.31
+#> -------------------------------------------------------------
+#> 
+#> p values calculated using Satterthwaite d.f.
+#>  
+#> RANDOM EFFECTS:
+#> ------------------------------------
+#>   Group      Parameter    Std. Dev. 
+#> ---------- ------------- -----------
+#>     id      (Intercept)     0.354   
+#>  Residual                  0.2326   
+#> ------------------------------------
+```
