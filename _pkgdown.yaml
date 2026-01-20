@@ -9,10 +9,13 @@ template:
     h2-font-size: 2rem
     h3-font-size: 1.5rem
 
+url: https://panelr.jacob-long.com
+
 navbar:
   bg: dark
   left:
     - icon: fa-home
+      aria-label: "Home"
       href: index.html
     - icon: fa-book
       text: "Package Introduction"
@@ -47,6 +50,9 @@ reference:
         - long_panel
         - summary.panel_data
         - complete_data
+        - balance_panel
+        - has_gaps
+        - scan_gaps
         - model_frame
         - unpanel
         - is_panel
@@ -60,6 +66,7 @@ reference:
         - predict.wbgee
         - formula.wbm
         - nobs.wbm
+        - print.WBFormula
         - wbm-class
   - title: Other utilities
     contents:
