@@ -49,8 +49,14 @@ test_that("vec_rbind with panel_data and tibble returns panel_data", {
 
 # --- vec_c tests ---
 test_that("vec_c combines panel_data objects", {
-  w1 <- filter(w, id %in% levels(id)[1:3])
-  w2 <- filter(w, id %in% levels(id)[4:6])
+  tiny <- tibble::tibble(
+    id = rep(c("1", "2"), each = 2),
+    t = rep(1:2, times = 2),
+    x = 1:4
+  )
+  w_small <- panel_data(tiny, id = id, wave = t)
+  w1 <- filter(w_small, id == "1")
+  w2 <- filter(w_small, id == "2")
   combined <- vctrs::vec_c(w1, w2)
   expect_s3_class(combined, "panel_data")
 })
