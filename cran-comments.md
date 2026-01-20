@@ -1,5 +1,6 @@
 ## Test environments
 * local macOS (aarch64), R 4.5.1
+* macOS-release, windows-release, ubuntu-release, ubuntu-oldrel, ubuntu-devel (via GitHub Actions)
 
 ## R CMD check results
 
