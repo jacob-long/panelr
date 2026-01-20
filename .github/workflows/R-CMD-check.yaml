@@ -40,9 +40,19 @@ jobs:
           use-public-rspm: ${{ matrix.config.os != 'macOS-latest' }}
 
       - uses: r-lib/actions/setup-r-dependencies@v2
+        if: matrix.config.os != 'macOS-latest'
         with:
           extra-packages: rcmdcheck
           cache-version: 2
+
+      - name: Install dependencies (macOS, no pak)
+        if: matrix.config.os == 'macOS-latest'
+        run: |
+          options(repos = c(CRAN = "https://cloud.r-project.org/"))
+          install.packages("remotes")
+          remotes::install_deps(dependencies = TRUE)
+          install.packages("rcmdcheck")
+        shell: Rscript {0}
       
       - name: Set CRAN mirror
         run: echo "options(repos = c(CRAN='https://cloud.r-project.org/'))" > ~/.Rprofile
