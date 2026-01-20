@@ -96,6 +96,11 @@ is_panel_sorted <- function(x, id, wave) {
 build_panel_data <- function(x, id, wave, periods = NULL,
                               reshaped = NULL, varying = NULL,
                               constants = NULL, validate_order = FALSE) {
+  # Drop panel/grouped attributes to avoid recursive dplyr methods.
+  if (inherits(x, "panel_data") || inherits(x, "grouped_df")) {
+    x <- unpanel(x)
+  }
+
   # Only set periods if not provided
   if (is.null(periods) && wave %in% names(x)) {
     periods <- sort(unique(x[[wave]]))
