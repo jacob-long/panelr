@@ -164,7 +164,14 @@ vec_restore.panel_data <- function(x, to, ...) {
 #' @export
 #' @method vec_proxy panel_data
 vec_proxy.panel_data <- function(x, ...) {
-  vctrs::new_data_frame(x)
+  # Drop panel/grouped attributes for vctrs operations
+  out <- unclass(x)
+  attributes(out) <- list(
+    names = names(x),
+    row.names = attr(x, "row.names"),
+    class = "data.frame"
+  )
+  out
 }
 
 # --- vec_ptype2: Define coercion hierarchy ---
