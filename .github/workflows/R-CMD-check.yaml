@@ -42,6 +42,7 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: rcmdcheck
+          cache-version: 2
       
       - name: Set CRAN mirror
         run: echo "options(repos = c(CRAN='https://cloud.r-project.org/'))" > ~/.Rprofile
