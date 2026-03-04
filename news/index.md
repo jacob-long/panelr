@@ -2,6 +2,8 @@
 
 ## panelr 1.0.0
 
+CRAN release: 2026-01-21
+
 This is a point release, albeit without breaking changes. There are
 numerous long-delayed improvements to performance as well as some new
 features.
