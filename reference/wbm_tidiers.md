@@ -76,13 +76,13 @@ if (requireNamespace("broom.mixed")) {
   broom.mixed::tidy(model)
 }
 #> # A tibble: 7 × 6
-#>   group    estimate std.error statistic   p.value term             
-#>   <chr>       <dbl>     <dbl>     <dbl>     <dbl> <chr>            
-#> 1 within    0.0528    0.0250      2.11   3.50e- 2 lag(union)       
-#> 2 within   -0.00166   0.00108    -1.54   1.25e- 1 wks              
-#> 3 between   6.14      0.247      24.8    9.33e-94 (Intercept)      
-#> 4 between   0.0168    0.0374      0.449  6.53e- 1 imean(lag(union))
-#> 5 between   0.0125    0.00518     2.41   1.62e- 2 imean(wks)       
-#> 6 id        0.388    NA          NA     NA        sd__(Intercept)  
-#> 7 Residual  0.233    NA          NA     NA        sd__Observation  
+#>   group    estimate std.error statistic    p.value term             
+#>   <chr>       <dbl>     <dbl>     <dbl>      <dbl> <chr>            
+#> 1 within    0.0528    0.0250      2.11   3.50e-  2 lag(union)       
+#> 2 within   -0.00166   0.00108    -1.54   1.25e-  1 wks              
+#> 3 between   6.14      0.247      24.8    1.40e-125 (Intercept)      
+#> 4 between   0.0168    0.0374      0.449  6.53e-  1 imean(lag(union))
+#> 5 between   0.0125    0.00518     2.41   1.60e-  2 imean(wks)       
+#> 6 id        0.388    NA          NA     NA         sd__(Intercept)  
+#> 7 Residual  0.233    NA          NA     NA         sd__Observation  
 ```

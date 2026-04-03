@@ -171,9 +171,9 @@ wages <- panel_data(WageData, id = id, wave = t)
 model <- wbm(lwage ~ lag(union) + wks, data = wages)
 # By default, assumes you're using the processed data for newdata
 predict(model)
-#> Warning: the ‘findbars’ function has moved to the reformulas package. Please update your imports, or ask an upstream package maintainter to do so.
+#> Warning: the ‘findbars’ function has moved to the reformulas package. Please update your imports, or ask an upstream package maintainer to do so.
 #> This warning is displayed once per session.
-#> Warning: the ‘mkReTrms’ function has moved to the reformulas package. Please update your imports, or ask an upstream package maintainter to do so.
+#> Warning: the ‘mkReTrms’ function has moved to the reformulas package. Please update your imports, or ask an upstream package maintainer to do so.
 #> This warning is displayed once per session.
 #>        1        2        3        4        5        6        7        8 
 #> 5.517739 5.522721 5.524382 5.519400 5.531025 5.536007 6.570775 6.560811 

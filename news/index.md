@@ -1,5 +1,16 @@
 # Changelog
 
+## panelr 1.0.1
+
+This is a CRAN resubmission following the March 18, 2026 archive.
+
+- Removed stale tests that exercised dplyr underscore verbs such as
+  [`mutate_()`](https://dplyr.tidyverse.org/reference/defunct-lazyeval.html)
+  and
+  [`filter_()`](https://dplyr.tidyverse.org/reference/defunct-lazyeval.html),
+  which are now defunct in current dplyr releases and caused CRAN checks
+  to fail.
+
 ## panelr 1.0.0
 
 CRAN release: 2026-01-21
