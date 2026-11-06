@@ -92,6 +92,7 @@ make_diff_data(
 ## Examples
 
 ``` r
+
 data("WageData")
 wages <- panel_data(WageData, id = id, wave = t)
 make_diff_data(wks ~ lwage + union, data = wages)

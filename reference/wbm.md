@@ -156,7 +156,11 @@ wbm(
   de-meaned variables (`"raw"`), but Giesselmann and
   Schmidt-Catran (2020) show this method biases the results towards zero
   effect. The default is `"double-demean"` but if emulating other
-  software is the goal, `"demean"` might be preferred.
+  software is the goal, `"demean"` might be preferred. With two
+  observations per entity, double-demeaned interactions between two
+  time-varying predictors have no within-entity variation. This
+  limitation does not apply to an interaction between one time-varying
+  predictor and one time-invariant predictor.
 
 - scale:
 
@@ -260,6 +264,20 @@ first, put a 1 or 0 after the first, like this:
 
 Of course, with no time-invariant variables, you need no `|` operators
 at all.
+
+**Categorical predictors**
+
+Factor predictors are expanded into indicator (0/1) variables, omitting
+the first factor level as the reference category. For a time-invariant
+factor in the second formula part, each coefficient compares that level
+with the reference category, holding the other predictors constant (on
+the link scale for generalized models). You do not need to create the
+indicator variables yourself. Use
+[`stats::relevel()`](https://rdrr.io/r/stats/relevel.html) before
+fitting to change the reference category, for example,
+`data$industry <- relevel(data$industry, ref = "Downstream")`. The
+factor expansion uses this coding even for ordered factors or factors
+with custom contrasts; it does not use polynomial or sum contrasts.
 
 **Models**
 

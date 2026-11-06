@@ -87,6 +87,7 @@ The `ggplot` object.
 ## Examples
 
 ``` r
+
 data("WageData")
 wages <- panel_data(WageData, id = id, wave = t)
 line_plot(wages, lwage, add.mean = TRUE, subset.ids = TRUE, overlay = FALSE)

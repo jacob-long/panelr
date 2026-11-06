@@ -48,6 +48,21 @@ as_panel(data, ...)
 
 A `panel_data` object.
 
+## Details
+
+When the first input to
+[`dplyr::bind_rows()`](https://dplyr.tidyverse.org/reference/bind_rows.html)
+is a `panel_data` object, the result retains its panel identifiers and
+is sorted by entity and wave. Source labels requested with `.id` stay
+attached to their original rows. Direct vctrs operations preserve the
+requested row order; after reordering rows, call `panel_data()` again
+before computing lags or leads.
+
+`as_panel_data()` also accepts
+[`plm::pdata.frame()`](https://rdrr.io/pkg/plm/man/pdata.frame.html)
+objects. If their index columns have been removed, they are restored
+from the saved panel index.
+
 ## Examples
 
 ``` r

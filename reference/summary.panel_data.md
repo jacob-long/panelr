@@ -42,10 +42,10 @@ summary(object, ..., by.wave = TRUE, by.id = FALSE, skim_with = NULL)
 ## Examples
 
 ``` r
+
 data("WageData")
 wages <- panel_data(WageData, id = id, wave = t)
 summary(wages, lwage, exp, wks)
-#> Loading required namespace: skimr
 #> 
 #> ── Variable type: numeric ──────────────────────────────────────────────────────
 #>    skim_variable t n_missing complete_rate  mean     sd    p0   p25   p50   p75

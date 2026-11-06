@@ -80,6 +80,7 @@ Allison, P. D. (2019). Asymmetric fixed-effects models for panel data.
 ## Examples
 
 ``` r
+
 if (FALSE) { # \dontrun{
 data("teen_poverty")
 # Convert to long format

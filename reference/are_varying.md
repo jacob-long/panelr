@@ -35,6 +35,7 @@ A named logical vector. If TRUE, the variable is varying.
 ## Examples
 
 ``` r
+
 wages <- panel_data(WageData, id = id, wave = t)
 wages %>% are_varying(occ, ind, fem, blk)
 #>   occ   ind   fem   blk 

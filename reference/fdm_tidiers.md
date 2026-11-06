@@ -41,6 +41,7 @@ glance(x, ...)
 ## Examples
 
 ``` r
+
 if (requireNamespace("clubSandwich")) {
   data("WageData")
   wages <- panel_data(WageData, id = id, wave = t)

@@ -36,6 +36,7 @@ formula.
 ## Examples
 
 ``` r
+
 data("WageData")
 wages <- panel_data(WageData, id = id, wave = t)
 model_frame(lwage ~ wks + exp, data = wages)

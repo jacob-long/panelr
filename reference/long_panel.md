@@ -21,6 +21,22 @@ long_panel(
   use.regex = FALSE,
   check.varying = TRUE
 )
+
+elongate_panel(
+  data,
+  prefix = NULL,
+  suffix = NULL,
+  begin = NULL,
+  end = NULL,
+  id = "id",
+  wave = "wave",
+  periods = NULL,
+  label_location = c("end", "beginning"),
+  as_panel_data = TRUE,
+  match = ".*",
+  use.regex = FALSE,
+  check.varying = TRUE
+)
 ```
 
 ## Arguments
@@ -126,6 +142,7 @@ variables occur more than once but every single period, which breaks
 ## Examples
 
 ``` r
+
 ## We need a wide data frame, so we will make one from the long-format 
 ## data included in the package.
 

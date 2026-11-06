@@ -55,6 +55,7 @@ evaluation method for when you are working with strings.
 ## Examples
 
 ``` r
+
 data("WageData")
 wages <- panel_data(WageData, id = id, wave = t)
 complete_data(wages, wks, lwage, min.waves = 3)

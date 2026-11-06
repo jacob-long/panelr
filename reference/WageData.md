@@ -77,8 +77,8 @@ A data frame with 4165 rows and 14 variables:
 
 These data are all over the place. This particular file was downloaded
 from Richard Williams at
-<https://www3.nd.edu/~rwilliam/statafiles/wages.dta>, though he doesn't
-claim ownership of these data.
+<https://academicweb.nd.edu/~rwilliam/statafiles/wages.dta>, though he
+doesn't claim ownership of these data.
 
 The data were shared as a supplement to Baltagi (2005) at
 <https://www.wiley.com/legacy/wileychi/baltagi3e/data_sets.html>.

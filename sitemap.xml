@@ -59,6 +59,7 @@
 <url><loc>https://panelr.jacob-long.com/reference/panel_data.html</loc></url>
 <url><loc>https://panelr.jacob-long.com/reference/predict.wbgee.html</loc></url>
 <url><loc>https://panelr.jacob-long.com/reference/predict.wbm.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/prepare_wb_plot.html</loc></url>
 <url><loc>https://panelr.jacob-long.com/reference/print.WBFormula.html</loc></url>
 <url><loc>https://panelr.jacob-long.com/reference/process_matrix_term.html</loc></url>
 <url><loc>https://panelr.jacob-long.com/reference/reconstruct_basis_call.html</loc></url>
@@ -71,6 +72,7 @@
 <url><loc>https://panelr.jacob-long.com/reference/unpanel.html</loc></url>
 <url><loc>https://panelr.jacob-long.com/reference/update_pf_for_matrix_terms.html</loc></url>
 <url><loc>https://panelr.jacob-long.com/reference/use_old_style_ints.html</loc></url>
+<url><loc>https://panelr.jacob-long.com/reference/wb_slope_design.html</loc></url>
 <url><loc>https://panelr.jacob-long.com/reference/wbgee.html</loc></url>
 <url><loc>https://panelr.jacob-long.com/reference/wbgee_tidiers.html</loc></url>
 <url><loc>https://panelr.jacob-long.com/reference/wbm-class.html</loc></url>

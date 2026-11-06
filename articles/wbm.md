@@ -42,6 +42,7 @@ each respondent in each wave of the 5-wave survey. We’ll use
 for that.
 
 ``` r
+
 teen <- long_panel(teen_poverty, begin = 1, end = 5, label_location = "end")
 teen
 ```
@@ -75,6 +76,7 @@ Note that if your raw data are already in long format, you can use the
 function to convert them to `panel_data` format.
 
 ``` r
+
 data("WageData")
 wages <- panel_data(WageData, id = id, wave = t)
 ```
@@ -118,32 +120,41 @@ the dependent variable and fit a model via OLS that is equivalent to the
 so-called least squares dummy variable approach (in which dummy
 variables for every entity ID are included as predictors).
 
-Let’s get a bit more technical. We have entities $i = 1,...,n$ who are
-measured at times $t = 1,...,T$. We have as our dependent variable
-$y_{it}$, the variable $y$ for individual $i$ at time $t$. We have
-predictors that vary over time $x_{it}$, variables that do not vary over
-time $z_{i}$, and variables we did not measure that do not vary over
-time $\alpha_{i}$ as well as random error $\epsilon_{it}$
+Let’s get a bit more technical. We have entities $`i = 1, ..., n`$ who
+are measured at times $`t = 1, ..., T`$. We have as our dependent
+variable $`y_{it}`$, the variable $`y`$ for individual $`i`$ at time
+$`t`$. We have predictors that vary over time $`x_{it}`$, variables that
+do not vary over time $`z_i`$, and variables we did not measure that do
+not vary over time $`\alpha_i`$ as well as random error
+$`\epsilon_{it}`$
 
 The fixed effects model, then, looks like this:
 
-$$y_{it} = \mu_{t} + \beta_{1}x_{it} + \gamma z_{i} + \alpha_{i} + \epsilon_{it}$$
+``` math
+y_{it} = \mu_t + \beta_1x_{it} + \gamma z_i + \alpha_i + \epsilon_{it}
+```
 
-Although $\alpha_{i}$ is not observed, it can be estimated by including
-a dummy variable for each $i$. The $\gamma$ is undefined because the
-$z_{i}$ are perfectly collinear with the $\alpha_{i}$ dummy variables.
+Although $`\alpha_i`$ is not observed, it can be estimated by including
+a dummy variable for each $`i`$. The $`\gamma`$ is undefined because the
+$`z_i`$ are perfectly collinear with the $`\alpha_i`$ dummy variables.
 
 The individual-mean-centered version of the fixed effects models is
-based on calculating a mean of $y$ and $x$ for each $i$ — so
-$\bar{y_{i}}$ and $\bar{x_{i}}$ and subtracting it from each $y_{it}$
-and $x_{it}$. The model can be expressed like this, including
-$\bar{z_{i}}$ and $\bar{\alpha_{i}}$ for demonstration:
+based on calculating a mean of $`y`$ and $`x`$ for each $`i`$ — so
+$`\bar{y_i}`$ and $`\bar{x_i}`$ and subtracting it from each $`y_{it}`$
+and $`x_{it}`$. The model can be expressed like this, including
+$`\bar{z_i}`$ and $`\bar{\alpha_i}`$ for demonstration:
 
-$$y_{it} - \bar{y_{i}} = \mu_{t} + \beta_{1}\left( x_{it} - \bar{x_{i}} \right) + \left( z_{i} - \bar{z_{i}} = 0 \right) + \left( \alpha_{i} - \bar{\alpha_{i}} = 0 \right) + \left( \epsilon_{it} - \bar{\epsilon_{i}} \right)$$
+``` math
+y_{it} - \bar{y_i} = \mu_t + \beta_1(x_{it} - \bar{x_i}) + 
+(z_i - \bar{z_i} = 0) + 
+(\alpha_i - \bar{\alpha_i} = 0) + (\epsilon_{it} - \bar{\epsilon_i})
+```
 
 By de-meaning everything, all the time-invariant variables drop out:
 
-$$y_{it} - \bar{y_{i}} = \mu_{t} + \beta_{1}\left( x_{it} - \bar{x_{i}} \right) + \left( \epsilon_{it} - \bar{\epsilon_{i}} \right)$$
+``` math
+y_{it} - \bar{y_i} = \mu_t + \beta_1(x_{it} - \bar{x_i}) + (\epsilon_{it} - \bar{\epsilon_i})
+```
 
 This is often called the “within” estimator. You can take these
 de-meaned variables and fit an OLS regression and get valid estimates
@@ -152,48 +163,62 @@ de-meaned variables and fit an OLS regression and get valid estimates
 You can also do something slightly different and get the same results
 with multilevel models. Take this, for example:
 
-$$y_{it} = \beta_{0i} + \beta_{1}\left( x_{it} - \bar{x_{i}} \right) + \left( \epsilon_{it} - \bar{\epsilon_{i}} \right)$$
+``` math
+y_{it} = \beta_{0i} + \beta_1(x_{it} - \bar{x_i}) + (\epsilon_{it} -
+\bar{\epsilon_i})
+```
 
-Where $\beta_{0i}$ is a random intercept estimated for each $i$. This is
-equivalent to subtracting $\bar{y_{i}}$ in terms of the estimation of
-$\beta_{1}$. But in the multilevel modeling framework, we can include
-those time-invariant $z_{i}$ as well. Conceptually, they are basically
-being included in a model predicting $\beta_{0i}$:
+Where $`\beta_{0i}`$ is a random intercept estimated for each $`i`$.
+This is equivalent to subtracting $`\bar{y_i}`$ in terms of the
+estimation of $`\beta_1`$. But in the multilevel modeling framework, we
+can include those time-invariant $`z_i`$ as well. Conceptually, they are
+basically being included in a model predicting $`\beta_{0i}`$:
 
-$$\beta_{0i} = \beta_{0} + \gamma z_{i} + u_{0i}$$
+``` math
+\beta_{0i} = \beta_0 + \gamma z_i + u_{0i}
+```
 
-Where $u_{0i}$ is the random error of the model predicting $\beta_{0i}$.
+Where $`u_{0i}`$ is the random error of the model predicting
+$`\beta_{0i}`$.
 
-In fact, we can include the $\bar{x_{i}}$ in our multilevel model as
-well and they are used just like the $z_{i}$:
+In fact, we can include the $`\bar{x_i}`$ in our multilevel model as
+well and they are used just like the $`z_i`$:
 
-$$\beta_{0i} = \beta_{0} + \beta_{2}\bar{x_{i}} + \gamma z_{i} + u_{0i}$$
+``` math
+\beta_{0i} = \beta_0 + \beta_2 \bar{x_i} + \gamma z_i +  u_{0i}
+```
 
 Now we can substitute into the previous multilevel equation and we have
 our within-between model:
 
-$$y_{it} = \beta_{0} + \beta_{1}\left( x_{it} - \bar{x_{i}} \right) + \beta_{2}\bar{x_{i}} + \gamma z_{i} + u_{0i} + \epsilon_{it}$$
+``` math
+y_{it} = \beta_{0} + \beta_1(x_{it} - \bar{x_i})  
++ \beta_2 \bar{x_i} + \gamma z_i +  u_{0i} + \epsilon_{it}
+```
 
-The $\beta_{1}$ has the same interpretation as in the fixed effects
-model, these are the effects of within-entity deviations of $x$ on
-within-entity deviations of $y$. The $\beta_{2}$ is basically predicting
-the $\bar{y_{i}}$, however, so these coefficients are helpful for
-predicting differences in mean levels across entities. The same is true
-for the $z_{i}$.
+The $`\beta_1`$ has the same interpretation as in the fixed effects
+model, these are the effects of within-entity deviations of $`x`$ on
+within-entity deviations of $`y`$. The $`\beta_2`$ is basically
+predicting the $`\bar{y_i}`$, however, so these coefficients are helpful
+for predicting differences in mean levels across entities. The same is
+true for the $`z_i`$.
 
 A similar model that I call the “contextual” model because this is how
 it is often interpreted (see, e.g., Raudenbush & Bryk, 2002). Here we do
-not demean the $x_{i}$:
+not demean the $`x_i`$:
 
-$$y_{it} = \beta_{0} + \beta_{1}x_{it} + \beta_{2}\bar{x_{i}} + \gamma z_{i} + u_{0i} + \epsilon_{it}$$
+``` math
+y_{it} = \beta_{0} + \beta_1 x_{it} 
++ \beta_2 \bar{x_i} + \gamma z_i +  u_{0i} + \epsilon_{it}
+```
 
-Believe it or not, the $\beta_{1}$ is unchanged in this model; it is the
-$\beta_{2}$ that changes. The interpretation of $\beta_{2}$ becomes a
+Believe it or not, the $`\beta_1`$ is unchanged in this model; it is the
+$`\beta_2`$ that changes. The interpretation of $`\beta_2`$ becomes a
 the *difference* between the within- and between-entities effects. A
-significant coefficient for $\beta_{2}$ means significant differences
+significant coefficient for $`\beta_2`$ means significant differences
 between the within- and between-entity effects. For those who are
 familiar, this is like a variable-by-variable Hausman test.
-Substantively, $\beta_{2}$ is often interpreted as a *contextual*
+Substantively, $`\beta_2`$ is often interpreted as a *contextual*
 effect.
 
 From this framework, we can do cross-level interactions, random slopes,
@@ -203,9 +228,9 @@ generalized linear models, and all kinds of interesting stuff.
 
 In the fixed effects framework, it is generally considered wrong to
 operationalize an interaction between two time-varying variables (let’s
-call them $w$ and $x$) by taking the product of their
+call them $`w`$ and $`x`$) by taking the product of their
 individual-demeaned forms. That is, you are **not** supposed to generate
-the interaction term $xw_{it}$ by doing this:
+the interaction term $`xw_{it}`$ by doing this:
 
 #### A note on splines and other basis expansions
 
@@ -230,6 +255,7 @@ within each person due to grouped
 [`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html).
 
 ``` r
+
 library(panelr)
 library(splines)
 data("WageData")
@@ -260,25 +286,29 @@ Note: for [`bs()`](https://rdrr.io/r/splines/bs.html), after demeaning
 some values may fall outside the original boundary knots, which can
 produce a warning about ill-conditioned bases.
 
-$$xw_{it} = \left( x_{it} - \bar{x_{i}} \right) \times \left( w_{it} - \bar{w_{i}} \right)$$
+``` math
+xw_{it} = (x_{it} - \bar{x_{i}}) \times (w_{it} - \bar{w_i})
+```
 
 Instead, the conventional wisdom goes, you should first take the product
 of the observed variables and subtract the individual-level mean of that
 product, like so:
 
-$$xw_{it} = x_{it}w_{it} - {\overline{xw}}_{i}$$
+``` math
+xw_{it} = x_{it}w_{it} - \overline{xw}_i
+```
 
-Where ${\overline{xw}}_{i}$ can also be expressed as
-$\frac{\sum_{t = 1}^{T_{i}}{x_{it}w_{it}}}{T_{i}}$, the sum of all
-products for each $i$ divided by the number of time points for each $i$,
-$T_{i}$.
+Where $`\overline{xw}_i`$ can also be expressed as
+$`\frac{\sum_{t=1}^{T_i}{x_{it}w_{it}}}{T_i}`$, the sum of all products
+for each $`i`$ divided by the number of time points for each $`i`$,
+$`T_i`$.
 
 [Giesselmann and Schmidt-Catran
 (2020)](https://doi.org/10.1177/0049124120914934) show that this
-conventional method for generating $xw_{it}$ does not have the
+conventional method for generating $`xw_{it}`$ does not have the
 unbiasedness that the individual terms do. I’ll leave it to them to
 explain why exactly this is, but the solution is to start with the
-first, wrong version of $xw_{it}$, which I’ll call $xw_{it}^{*}$, and
+first, wrong version of $`xw_{it}`$, which I’ll call $`xw_{it}^*`$, and
 subtract *its* mean too:
 
 \$\$ xw\_{it}^\* = (x\_{it} - \bar{x\_{i}}) \times (w\_{it} - \bar{w_i})
@@ -328,6 +358,7 @@ worked (`wks`), union membership (`union`), marital status (`ms`), blue
 sex (`fem`).
 
 ``` r
+
 model <- wbm(lwage ~ wks + union + ms + occ | blk + fem, data = wages)
 summary(model)
 ```
@@ -394,6 +425,7 @@ for the lagged effect using
 [`lag()`](https://dplyr.tidyverse.org/reference/lead-lag.html).
 
 ``` r
+
 model <- wbm(lwage ~ wks + union + lag(ms) + occ | blk + fem, data = wages)
 summary(model)
 ```
@@ -462,6 +494,7 @@ for everyone, on average, over time. We can just include the time
 variable in the formula or set `use.wave` to `TRUE`.
 
 ``` r
+
 model <- wbm(lwage ~ wks + union + ms + occ | blk + fem, data = wages, use.wave = TRUE)
 summary(model)
 ```
@@ -520,6 +553,7 @@ Now, we might think people have different trajectories. We can include
 that as a random slope, which will go in the third part of the formula.
 
 ``` r
+
 model <- wbm(lwage ~ wks + union + ms + occ | blk + fem | (t | id), use.wave = TRUE, data = wages)
 summary(model)
 ```
@@ -588,6 +622,7 @@ described earlier, in which the means are not subtracted from the time
 varying variables, that’s an option too.
 
 ``` r
+
 model <- wbm(lwage ~ wks + union + ms + occ | blk + fem, data = wages, model = "contextual")
 summary(model)
 ```
@@ -645,6 +680,7 @@ If you don’t want to use any of the time-invariant variables, you can
 also just ask for the “within” estimator:
 
 ``` r
+
 model <- wbm(lwage ~ wks + union + ms + occ, data = wages, model = "within")
 summary(model)
 ```
@@ -685,6 +721,145 @@ summary(model)
 This can help declutter your output when you really just don’t care
 about the between-subjects effects.
 
+### Predictions and interaction plots
+
+Predicting panel histories and plotting hypothetical combinations of
+predictors are different operations.
+`predict(model, newdata = histories)` recomputes person means from the
+supplied histories, so those data must include the entity identifier and
+enough history for the desired within-person interpretation. Include the
+wave variable for time effects, detrending, lags, and leads. The outcome
+is not needed unless it also serves as a predictor. Predictions retain
+the input row order.
+
+For interaction plots, panelr holds person means and interaction-product
+means fixed at their observation-weighted averages in the estimation
+sample. With an updated version of interactions that supports
+`plot.scale`, numeric within-person predictors are displayed as
+**deviations from each person’s observed mean**, in the variable’s
+original units. Zero means at the person’s mean, not a raw value of
+zero. Time-invariant moderators retain their original units or
+categories. For example:
+
+``` r
+
+interaction_model <- wbm(lwage ~ wks | ed | wks * ed, data = wages,
+                         pR2 = FALSE, pvals = FALSE)
+interactions::interact_plot(interaction_model, pred = wks, modx = ed,
+                           modx.values = c(9, 12, 16), interval = TRUE)
+```
+
+Here, `wks = -5` means five fewer weeks worked than the person’s mean,
+while `ed = 12` still means twelve years of education. The outcome axis
+shows predicted `lwage`, not a deviation in wages. In a model
+interacting two varying predictors:
+
+``` r
+
+within_interaction <- wbm(lwage ~ wks * exp, data = wages,
+                          pR2 = FALSE, pvals = FALSE)
+interactions::interact_plot(within_interaction, pred = wks, modx = exp,
+                           interval = TRUE)
+# Explicit values are deviations too: -2, 0, +2 years from the person's mean.
+interactions::interact_plot(within_interaction, pred = wks, modx = exp,
+                           modx.values = c(-2, 0, 2))
+```
+
+Default moderator values are zero and plus/minus one pooled
+within-person SD, about two years for experience here, rather than SDs
+of raw experience across people. The numeric axis range uses observed
+within-person deviations. These display units are unchanged when the
+fitted model uses `scale = TRUE`.
+
+Use `plot.scale = "original"` to display raw predictor levels. For
+example, `modx.values = c(18, 20, 22), plot.scale = "original"` requests
+experience levels of 18, 20, and 22 years, relative to the reference
+person mean shown in the caption. It does not request deviations of
+those magnitudes. Predictions outside observed within-person ranges
+generate warnings; staying within each marginal range does not guarantee
+joint support.
+
+The plot does not recalculate person means from the displayed grid. The
+lines therefore represent conditional predictions, not
+population-average effects or forecasts for particular people. Reference
+means can be overridden through `at`, for example
+`at = list("imean(wks)" = 45)`. These mean overrides are always in
+original units; other numeric `at` values use the display scale. With
+within-scale displays, changing the reference mean does not change what
+a displayed deviation of zero means. For within-by-within interactions,
+the product-centering reference, such as `imean(x:z)`, is also held
+fixed unless explicitly overridden. Time-invariant moderators multiply
+the centered within-person term, respecting the fact that they factor
+out of the centering operation. Confidence bands describe fixed-effect
+uncertainty conditional on these reference values, not individual
+prediction intervals.
+
+Custom axis and legend labels override the generated labels. Supplied
+`data` must contain fitting-data observations with their panel
+identifiers; subsets retain the fitted person means. Use `at` to set
+hypothetical profiles. Direct calls to
+[`jtools::make_predictions()`](https://jtools.jacob-long.com/reference/make_predictions.html)
+and older interactions versions without the new `plot.scale` argument
+still use original-scale predictor inputs.
+
+`predict(..., raw = TRUE)` is a separate interface for already-prepared
+model-scale data. It never recalculates interaction columns or person
+means. This argument is unrelated to the fitting option
+`interaction.style = "raw"`. For plots from explicitly prepared rows,
+use
+`jtools::make_predictions(model, pred = "x", new_data = rows, raw = TRUE)`.
+
+Automatic grids currently support scalar numeric/factor terms and two-
+or three-way interactions. Scalar transformations such as `log(x)`
+require `plot.scale = "original"`, because deviations in `log(x)` and
+`x` are not the same quantity. For detrending, lags/leads, or basis
+expansions, use complete panel histories or prepared model-scale rows.
+Partial residuals and custom plotting covariance estimates are not yet
+supported.
+
+#### Simple slopes
+
+Updated interactions versions provide S3 methods for `sim_slopes()` and
+`johnson_neyman()` that use the same transformed design rows as the
+plots. They do not recenter the original data and refit the model:
+person-mean centering would undo a constant shift of a time-varying
+moderator in a double-demeaned interaction.
+
+``` r
+
+interactions::sim_slopes(within_interaction, pred = wks, modx = exp,
+                         modx.values = c(-2, 0, 2), confint = TRUE, digits = 4)
+```
+
+The values here are deviations in years from the person’s mean
+experience, exactly as in the plot. For models linear in the focal
+predictor, a one-unit difference in design rows, $`L`$, gives the slope
+$`L\hat\beta`$ and variance
+$`L\widehat{\mathrm{Var}}(\hat\beta)L^\top`$. The calculation includes
+covariance between coefficients. `plot.scale = "original"` instead
+interprets supplied moderator values as raw levels. Intercepts, when
+requested with `cond.int = TRUE`, refer to zero on the selected
+predictor scale. Offset variables absent from the formula must be set
+explicitly through `at`.
+
+These are fixed-effect slopes conditional on reference person means and
+interaction-centering quantities. Non-identity-link models report
+link-scale slopes, not response-scale marginal effects. GEE uses its
+fitted sandwich covariance and a normal approximation. Gaussian mixed
+models default to a residual-df t approximation, matching the plotting
+bands; this is **not** a Satterthwaite or Kenward-Roger test. Use
+`df = "normal"`, `df = "residual"`, or an explicit positive number to
+select a different reference distribution.
+
+Johnson-Neyman regions use those same contrasts and inference settings.
+The output distinguishes no crossings, a single boundary, and two
+boundaries, and reports the observed moderator range. Confidence bands
+are pointwise, not simultaneous. `probe_interaction()` combines the
+slope analysis and plot with shared moderator settings. Nonlinear or
+factor focal predictors, predictor-dependent offsets, rank-deficient
+fits, custom covariance options, and FDR-adjusted Johnson-Neyman
+inference are rejected rather than approximated silently.
+
 ### Using GEE to fit within-between models
 
 You don’t have to estimate these models using multilevel models and in
@@ -702,6 +877,7 @@ several other assumptions.
 [`wbm()`](https://panelr.jacob-long.com/reference/wbm.md).
 
 ``` r
+
 model <- wbgee(lwage ~ wks + union + ms + occ | blk + fem, data = wages)
 summary(model)
 ```
@@ -766,14 +942,20 @@ asymmetric effects based on first differences.
 
 First, you take first differences:
 
-$$y_{it} - y_{it - 1} = \left( \mu_{t} - \mu_{t - 1} \right) + \beta\left( x_{it} - x_{it - 1} \right) + \left( \epsilon_{it} - \epsilon_{it - 1} \right)$$
+``` math
+y_{it} - y_{it-1} = (\mu_t - \mu_{t-1}) + \beta(x_{it} - x_{it -1}) +
+(\epsilon_{it} - \epsilon_{it-1})
+```
 
 We need a slightly different model for asymmetric effects in which we
 decompose the differences into positive and negative variables.
 
 Our asymmetric effects model will be:
 
-$$y_{it} - y_{it - 1} = \left( \mu_{t} - \mu_{t - 1} \right) + \beta^{+}x_{it}^{+} + \beta^{-}x_{it}^{-} + \left( \epsilon_{it} - \epsilon_{it - 1} \right)$$
+``` math
+y_{it} - y_{it-1} = (\mu_t - \mu_{t-1}) + \beta^+x_{it}^+ + \beta^-x_{it}^- +
+(\epsilon_{it} - \epsilon_{it-1})
+```
 
 Where
 
@@ -782,18 +964,19 @@ Where
 if } (x\_{it} - x\_{it -1}) \< 0, \text{otherwise } 0 \$\$
 
 In other words, if the difference is positive, it becomes part of the
-$x_{it}^{+}$ and if it is negative, it is multiplied by -1 to be made
-positive and is made part of the $x_{it}^{-}$ variable. If the effects
-are symmetric, $\beta^{+} = - \beta^{-}$.
+$`x_{it}^+`$ and if it is negative, it is multiplied by -1 to be made
+positive and is made part of the $`x_{it}^-`$ variable. If the effects
+are symmetric, $`\beta^+ = -\beta^-`$.
 
 After fitting the model via GLS, we can then do a test of the contrasts
-of the $\beta^{+}$ and $\beta^{-}$ coefficients as a formal way to
+of the $`\beta^+`$ and $`\beta^-`$ coefficients as a formal way to
 assess the presence of asymmetric effects.
 
 Here’s how it works with the `panelr` function,
 [`asym()`](https://panelr.jacob-long.com/reference/asym.md).
 
 ``` r
+
 model <- asym(lwage ~ ms + occ + union + wks, data = wages)
 summary(model)
 ```
@@ -839,6 +1022,7 @@ whether the respondent is enrolled in school, and `hours` is the hours
 worked in the week of the survey.
 
 ``` r
+
 summary(asym(hours ~ spouse + inschool, data = teen))
 ```
 
@@ -882,21 +1066,23 @@ generalize to non-continuous dependent variables — you can’t run a logit
 model with a differenced binary outcome. Allison (2019) showed that you
 can do a modified form for such situations.
 
-Instead of including the $x_{it}^{+}$ and $x_{it}^{-}$ as predictors,
-you instead create new variables $z_{it}^{+}$ and $z_{it}^{-}$ that are
-the cumulative sum of all differences prior to time $t$.
+Instead of including the $`x_{it}^+`$ and $`x_{it}^-`$ as predictors,
+you instead create new variables $`z_{it}^+`$ and $`z_{it}^-`$ that are
+the cumulative sum of all differences prior to time $`t`$.
 
 \$\$ z\_{it}^+ = \sum\_{s = 1}^{t}{x\_{is}^+} \\ z\_{it}^- = \sum\_{s =
 1}^{t}{x\_{is}^-} \\ \$\$
 
-Note that at $t = 1$, both are set to 0. I’ll leave the details as to
+Note that at $`t = 1`$, both are set to 0. I’ll leave the details as to
 *why* this works to the manuscript, but he shows that we’re left with
 the following equation:
 
-$$y_{it} = \mu_{t} + \beta^{+}z_{it}^{+} + \beta^{-}z_{it}^{-} + \alpha_{i} + \epsilon_{it}$$
+``` math
+y_{it} = \mu_t + \beta^+ z_{it}^+ + \beta^-z_{it}^- + \alpha_i + \epsilon_{it}
+```
 
 So we can treat this like a fixed effects model in which we just need to
-address the $\alpha_{i}$. For situations like this that call for a
+address the $`\alpha_i`$. For situations like this that call for a
 conditional logit, as Allison used in his paper, another option is the
 GEE with logit link.
 
@@ -906,6 +1092,7 @@ predictor, `mother`, an indicator for whether the respondent has ever
 had any children.
 
 ``` r
+
 model <- asym_gee(pov ~ mother + spouse + inschool + hours, data = teen, family = binomial(link = "logit"), 
                   use.wave = TRUE, wave.factor = TRUE)
 ```
@@ -914,6 +1101,7 @@ model <- asym_gee(pov ~ mother + spouse + inschool + hours, data = teen, family 
     model. [39m
 
 ``` r
+
 summary(model)
 ```
 

@@ -60,6 +60,7 @@ appending wave information to constants.
 ## Examples
 
 ``` r
+
 wages <- panel_data(WageData, id = id, wave = t)
 wide_wages <- widen_panel(wages)
 ```

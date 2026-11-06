@@ -141,7 +141,11 @@ wbgee(
   de-meaned variables (`"raw"`), but Giesselmann and
   Schmidt-Catran (2020) show this method biases the results towards zero
   effect. The default is `"double-demean"` but if emulating other
-  software is the goal, `"demean"` might be preferred.
+  software is the goal, `"demean"` might be preferred. With two
+  observations per entity, double-demeaned interactions between two
+  time-varying predictors have no within-entity variation. This
+  limitation does not apply to an interaction between one time-varying
+  predictor and one time-invariant predictor.
 
 - scale:
 

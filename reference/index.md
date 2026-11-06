@@ -25,6 +25,7 @@
 - [`widen_panel()`](https://panelr.jacob-long.com/reference/widen_panel.md)
   : Convert long panel data to wide format
 - [`long_panel()`](https://panelr.jacob-long.com/reference/long_panel.md)
+  [`elongate_panel()`](https://panelr.jacob-long.com/reference/long_panel.md)
   : Convert wide panels to long format
 - [`summary(`*`<panel_data>`*`)`](https://panelr.jacob-long.com/reference/summary.panel_data.md)
   : Summarize panel data frames

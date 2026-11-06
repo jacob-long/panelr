@@ -29,6 +29,7 @@ GEE for non-Gaussian models
 `panelr` is now available via CRAN.
 
 ``` r
+
 install.packages("panelr")
 ```
 
@@ -41,6 +42,7 @@ data as panel data. I’ll load the example data `WageData` to
 demonstrate.
 
 ``` r
+
 library(panelr)
 data("WageData")
 colnames(WageData)
@@ -56,6 +58,7 @@ observations for each of the 595 respondents. We will use those two
 pieces of information to create a `panel_data` object.
 
 ``` r
+
 wages <- panel_data(WageData, id = id, wave = t)
 wages
 ```
@@ -99,6 +102,7 @@ package](https://tibble.tidyverse.org/)) that are grouped by entity
 tidy workflow with `panelr` can work:
 
 ``` r
+
 library(dplyr)
 data("WageData")
 # Create `panel_data` object
@@ -159,6 +163,7 @@ with a time-invariant predictor, a binary indicator for black race
 `lag(union)` and a cross-level interaction between `blk` and `wks`.
 
 ``` r
+
 model <- wbm(lwage ~ lag(union) + wks | blk | blk * wks + (lag(union) | id), data = wages)
 summary(model)
 ```

@@ -27,6 +27,7 @@ A `panel_data` frame
 ## Examples
 
 ``` r
+
 data("WageData")
 wages <- panel_data(WageData, id = id, wave = t)
 get_wave(wages)

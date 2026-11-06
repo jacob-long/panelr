@@ -91,6 +91,7 @@ of `_W`. With that in mind, we can use
 to convert the data to long format.
 
 ``` r
+
 long_panel(wide, prefix = "_W", begin = 1, end = 3, label_location = "end")
 ```
 
@@ -120,6 +121,7 @@ I should note that base R has a function,
 this situation without making you pull your hair out too much:
 
 ``` r
+
 reshape(as.data.frame(wide), sep = "_W", times = c(1, 2, 3), direction = "long",
         varying = c("Q1_W1", "Q1_W2", "Q1_W3", "Q2_W1", "Q2_W2", "Q2_W3"))
 ```
@@ -171,6 +173,7 @@ can add considerable difficulty to when trying to reshape data “by
 hand.”
 
 ``` r
+
 long_panel(wide, prefix = "W", suffix = "_", label_location = "beginning",
            begin = "A", end = "C")
 ```
@@ -229,6 +232,7 @@ the right result with
 [`long_panel()`](https://panelr.jacob-long.com/reference/long_panel.md):
 
 ``` r
+
 long_panel(wide, prefix = "_W", label_location = "end", begin = 1, end = 3)
 ```
 
@@ -283,6 +287,7 @@ the earlier examples, this will confuse
 [`long_panel()`](https://panelr.jacob-long.com/reference/long_panel.md):
 
 ``` r
+
 long_panel(wide, begin = "A", end = "C", label_location = "beginning", id = "CaseID")
 ```
 
@@ -316,6 +321,7 @@ number of times. To reflect what I know about these data, I change it to
 characters.
 
 ``` r
+
 long_panel(wide, begin = "A", end = "C", label_location = "beginning", 
            id = "CaseID", match = "\\d+.*")
 ```
@@ -377,6 +383,7 @@ Note that in very wide datasets, or those with many individuals, this
 can take a little while to happen.
 
 ``` r
+
 widen_panel(long_data, separator = "_")
 ```
 

@@ -46,6 +46,13 @@ predict(
 
   further arguments passed to or from other methods.
 
+## Details
+
+Panel histories and prepared rows follow the same conventions as
+[`predict.wbm()`](https://panelr.jacob-long.com/reference/predict.wbm.md).
+Interaction plotting uses fixed estimation-sample reference means and
+the fitted GEE covariance matrix for confidence intervals.
+
 ## Examples
 
 ``` r
