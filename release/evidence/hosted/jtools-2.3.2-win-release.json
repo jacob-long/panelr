@@ -1,0 +1,12 @@
+{
+  "package": "jtools",
+  "version": "2.3.2",
+  "service": "win-release",
+  "archive": "/private/tmp/panel-release-20261105/checks/jtools/jtools_2.3.2.tar.gz",
+  "sha256": "89ed8666e8d90b8b4a87884a893fd7b611e0aec965ab1ea29cb67d9e7cc462d2",
+  "started_utc": "2026-11-05 06:25:18 UTC",
+  "status": "accepted",
+  "url": "ftp://win-builder.r-project.org/R-release/jtools_2.3.2.tar.gz",
+  "response_code": 226,
+  "finished_utc": "2026-11-05 06:25:24 UTC"
+}

@@ -1,0 +1,33 @@
+{
+  "package": "panelr",
+  "version": "1.1.0",
+  "service": "Windows Builder R-devel",
+  "report_url": "https://win-builder.r-project.org/BJflowhx1cY8/",
+  "verified_utc": "2026-11-05 06:47:09 UTC",
+  "status": "OK",
+  "source_archive_sha256": "1d1a93711c1062cdcadea32200bba293eb6fce6c13c703e3171908042ae49be8",
+  "r": "* using R Under development (unstable) (2026-11-04 r90836 ucrt)",
+  "test_assertions": 706,
+  "conditional_skips": 10,
+  "incoming_feasibility": "OK",
+  "pdf_manual": "OK",
+  "html_manual": "OK",
+  "logs": [
+    {
+      "path": "release/evidence/hosted/panelr-winbuilder-devel-check.log",
+      "sha256": "50d6e399965ce238a31b90f858c5093a60b59e89725a3af0fac3585c7ac000cb"
+    },
+    {
+      "path": "release/evidence/hosted/panelr-winbuilder-devel-install.log",
+      "sha256": "da79de5669a04f6cfb1fbf982576121a5292095221bc49ca0d648ec8f1f4bb71"
+    },
+    {
+      "path": "release/evidence/hosted/panelr-winbuilder-devel-tests.log",
+      "sha256": "8eba28647f2c36af931299ff890740b7f24caa65d3d7cdb8e2ad53dd12b50aa1"
+    },
+    {
+      "path": "release/evidence/hosted/panelr-winbuilder-devel-examples.log",
+      "sha256": "a7e06beb2ba491b733e2738c67b79765bc57ff248388f74cc219a11925ae07ef"
+    }
+  ]
+}

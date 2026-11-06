@@ -1,0 +1,3 @@
+package	file	executable_change
+jtools	R/internal.R	TRUE
+jtools	R/scale_lm.R	FALSE

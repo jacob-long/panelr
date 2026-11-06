@@ -1,0 +1,12 @@
+{
+  "jtools": {
+    "files": 182,
+    "all_files_identical": true,
+    "github_archive_sha256": "8463464ab9ac741107685f5b30fd8a937fe2de3993f7f9612fce96a13baeb689"
+  },
+  "panelr": {
+    "files": 135,
+    "all_files_identical": true,
+    "github_archive_sha256": "1f8fe8e76509f0dea517004bfbb616dbcc55a48af7ad070b87bc96c93f0472be"
+  }
+}

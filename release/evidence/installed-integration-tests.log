@@ -1,0 +1,152 @@
+      jtools       panelr interactions 
+     "2.3.2"      "1.1.0"      "1.3.0" 
+cat_plot: 
+cat_plot lm: S.SSSSSSSSSSSSSS.
+cat_plot glm: S
+cat_plot survey: S
+cat_plot merMod: S
+cat_plot 3-way: SSSSSSSSSSSSS
+cat_plot no interaction: SSSSSSS
+brmsfit plots: S
+interact_plot: 
+interact_plot lm: SS....SSSSS.S`geom_smooth()` using formula = 'y ~ x'
+S
+interact_plot svyglm: S
+interact_plot merMod: ✖ Detected factor predictor.
+ℹ Plotting with cat_plot() instead.
+ℹ See `?interactions::cat_plot()` for full details on how to specify models
+  with categorical predictors.
+ℹ If you experience errors or unexpected results, try using cat_plot()
+  directly.
+S
+interact_plot offsets: .S.S.
+brmsfit plots 2: S
+stanreg plots: S
+sim_margins: 
+sim_margins lm: ............
+sim_margins methods: ............
+sim_margins svyglm: .
+sim_margins merMod: ..
+sim_slopes: 
+sim_slopes lm: ..........
+sim_slopes methods: ....
+sim_slopes svyglm: .
+sim_slopes merMod: ..
+j_n specific: ....
+contrast-slopes: .....................................................................
+panelr-plots: ....................
+panelr-slopes: .......................
+slopes-refits: ................................................................................................................................................................................................................................
+
+══ Skipped ═════════════════════════════════════════════════════════════════════
+1. cat_plot handles simple plot (bar) ('test_cat_plot.R:20:3') - Reason: On CRAN
+
+2. interact_plot handles simple cat plot (bar) ('test_cat_plot.R:35:3') - Reason: On CRAN
+
+3. cat_plot handles intervals (bar) ('test_cat_plot.R:40:3') - Reason: On CRAN
+
+4. cat_plot handles plotted points (bar) ('test_cat_plot.R:46:3') - Reason: On CRAN
+
+5. cat_plot handles simple plot (line) ('test_cat_plot.R:51:3') - Reason: On CRAN
+
+6. cat_plot handles intervals (line) ('test_cat_plot.R:57:3') - Reason: On CRAN
+
+7. interact_plot handles cat_plot intervals (line) ('test_cat_plot.R:63:3') - Reason: On CRAN
+
+8. cat_plot handles plotted points (line) ('test_cat_plot.R:69:3') - Reason: On CRAN
+
+9. cat_plot handles point.shape (line) ('test_cat_plot.R:76:3') - Reason: On CRAN
+
+10. cat_plot handles linetypes (line) ('test_cat_plot.R:83:3') - Reason: On CRAN
+
+11. cat_plot handles simple plot (point) ('test_cat_plot.R:88:3') - Reason: On CRAN
+
+12. cat_plot handles intervals (point) ('test_cat_plot.R:94:3') - Reason: On CRAN
+
+13. cat_plot handles plotted points (point) ('test_cat_plot.R:100:3') - Reason: On CRAN
+
+14. cat_plot handles point.shape (point) ('test_cat_plot.R:107:3') - Reason: On CRAN
+
+15. interact_plot handles cat_plot point.shape (point) ('test_cat_plot.R:114:3') - Reason: On CRAN
+
+16. cat_plot handles offsets ('test_cat_plot.R:135:3') - Reason: On CRAN
+
+17. cat_plot handles svyglm ('test_cat_plot.R:149:3') - Reason: On CRAN
+
+18. cat_plot handles merMod ('test_cat_plot.R:157:3') - Reason: On CRAN
+
+19. cat_plot does 3-way interactions (bar) ('test_cat_plot.R:179:3') - Reason: On CRAN
+
+20. cat_plot does intervals w/ 3-way interactions (bar) ('test_cat_plot.R:185:3') - Reason: On CRAN
+
+21. cat_plot does plot.points w/ 3-way interactions (bar) ('test_cat_plot.R:191:3') - Reason: On CRAN
+
+22. cat_plot does point.shape w/ 3-way interactions (bar) ('test_cat_plot.R:198:3') - Reason: On CRAN
+
+23. cat_plot does 3-way interactions (line) ('test_cat_plot.R:203:3') - Reason: On CRAN
+
+24. cat_plot does intervals w/ 3-way interactions (line) ('test_cat_plot.R:209:3') - Reason: On CRAN
+
+25. cat_plot does plot.points w/ 3-way interactions (line) ('test_cat_plot.R:215:3') - Reason: On CRAN
+
+26. cat_plot does point.shape w/ 3-way interactions (line) ('test_cat_plot.R:222:3') - Reason: On CRAN
+
+27. cat_plot does vary.lty w/ 3-way interactions (line) ('test_cat_plot.R:229:3') - Reason: On CRAN
+
+28. cat_plot does 3-way interactions (point) ('test_cat_plot.R:234:3') - Reason: On CRAN
+
+29. cat_plot does intervals w/ 3-way interactions (point) ('test_cat_plot.R:240:3') - Reason: On CRAN
+
+30. cat_plot does plot.points w/ 3-way interactions (point) ('test_cat_plot.R:246:3') - Reason: On CRAN
+
+31. cat_plot does point.shape w/ 3-way interactions (point) ('test_cat_plot.R:253:3') - Reason: On CRAN
+
+32. cat_plot handles simple plot w/ no mod. (bar) ('test_cat_plot.R:260:3') - Reason: On CRAN
+
+33. cat_plot handles intervals w/ no mod. (bar) ('test_cat_plot.R:265:3') - Reason: On CRAN
+
+34. cat_plot handles plotted points w/ no mod. (bar) ('test_cat_plot.R:271:3') - Reason: On CRAN
+
+35. cat_plot handles simple plot w/ no mod. (point) ('test_cat_plot.R:276:3') - Reason: On CRAN
+
+36. cat_plot handles intervals w/ no mod. (point) ('test_cat_plot.R:281:3') - Reason: On CRAN
+
+37. cat_plot handles plotted points w/ no mod. (point) ('test_cat_plot.R:287:3') - Reason: On CRAN
+
+38. cat_plot handles point.shape w/ no mod. (point) ('test_cat_plot.R:293:3') - Reason: On CRAN
+
+39. brmsfit objects are supported ('test_cat_plot.R:302:3') - Reason: On CRAN
+
+40. interact_plot works for lm ('test_interact_plot.R:35:3') - Reason: On CRAN
+
+41. interact_plot: robust standard errors work ('test_interact_plot.R:52:3') - Reason: On CRAN
+
+42. rug plots work ('test_interact_plot.R:112:3') - Reason: On CRAN
+
+43. interact_plot works for weighted lm ('test_interact_plot.R:125:3') - Reason: On CRAN
+
+44. interact_plot works for lm w/ logical ('test_interact_plot.R:130:3') - Reason: On CRAN
+
+45. interact_plot works for lm w/ non-focal character ('test_interact_plot.R:135:3') - Reason: On CRAN
+
+46. interact_plot accepts user-specified values and labels ('test_interact_plot.R:145:3') - Reason: On CRAN
+
+47. interact_plot terciles modxval/mod2val works ('test_interact_plot.R:180:3') - Reason: On CRAN
+
+48. interact_plot linearity.check works ('test_interact_plot.R:187:3') - Reason: On CRAN
+
+49. interact_plot works for svyglm ('test_interact_plot.R:199:3') - Reason: On CRAN
+
+50. interact_plot works for lme4 ('test_interact_plot.R:220:3') - Reason: On CRAN
+
+51. interact_plot handles offsets ('test_interact_plot.R:245:3') - Reason: On CRAN
+
+52. interact_plot handles offsets with robust SE ('test_interact_plot.R:252:3') - Reason: On CRAN
+
+53. brmsfit objects are supported ('test_interact_plot.R:284:3') - Reason: On CRAN
+
+54. stanreg objects are supported ('test_interact_plot.R:300:3') - Reason: On CRAN
+
+══ DONE ════════════════════════════════════════════════════════════════════════
+ failed   error warning skipped  passed 
+      0       0       0      54     394 

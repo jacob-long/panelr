@@ -400,6 +400,129 @@ summary(model)
 This can help declutter your output when you really just don't care about the
 between-subjects effects.
 
+## Predictions and interaction plots
+
+Predicting panel histories and plotting hypothetical combinations of predictors
+are different operations. `predict(model, newdata = histories)` recomputes
+person means from the supplied histories, so those data must include the entity
+identifier and enough history for the desired within-person interpretation.
+Include the wave variable for time effects, detrending, lags, and leads. The
+outcome is not needed unless it also serves as a predictor. Predictions retain
+the input row order.
+
+For interaction plots, panelr holds person means and interaction-product means
+fixed at their observation-weighted averages in the estimation sample. With an
+updated version of interactions that supports `plot.scale`, numeric within-person
+predictors are displayed as **deviations from each person's observed mean**, in
+the variable's original units. Zero means at the person's mean, not a raw value
+of zero. Time-invariant moderators retain their original units or categories.
+For example:
+
+```{r interaction-predictions, eval = requireNamespace("interactions", quietly = TRUE) && "plot.scale" %in% names(formals(interactions::interact_plot))}
+interaction_model <- wbm(lwage ~ wks | ed | wks * ed, data = wages,
+                         pR2 = FALSE, pvals = FALSE)
+interactions::interact_plot(interaction_model, pred = wks, modx = ed,
+                           modx.values = c(9, 12, 16), interval = TRUE)
+```
+
+Here, `wks = -5` means five fewer weeks worked than the person's mean, while
+`ed = 12` still means twelve years of education. The outcome axis shows predicted
+`lwage`, not a deviation in wages. In a model interacting two varying predictors:
+
+```{r within-interaction-predictions, eval = requireNamespace("interactions", quietly = TRUE) && "plot.scale" %in% names(formals(interactions::interact_plot))}
+within_interaction <- wbm(lwage ~ wks * exp, data = wages,
+                          pR2 = FALSE, pvals = FALSE)
+interactions::interact_plot(within_interaction, pred = wks, modx = exp,
+                           interval = TRUE)
+# Explicit values are deviations too: -2, 0, +2 years from the person's mean.
+interactions::interact_plot(within_interaction, pred = wks, modx = exp,
+                           modx.values = c(-2, 0, 2))
+```
+
+Default moderator values are zero and plus/minus one pooled within-person SD,
+about two years for experience here, rather than SDs of raw experience across
+people. The numeric axis range uses observed within-person deviations. These
+display units are unchanged when the fitted model uses `scale = TRUE`.
+
+Use `plot.scale = "original"` to display raw predictor levels. For example,
+`modx.values = c(18, 20, 22), plot.scale = "original"` requests experience levels
+of 18, 20, and 22 years, relative to the reference person mean shown in the
+caption. It does not request deviations of those magnitudes. Predictions outside
+observed within-person ranges generate warnings; staying within each marginal
+range does not guarantee joint support.
+
+The plot does not recalculate person means from the displayed grid. The
+lines therefore represent conditional predictions, not population-average
+effects or forecasts for particular people. Reference means can be overridden
+through `at`, for example `at = list("imean(wks)" = 45)`. These mean overrides
+are always in original units; other numeric `at` values use the display scale.
+With within-scale displays, changing the reference mean does not change what a
+displayed deviation of zero means. For within-by-within
+interactions, the product-centering reference, such as `imean(x:z)`, is also
+held fixed unless explicitly overridden. Time-invariant moderators multiply the
+centered within-person term, respecting the fact that they factor out of the
+centering operation. Confidence bands describe fixed-effect
+uncertainty conditional on these reference values, not individual prediction
+intervals.
+
+Custom axis and legend labels override the generated labels. Supplied `data`
+must contain fitting-data observations with their panel identifiers; subsets
+retain the fitted person means. Use `at` to set hypothetical profiles. Direct
+calls to `jtools::make_predictions()` and older interactions versions without
+the new `plot.scale` argument still use original-scale predictor inputs.
+
+`predict(..., raw = TRUE)` is a separate interface for already-prepared
+model-scale data. It never recalculates interaction columns or person means.
+This argument is unrelated to the fitting option `interaction.style = "raw"`.
+For plots from explicitly prepared rows, use
+`jtools::make_predictions(model, pred = "x", new_data = rows, raw = TRUE)`.
+
+Automatic grids currently support scalar numeric/factor terms and two- or
+three-way interactions. Scalar transformations such as `log(x)` require
+`plot.scale = "original"`, because deviations in `log(x)` and `x` are not the
+same quantity. For detrending, lags/leads, or basis expansions, use
+complete panel histories or prepared model-scale rows. Partial residuals and
+custom plotting covariance estimates are not yet supported.
+
+### Simple slopes
+
+Updated interactions versions provide S3 methods for `sim_slopes()` and
+`johnson_neyman()` that use the same transformed design rows as the plots.
+They do not recenter the original data and refit the model: person-mean
+centering would undo a constant shift of a time-varying moderator in a
+double-demeaned interaction.
+
+```{r panel-simple-slopes, eval = requireNamespace("interactions", quietly = TRUE) && !is.null(getS3method("sim_slopes", "wbm", optional = TRUE, envir = asNamespace("interactions")))}
+interactions::sim_slopes(within_interaction, pred = wks, modx = exp,
+                         modx.values = c(-2, 0, 2), confint = TRUE, digits = 4)
+```
+
+The values here are deviations in years from the person's mean experience,
+exactly as in the plot. For models linear in the focal predictor, a one-unit
+difference in design rows, $L$, gives the slope $L\hat\beta$ and variance
+$L\widehat{\mathrm{Var}}(\hat\beta)L^\top$. The calculation includes covariance
+between coefficients. `plot.scale = "original"` instead interprets supplied
+moderator values as raw levels. Intercepts, when requested with `cond.int = TRUE`,
+refer to zero on the selected predictor scale. Offset variables absent from the
+formula must be set explicitly through `at`.
+
+These are fixed-effect slopes conditional on reference person means and
+interaction-centering quantities. Non-identity-link models report link-scale
+slopes, not response-scale marginal effects. GEE uses its fitted sandwich
+covariance and a normal approximation. Gaussian mixed models default to a
+residual-df t approximation, matching the plotting bands; this is **not** a
+Satterthwaite or Kenward-Roger test. Use `df = "normal"`, `df = "residual"`, or
+an explicit positive number to select a different reference distribution.
+
+Johnson-Neyman regions use those same contrasts and inference settings. The
+output distinguishes no crossings, a single boundary, and two boundaries,
+and reports the observed moderator range. Confidence bands are pointwise,
+not simultaneous. `probe_interaction()` combines the slope analysis and plot
+with shared moderator settings. Nonlinear or factor focal predictors,
+predictor-dependent offsets, rank-deficient fits, custom covariance options,
+and FDR-adjusted Johnson-Neyman inference are rejected rather than approximated
+silently.
+
 ## Using GEE to fit within-between models
 
 You don't have to estimate these models using multilevel models and in 

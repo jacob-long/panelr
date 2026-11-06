@@ -1,0 +1,45 @@
+{
+  "package": "jtools",
+  "checked_utc": "2026-11-05 22:04:04 UTC",
+  "run_id": 41980307821,
+  "url": "https://github.com/r-hub2/uncivilised-lowkey-gnatcatcher-jtools/actions/runs/41980307821",
+  "status": "completed",
+  "conclusion": "success",
+  "jobs": [
+    {
+      "id": 127088649134,
+      "name": "update-repo",
+      "html_url": "https://github.com/r-hub2/uncivilised-lowkey-gnatcatcher-jtools/actions/runs/41980307821/job/127088649134",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 127088712692,
+      "name": "setup",
+      "html_url": "https://github.com/r-hub2/uncivilised-lowkey-gnatcatcher-jtools/actions/runs/41980307821/job/127088712692",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 127088787691,
+      "name": "windows (R-devel)",
+      "html_url": "https://github.com/r-hub2/uncivilised-lowkey-gnatcatcher-jtools/actions/runs/41980307821/job/127088787691",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 127088787728,
+      "name": "ubuntu-release",
+      "html_url": "https://github.com/r-hub2/uncivilised-lowkey-gnatcatcher-jtools/actions/runs/41980307821/job/127088787728",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 127088787767,
+      "name": "ubuntu-clang",
+      "html_url": "https://github.com/r-hub2/uncivilised-lowkey-gnatcatcher-jtools/actions/runs/41980307821/job/127088787767",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ]
+}

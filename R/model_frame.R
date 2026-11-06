@@ -48,7 +48,7 @@ model_frame <- function(formula, data) {
                            as.character(vars) %nin% ovars)
   
   # Keeping only needed vars to save memory
-  mf <- data[c(ovars, as.character(vars)[existing_vars], the_groups)]
+  mf <- data[unique(c(ovars, as.character(vars)[existing_vars], the_groups))]
   
   # Add new columns for transformed variables
   for (var in vars[inds]) {

@@ -1,0 +1,7 @@
+"scenario"	"result"	"log"
+"released"	"PASS"	"/private/tmp/panel-release-20261105/logs/compat-released-old.log"
+"jtools_only"	"PASS"	"/private/tmp/panel-release-20261105/logs/compat-jtools_only-old.log"
+"panelr_only"	"PASS"	"/private/tmp/panel-release-20261105/logs/compat-panelr_only-old.log"
+"foundations"	"PASS"	"/private/tmp/panel-release-20261105/logs/compat-foundations-old.log"
+"interactions_old_panelr"	"PASS"	"/private/tmp/panel-release-20261105/logs/compat-interactions_old_panelr-old.log"
+"all_candidates"	"PASS"	"/private/tmp/panel-release-20261105/logs/compat-all_candidates-old.log"

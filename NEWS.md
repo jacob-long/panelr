@@ -1,3 +1,65 @@
+# panelr 1.1.0
+
+* The new interaction-plot scales and contrast-based inference require
+  interactions 1.3.0 or later. Earlier interactions releases retain their old
+  plotting behavior and do not provide the corrected panelr simple-slopes or
+  Johnson-Neyman methods. Update both packages to use these features.
+
+* Added a contrast-design hook for the updated interactions S3 methods for
+  `sim_slopes()` and `johnson_neyman()`. Slopes, confidence intervals, and
+  Johnson-Neyman regions use the fitted coefficients and full covariance
+  matrix without refitting. They match interaction plots' reference settings
+  and predictor units, including standardized fits. `probe_interaction()` is
+  supported. Inference is conditional, fixed-effect, and link-scale with
+  explicit degrees-of-freedom assumptions and unsupported cases rejected.
+* Reworked prediction to replay fitted variable roles, factor coding, scaling,
+  and basis parameters. Predictions preserve input row order and do not require
+  the response. Panel predictions require entity identifiers even when random
+  effects are excluded; prepared `raw = TRUE` rows are no longer transformed.
+* Fixed zero fixed-effect predictions and duplicated random effects by using
+  lme4's point-prediction implementation directly. Prediction and simulation
+  now share panel preprocessing, and offset values are retained.
+* Added a distinct hypothetical-grid path for `interactions::interact_plot()`
+  and `cat_plot()`. With the corresponding interactions update, plots default
+  to within-person deviations in original units; numeric moderator defaults use
+  within-person variation. Constant moderators retain their original scale.
+  `plot.scale = "original"` restores original-level displays. Labels and captions
+  identify the scale and reference means, and out-of-range deviations warn about
+  extrapolation. Added numerical checks of plotted values and confidence bands.
+* Fixed namespaced basis functions and replay of polynomial coefficients.
+  Fixed interaction-column lookup during common-slope detrending.
+* Unsupported uncertainty/plotting options now fail explicitly. In particular,
+  `use.re.var = TRUE` no longer adds variances to standard errors, and automatic
+  grids for detrending, lags/leads, and basis expansions require prepared data.
+  Simple slopes instead use direct contrasts because refitting after
+  recentering is not generally appropriate for within-person interactions.
+* Fixed compatibility with lme4 2.1-0 by explicitly binding weights and offsets
+  in the model formula's environment. This also fixes failures in `wbm()` when
+  neither argument is supplied.
+  Requires lmerTest 3.2-1 or later for compatible Satterthwaite calculations.
+* Preserved lme4 covariance metadata when converting model classes, fixing
+  model display and likelihood calculations with recent lme4 versions.
+* Fixed `make_wb_data()` to pass the specified `wave` argument through to data
+  preparation instead of using the `id` argument.
+* Added a warning when double-demeaned interactions involving an even number
+  of time-varying predictors are used with at most two observations per entity
+  (#31). Cross-level interactions with one time-varying predictor are exempt.
+* Added clearer error messages when variables in a model formula are missing
+  from the input data.
+* Fixed the `summary.panel_data()` fallback when the optional `skimr` package
+  is not installed.
+* Added `elongate_panel()` as an exported alias for `long_panel()`.
+* Added regression tests for these changes and for treating wave factors as
+  unordered factors in `wbm()`.
+* Fixed `bind_rows()` dropping the panel class and metadata (#11), and fixed
+  source labels being assigned to the wrong rows when using its `.id` argument.
+  Direct vctrs operations now preserve row order, and row binding refreshes
+  wave metadata.
+* Fixed conversion from `plm::pdata.frame()` when index columns have been
+  dropped (#9), restoring those columns from the saved index.
+* Documented reference categories and indicator coding for factor predictors
+  in within-between models (#19).
+
 # panelr 1.0.1
 
 This is a CRAN resubmission following the March 18, 2026 archive.

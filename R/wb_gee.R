@@ -83,6 +83,7 @@ wbgee <- function(formula, data, id = NULL, wave = NULL,
   the_call <- match.call()
   the_call[[1]] <- substitute(wbgee)
   the_env <- parent.frame()
+  offset_expr <- rlang::get_expr(enquo(offset))
   
   if (any(c(detrend, balance.correction))) {
     if (!requireNamespace("tidyr") | !requireNamespace("purrr")) {
@@ -119,7 +120,7 @@ wbgee <- function(formula, data, id = NULL, wave = NULL,
   
   if (scale == TRUE) {
     
-    vars <- names(data)[names(data) %nin% c(wave, id)]
+    vars <- names(data)[names(data) %nin% c(wave, id, ".weights", ".offset")]
     if (scale.response == FALSE) {vars <- vars[vars != dv]} 
     data <-
       jtools::gscale(data, vars = vars, n.sd = n.sd, binary.inputs = "0/1")
@@ -203,16 +204,18 @@ wbgee <- function(formula, data, id = NULL, wave = NULL,
                         max_wave = prepped$maxwave, min_wave = prepped$minwave,
                         ints = ints, env = the_env,
                         mf_form = prepped$mf_form,
-                        use.wave = use.wave, detrend = detrend,
+                        use.wave = use.wave, wave.factor = wave.factor, detrend = detrend,
                         dt_order = dt.order, dt_random = dt.random,
                         balance_correction = balance.correction, pf = pf,
                         qic = qics["QIC"], qicu = qics["QICu"],
                         cic = qics["CIC"], cor.str = cor.str[1],
                         alpha = fit_sum$corr, 
                         interactions = c(e$within_ints, ints),
-                        interaction.style = interaction.style)
+                        interaction.style = interaction.style,
+                        prediction = wb_prediction_spec(formula, prepped, data))
   
   fit$call <- the_call
+  fit$call_info$prediction$offset_expr <- offset_expr
   class(fit) <- c("wbgee", class(fit))
   return(fit)
   
@@ -574,7 +577,9 @@ predict_gee <- function(model, .vcov = vcov(model), newdata = NULL,
     }
   }
   
-  if (!is.null(model$call$offset)) {
+  if (".offset" %in% names(newdata)) {
+    offset <- offset + newdata[rownames(m), ".offset"]
+  } else if (!is.null(model$call$offset)) {
     offset <- offset + eval(model$call$offset, newdata)
   }
   
@@ -594,15 +599,15 @@ predict_gee <- function(model, .vcov = vcov(model), newdata = NULL,
   }
   
   # fit <- as.vector(m.mat %*% m.coef)
-  se.fit <- sqrt(diag(m.mat %*% .vcov %*% t(m.mat)))
+  ses <- if (se.fit) sqrt(pmax(0, rowSums((m.mat %*% .vcov) * m.mat))) else NULL
   
   type <- type[1]
   
   switch(type, response = {
-    se.fit <- se.fit * abs(family(model)$mu.eta(fit))
+    if (se.fit) ses <- ses * abs(family(model)$mu.eta(fit))
     fit <- family(model)$linkinv(fit)
   }, link = , terms = )
   
-  return(list(fit = fit, se.fit = se.fit))
+  return(list(fit = fit, se.fit = ses))
   
 }

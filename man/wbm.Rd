@@ -115,7 +115,10 @@ option is to simply use the product term of the de-meaned variables
 (\code{"raw"}), but Giesselmann and Schmidt-Catran (2020) show this method
 biases the results towards zero effect. The default is \code{"double-demean"}
 but if emulating other software is the goal, \code{"demean"} might be
-preferred.}
+preferred. With two observations per entity, double-demeaned interactions
+between two time-varying predictors have no within-entity variation.
+This limitation does not apply to an interaction between one time-varying
+predictor and one time-invariant predictor.}
 
 \item{scale}{If \code{TRUE}, reports standardized regression
 coefficients by scaling and mean-centering input data (the latter can be
@@ -203,6 +206,19 @@ put a 1 or 0 after the first, like this:
 
 Of course, with no time-invariant variables, you need no \code{|} operators at
 all.
+
+\strong{Categorical predictors}
+
+Factor predictors are expanded into indicator (0/1) variables, omitting
+the first factor level as the reference category. For a time-invariant
+factor in the second formula part, each coefficient compares that level
+with the reference category, holding the other predictors constant (on the
+link scale for generalized models). You do not need to create the indicator
+variables yourself. Use \code{\link[stats:relevel]{stats::relevel()}} before fitting to change the
+reference category, for example,
+\code{data$industry <- relevel(data$industry, ref = "Downstream")}.
+The factor expansion uses this coding even for ordered factors or factors
+with custom contrasts; it does not use polynomial or sum contrasts.
 
 \strong{Models}
 

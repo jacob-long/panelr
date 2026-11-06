@@ -149,17 +149,16 @@ vec_restore.panel_data <- function(x, to, ...) {
     return(tibble::as_tibble(x))
   }
   
-  # Restore panel_data with attributes from 'to'
-  # validate_order = TRUE ensures data stays sorted (O(n) check, sort only if needed)
+  # vctrs requires restoration to preserve row positions. Sorting here can
+  # detach bind_rows() source labels from the rows they describe.
   build_panel_data(
     x,
     id = id,
     wave = wave,
-    periods = get_periods(to),
+    periods = if (nrow(x) == 0L) get_periods(to) else NULL,
     reshaped = attr(to, "reshaped"),
     varying = attr(to, "varying"),
-    constants = attr(to, "constants"),
-    validate_order = TRUE
+    constants = attr(to, "constants")
   )
 }
 

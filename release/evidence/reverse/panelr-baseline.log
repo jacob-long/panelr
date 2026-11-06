@@ -1,0 +1,115 @@
+* using log directory ‘/private/tmp/panel-release-20261105/revdep/checks/panelr/baseline/panelr.Rcheck’
+* using R version 4.5.1 (2025-06-13)
+* using platform: aarch64-apple-darwin20
+* R was compiled by
+    Apple clang version 16.0.0 (clang-1600.0.26.6)
+    GNU Fortran (GCC) 14.2.0
+* running under: macOS 27.0.1
+* using session charset: UTF-8
+* using options ‘--no-manual --no-build-vignettes’
+* checking for file ‘panelr/DESCRIPTION’ ... OK
+* this is package ‘panelr’ version ‘1.0.1’
+* package encoding: UTF-8
+* checking package namespace information ... OK
+* checking package dependencies ... OK
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* checking whether package ‘panelr’ can be installed ... OK
+* checking installed package size ... OK
+* checking package directory ... OK
+* checking ‘build’ directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking code files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking whether startup messages can be suppressed ... OK
+* checking dependencies in R code ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... OK
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking for unstated dependencies in examples ... OK
+* checking contents of ‘data’ directory ... OK
+* checking data for non-ASCII characters ... OK
+* checking LazyData ... OK
+* checking data for ASCII and uncompressed saves ... OK
+* checking installed files from ‘inst/doc’ ... OK
+* checking files in ‘vignettes’ ... OK
+* checking examples ... ERROR
+Running examples in ‘panelr-Ex.R’ failed
+The error most likely occurred in:
+
+> ### Name: formula.wbm
+> ### Title: Retrieve model formulas from 'wbm' objects
+> ### Aliases: formula.wbm
+> 
+> ### ** Examples
+> 
+> data("WageData")
+> wages <- panel_data(WageData, id = id, wave = t)
+> model <- wbm(lwage ~ lag(union) + wks, data = wages)
+Error in model.frame.default(data = data, weights = weights, offset = offset,  : 
+  invalid type (closure) for variable '(weights)'
+Calls: wbm ... mkFormula -> eval -> eval -> <Anonymous> -> model.frame.default
+Execution halted
+* checking for unstated dependencies in ‘tests’ ... OK
+* checking tests ... ERROR
+  Running ‘testthat.R’
+Running the tests in ‘tests/testthat.R’ failed.
+Last 13 lines of output:
+       ▆
+    1. └─panelr::wbm(lwage ~ union, data = w, pvals = FALSE) at test-utils.R:286:1
+    2.   ├─lme4::lmer(...)
+    3.   │ └─base::eval(mc, parent.frame(1L))
+    4.   │   └─base::eval(mc, parent.frame(1L))
+    5.   ├─lme4::lFormula(...)
+    6.   │ └─lme4:::mkFormula(...)
+    7.   │   └─base::eval(mf, parent_env)
+    8.   │     └─base::eval(mf, parent_env)
+    9.   ├─stats::model.frame(...)
+   10.   └─stats::model.frame.default(...)
+  
+  [ FAIL 5 | WARN 0 | SKIP 0 | PASS 265 ]
+  Error: Test failures
+  Execution halted
+* checking for unstated dependencies in vignettes ... OK
+* checking package vignettes ... OK
+* checking running R code from vignettes ... ERROR
+Errors in running code in vignettes:
+when running code in ‘wbm.Rmd’
+  ...
+> data("WageData")
+
+> wages <- panel_data(WageData, id = id, wave = t)
+
+> model <- wbm(lwage ~ wks + union + ms + occ | blk + 
++     fem, data = wages)
+
+  When sourcing ‘wbm.R’:
+Error: invalid type (closure) for variable '(weights)'
+Execution halted
+
+  ‘reshape.Rmd’ using ‘UTF-8’... OK
+  ‘wbm.Rmd’ using ‘UTF-8’... failed
+* checking re-building of vignette outputs ... SKIPPED
+* DONE
+Status: 3 ERRORs

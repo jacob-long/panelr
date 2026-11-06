@@ -1,0 +1,93 @@
+
+R version 4.5.1 (2025-06-13) -- "Great Square Root"
+Copyright (C) 2025 The R Foundation for Statistical Computing
+Platform: aarch64-apple-darwin20
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(testthat)
+> library(jtools)
+> 
+> 
+> test_check("jtools")
+structure(1L, levels = c("1", "2", "3", "4", "5", "6", "7", "8", 
+"9", "10", "11", "12", "13", "14", "15"), class = "factor")
+structure(2L, levels = c("1", "2", "3", "4", "5", "6", "7", "8", 
+"9", "10", "11", "12", "13", "14", "15"), class = "factor")
+structure(3L, levels = c("1", "2", "3", "4", "5", "6", "7", "8", 
+"9", "10", "11", "12", "13", "14", "15"), class = "factor")
+[ FAIL 0 | WARN 1 | SKIP 39 | PASS 329 ]
+
+══ Skipped tests (39) ══════════════════════════════════════════════════════════
+• On CRAN (39): 'test-effect-plot.R:26:3', 'test-effect-plot.R:39:3',
+  'test-effect-plot.R:45:3', 'test-effect-plot.R:55:3',
+  'test-effect-plot.R:66:3', 'test-effect-plot.R:76:3',
+  'test-effect-plot.R:107:5', 'test-effect-plot.R:139:5',
+  'test-effect-plot.R:186:3', 'test-effect-plot.R:191:3',
+  'test-effect-plot.R:197:3', 'test-effect-plot.R:204:3',
+  'test-effect-plot.R:213:3', 'test-effect-plot.R:226:3',
+  'test-effect-plot.R:235:3', 'test-effect-plot.R:272:5',
+  'test-effect-plot.R:280:5', 'test-effect-plot.R:288:5',
+  'test-effect-plot.R:312:5', 'test-effect-plot.R:320:5',
+  'test-export-summs.R:175:3', 'test-export-summs.R:180:3',
+  'test-export-summs.R:185:3', 'test-export-summs.R:190:3',
+  'test-export-summs.R:196:3', 'test-export-summs.R:202:5',
+  'test-export-summs.R:207:5', 'test-export-summs.R:214:5',
+  'test-export-summs.R:219:5', 'test-export-summs.R:226:3',
+  'test-export-summs.R:231:3', 'test-export-summs.R:237:3',
+  'test-export-summs.R:244:3', 'test-export-summs.R:250:3',
+  'test-export-summs.R:255:3', 'test-export-summs.R:260:3',
+  'test-export-summs.R:265:3', 'test-export-summs.R:276:3',
+  'test-export-summs.R:297:5'
+
+[ FAIL 0 | WARN 1 | SKIP 39 | PASS 329 ]
+Deleting unused snapshots:
+• effect-plot/brm-multiv-selected-int.svg
+• effect-plot/brm-multiv-selected-sigma-int.svg
+• effect-plot/glm-cat-bar-offset-no-int.svg
+• effect-plot/glm-cat-line-offset-no-int.svg
+• effect-plot/glm-cat-offset-partials.svg
+• effect-plot/glm-cat-offset-points.svg
+• effect-plot/glmer-offset.svg
+• effect-plot/glmer.svg
+• effect-plot/lm-all-centered-apa.svg
+• effect-plot/lm-one-centered.svg
+• effect-plot/lm-partials-all-centered.svg
+• effect-plot/lm-points-all-centered.svg
+• effect-plot/lm-rug-sides-lb.svg
+• effect-plot/lmer-partials.svg
+• effect-plot/lmer-points.svg
+• effect-plot/svyglm-all-centered-partials.svg
+• effect-plot/svyglm-all-centered-points.svg
+• effect-plot/svyglm-binomial.svg
+• effect-plot/svyglm-one-centered.svg
+• effect-plot/wlm-one-centered-robust-partials.svg
+• effect-plot/wlm-one-centered-robust-points.svg
+• effect-plot/wlm-one-centered-robust.svg
+• effect-plot/wlm-one-centered.svg
+• export-summs/lm3-linesize2-inner-ci-msg.svg
+• export-summs/lm3-linesize2-inner-ci.svg
+• export-summs/pc-brmmv-sigma-select-dv.svg
+• export-summs/pc-brmmv-sigma.svg
+• export-summs/pc-brmmv.svg
+• export-summs/pc-brmmv2-multidist-select-dv.svg
+• export-summs/pc-glm1-dists-exp.svg
+• export-summs/pc-glm1-dists.svg
+• export-summs/pc-lm1-dists-scale.svg
+• export-summs/pc-lm2-dists-inner-ci-scale.svg
+• export-summs/pc-lm2-dists-inner-ci.svg
+• export-summs/pc-lm2-dists.svg
+> 
+> proc.time()
+   user  system elapsed 
+ 10.774   0.359  11.275 

@@ -28,7 +28,7 @@
 #' @source
 #'  These data are all over the place. This particular file was
 #'  downloaded from Richard Williams at
-#'  \url{https://www3.nd.edu/~rwilliam/statafiles/wages.dta}, though he doesn't
+#'  \url{https://academicweb.nd.edu/~rwilliam/statafiles/wages.dta}, though he doesn't
 #'  claim ownership of these data.
 #'
 #'  The data were shared as a supplement to Baltagi (2005) at

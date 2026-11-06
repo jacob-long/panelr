@@ -1,0 +1,12 @@
+URL audit: 2026-11-05
+
+urlchecker found only HTTP 403 responses. No URLs were silently replaced.
+All five flagged DOI identifiers resolve to registered Crossref records with
+matching titles; see doi-verification.tsv for the primary API URLs and results.
+The Stack Overflow answer still belongs to the cited question, confirmed by
+the official Stack Exchange API; see stackoverflow-verification.json.
+
+These results support retaining the references, but do not prove that every
+publisher will permit automated page retrieval. Local CRAN incoming checks
+may report those access refusals as NOTEs. Include the explanation in each
+submission's cran-comments.md; do not report URL checking as unqualified OK.

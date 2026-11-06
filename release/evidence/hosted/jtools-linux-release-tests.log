@@ -1,0 +1,52 @@
+
+R version 4.6.2 (2026-10-29) -- "Diversified Portfolio"
+Copyright (C) 2026 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(testthat)
+> library(jtools)
+> 
+> 
+> test_check("jtools")
+Failed with error:  'there is no package called 'brms''
+Failed with error:  'there is no package called 'rstanarm''
+Failed with error:  'there is no package called 'brms''
+[ FAIL 0 | WARN 1 | SKIP 34 | PASS 311 ]
+
+══ Skipped tests (34) ══════════════════════════════════════════════════════════
+• On CRAN (33): 'test-effect-plot.R:23:1', 'test-effect-plot.R:35:1',
+  'test-effect-plot.R:42:1', 'test-effect-plot.R:51:1',
+  'test-effect-plot.R:62:1', 'test-effect-plot.R:73:1',
+  'test-effect-plot.R:104:3', 'test-effect-plot.R:136:3',
+  'test-effect-plot.R:184:1', 'test-effect-plot.R:189:1',
+  'test-effect-plot.R:194:1', 'test-effect-plot.R:201:1',
+  'test-effect-plot.R:210:1', 'test-effect-plot.R:223:1',
+  'test-effect-plot.R:232:1', 'test-export-summs.R:173:1',
+  'test-export-summs.R:178:1', 'test-export-summs.R:183:1',
+  'test-export-summs.R:188:1', 'test-export-summs.R:193:1',
+  'test-export-summs.R:200:3', 'test-export-summs.R:205:3',
+  'test-export-summs.R:212:3', 'test-export-summs.R:217:3',
+  'test-export-summs.R:223:1', 'test-export-summs.R:229:1',
+  'test-export-summs.R:234:1', 'test-export-summs.R:242:1',
+  'test-export-summs.R:247:1', 'test-export-summs.R:253:1',
+  'test-export-summs.R:258:1', 'test-export-summs.R:263:1',
+  'test-export-summs.R:274:1'
+• empty test (1):
+
+[ FAIL 0 | WARN 1 | SKIP 34 | PASS 311 ]
+> 
+> proc.time()
+   user  system elapsed 
+ 41.831   0.261  23.088 

@@ -23,3 +23,5 @@
 ^JSS\-Draft$
 ^JSS\-Draft\.md$
 ^.*\.Rcheck$
+^release$
+^Rplots\.pdf$

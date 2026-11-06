@@ -1,0 +1,166 @@
+Release preparation: 2026-11-05
+No project commits, pushes, tags, release publication, or CRAN submission.
+Hosted test uploads approved by the maintainer on 2026-11-05.
+
+Candidates
+  jtools 2.3.2: maintenance-only candidate; unrelated glmmTMB work excluded.
+    Recreate with: Rscript release/prepare-jtools.R /new/empty/directory
+    The patch is based on jtools commit 169f0bbd2de74ce83557d55e45ae74f461e93750.
+    Do not release the full dirty JacobTools working tree as this candidate.
+  panelr 1.1.0: current working tree.
+  interactions 1.3.0: current sibling working tree.
+
+Local evidence
+  Root: /private/tmp/panel-release-20261105
+  Durable check logs and matrix results: release/evidence
+  Sources: sources/{jtools,panelr,interactions}
+  Candidate libraries: lib-{jtools,panelr,interactions}
+  Released versions: jtools 2.3.1, panelr 1.0.1, interactions 1.2.0.
+  Current dependencies: lib-current; old lme4: lib-old-lme4.
+  Six upgrade combinations pass with each of lme4 1.1-38 and 2.1-0.
+  Released panelr fitting is skipped under lme4 2.1-0 because of its known
+    incompatibility. Old-panelr upgrade guards are tested with lme4 1.1-38.
+  Ordinary lm workflows run without loading panelr. A clean R library with
+    panelr physically absent passes plotting, slopes, and J-N checks using
+    interactions 1.3.0 and jtools 2.3.2.
+  New panelr plus old interactions supports legacy original-scale plotting;
+    corrected slopes/J-N inference requires interactions 1.3.0.
+    Old sim_slopes fails with both released and candidate panelr.
+  Released interactions' numerical suite passes with candidate jtools:
+    53 assertions, no failures or warnings, 54 visual tests skipped.
+  The original candidates passed local --as-cran checks with vignettes/PDF manuals.
+    Packaged test assertions: jtools 322, panelr 785, interactions 360.
+    No test failures; jtools retains one ggplot2 deprecation warning.
+    Logs: checks/PACKAGE/PACKAGE.Rcheck/00check.log
+    Remote incoming checks are disabled; optional dependencies are not forced.
+    HTML Tidy is too old for HTML validation; V8 is now installed in isolation.
+    --as-cran excludes Enhances libraries, so its interactions run skips the
+    optional panelr integration tests. A separate installed-package run uses
+    all three candidates: 394 passing assertions, no failures or warnings,
+    54 visual skips. Source loading is not used in that supplemental run.
+  Paired legacy visual review under identical dependencies and seeds:
+    jtools: all 74 SVGs byte-identical between baseline and candidate.
+    interactions: 64 of 67 byte-identical; three differ only in invisible SVG
+    elements and render pixel-identically at 960 x 768. No visible regressions.
+    Reviewed and refreshed 2 jtools and 67 interactions dependency-era
+    snapshots; every replacement matched the paired candidate render.
+  Full visual suites now pass: jtools 402 assertions; interactions 463.
+    No failures/errors/skips. Jtools retains the existing fatten deprecation.
+  New panel plots reviewed: cross-level, within-person, original-scale,
+    standardized, slopes, and J-N. Slope/J-N captions shortened while keeping
+    response/link scale, zero/reference meaning, and inference qualifications.
+  Downstream baseline/candidate package checks:
+    dpm 1.3.0, bruceR 2026.1, webSDM 1.1-5: 0 errors/warnings/notes in both.
+    autostats 0.4.2: same two xgboost-related errors and one NOTE in both.
+    Released panelr 1.0.1: same three lme4-related errors in both; these are
+      not failures of candidate panelr 1.1.0.
+    Released interactions 1.2.0: 0 errors/warnings and one unused-import NOTE
+      in both. No new downstream error categories in any of the six checks.
+    Reverse checks run examples, tests, and vignette R code, but skip PDF
+      manuals and vignette rebuilding. This is not exhaustive reverse checking.
+  Targeted older-dependency checks pass with ggplot2 3.4.4, reformulas 0.4.2,
+    lme4 1.1-38, cowplot 1.1.3: jtools 80, panelr 324, interactions 336
+    assertions; no failures/errors/warnings/skips. Other dependencies current.
+    Exact ggplot2 3.4.0 could not install on R 4.5.1 due to its own numeric
+    version comparisons; testing that floor still requires an older R.
+  Maintenance patch reproduces the reviewed jtools files from the pinned base;
+    unrelated glmmTMB additions remain excluded. Regular R libraries unchanged.
+
+Final audit checks (after the small jtools fixes)
+  All three incoming-enabled --as-cran checks include vignettes and PDF manuals
+    and pass with zero errors and zero warnings. Jtools has two NOTEs (the
+    verified Stack Overflow HTTP 403 and local HTML Tidy); panelr/interactions
+    each have only the HTML Tidy NOTE. Their incoming feasibility checks pass.
+  Packaged assertions: jtools 329, panelr 785, interactions 360. The existing
+    jtools fatten test warning remains; there are no test failures.
+  Installed integration with the corrected jtools candidate: 394 assertions,
+    zero failures/errors/warnings, 54 visual skips. The older stack passes
+    80/324/336 assertions for jtools/panelr/interactions respectively.
+  Final tarballs contain no release tooling, stale submission receipt, generated
+    plot PDFs, or test-only Remotes. The jtools archive excludes glmmTMB additions.
+  Archive hashes/results: release/evidence/final/checks.tsv.
+  Proposed file scope/base revisions/hashes: release/evidence/commit-scope.tsv.
+  Release review and remaining gates: release/AUDIT.
+
+Hosted testing (uploads accepted 2026-11-05)
+  R-hub runs: jtools on Linux R-release, Linux clang R-devel, Windows R-devel;
+    panelr/interactions also include Windows R-release. Eleven platform jobs.
+  Windows Builder: original release archives uploaded in dependency order
+    (jtools, panelr, interactions) to both R-release and R-devel. Results are
+    emailed to the package maintainer; acceptance does not mean checks passed.
+  Windows Builder panelr R-devel report BJflowhx1cY8 is verified and archived:
+    Status: OK; CRAN incoming feasibility, installation, examples, tests,
+    vignette rebuilding, and PDF/HTML manuals all pass. No errors/warnings/notes.
+    Test suite: 706 passing assertions, 10 optional new-interactions skips.
+    Report: https://win-builder.r-project.org/BJflowhx1cY8/00check.log
+  R-hub's jtools Windows R-devel and Linux R-release/R-devel checks completed with Status: OK
+    (0 errors, warnings, or notes). It reports an informational scale_lm
+    usage-documentation message. Its check/test logs are saved locally.
+  R-hub's panelr Windows and Linux R-release (R 4.6.2) and R-devel checks all
+    completed with Status: OK (0 errors, warnings, or notes). Each suite has
+    706 passing assertions and 10 conditional skips: those require the new
+    interactions integration, which is being checked separately with pinned
+    candidate dependencies. Check/test logs are saved.
+  R-hub's interactions Windows and Linux R-release/R-devel integration checks pass:
+    Status: OK; 396 assertions, no failures or warnings, 54 visual/optional
+    Bayesian-package skips. There are no skipped panelr integration tests.
+    Rd cross-reference INFO only: quantreg is unavailable on those runners.
+  All eleven platform jobs pass. Outcomes are recorded in
+    release/evidence/hosted/rhub-jobs.tsv; each package has a status JSON with
+    its run URL. Check/test logs for every platform are archived locally.
+  R-hub's interactions archive has test-only DESCRIPTION changes: pinned
+    jtools/panelr snapshot Remotes, and panelr moved from Enhances to Suggests
+    so --as-cran exercises integration tests. All 121 other files are identical.
+    The test archive passes local --as-cran checks (no manual): Status OK,
+    394 assertions, no failures or warnings, 54 visual skips.
+    Do not submit this test-only archive to CRAN. The release archive and
+    project DESCRIPTION files remain unchanged. Metadata/hash audit is saved.
+  Uploaded jtools/panelr snapshots were downloaded and verified against the
+    release archives: all 182/135 source files respectively are byte-identical.
+  No commits or pushes were made to the user's repositories. R-hub creates
+    public service-owned snapshot repositories as part of its upload process.
+
+Re-run commands (from panelr)
+  Rscript release/check-compatibility.R /private/tmp/panel-release-20261105 old
+  Rscript release/check-compatibility.R /private/tmp/panel-release-20261105 current
+  Rscript release/check-candidate.R /private/tmp/panel-release-20261105 PACKAGE check
+  Rscript release/check-candidate.R /private/tmp/panel-release-20261105 PACKAGE visual
+  Rscript release/check-installed-integration.R /private/tmp/panel-release-20261105
+  Rscript release/check-without-panelr.R /private/tmp/panel-release-20261105
+  Rscript release/check-older-dependencies.R /private/tmp/panel-release-20261105
+  Rscript release/check-reverse.R /private/tmp/panel-release-20261105 PACKAGE baseline
+  Rscript release/check-reverse.R /private/tmp/panel-release-20261105 PACKAGE candidate
+  Rscript release/record-evidence.R /private/tmp/panel-release-20261105
+  Rscript release/refresh-hosted.R
+  Rscript release/check-urls.R /private/tmp/panel-release-20261105
+  Rscript release/check-incoming.R /private/tmp/panel-release-20261105 PACKAGE
+  Rscript release/record-final.R /private/tmp/panel-release-20261105
+  Rscript release/record-scope.R /private/tmp/panel-release-20261105
+
+Remaining release gates
+  Collect the five remaining Windows Builder reports (supplemental to the
+    completed R-hub matrix). Panelr's Windows Builder R-devel report passes.
+  Exact ggplot2 3.4.0 and old-R checks remain unverified; the targeted older
+    stack above is not an all-dependencies-at-their-minimum check.
+  Finalize submission comments after hosted checks, review diffs, commit approved scope, and
+    build final tarballs from the reviewed commits before tagging/submitting.
+  After the hosted passes, the final audit fixed a pre-existing jtools formula
+    helper failure caused by an undefined debug flag, added seven regression
+    assertions and Formula as a test-only Suggests dependency, and documented
+    scale_lm usage. A fresh hosted check of the exact final jtools archive is
+    still needed; do not attribute the earlier hosted passes to these changes.
+  Release notes and submission comments have also been clarified. No panelr
+    or interactions executable code changed during this audit.
+  URL checks found only HTTP 403 access refusals. Crossref and the official
+    Stack Exchange API confirm the referenced DOI records/question and answer.
+    See release/evidence/urls; retain those references and explain the NOTEs.
+  Final incoming-enabled local checks are in release/evidence/final; their
+    tarballs are separate from the archived, uploaded candidates.
+  Commits, pushes, tags, and CRAN submissions still require approval.
+
+Release sequence
+  jtools, panelr, interactions; wait for dependencies to become available.
+  panelr can precede jtools if needed: it still accepts jtools >= 2.3.1.
+  November 9: decide whether full panelr release can meet November 14 deadline.
+  If not, prepare a separate minimal panelr 1.0.2 compatibility release.
+  Do not respond to GitHub issues as part of this work.

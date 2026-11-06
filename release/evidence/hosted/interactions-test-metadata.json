@@ -1,0 +1,20 @@
+{
+  "release_archive": "/private/tmp/panel-release-20261105/checks/interactions/interactions_1.3.0.tar.gz",
+  "test_archive": "/private/tmp/panel-release-20261105/hosted/integration-911232598c23/interactions_1.3.0.tar.gz",
+  "release_sha256": "0413ff25dbf91d770c82337ab19158eb54806f7485148af3ff9cc8e2f58486f7",
+  "test_sha256": "ea65f6300a64afe97032568baf15a90b9b603b03fac0c208323ebb05eb79de08",
+  "changed_files": "DESCRIPTION",
+  "unchanged_files": 121,
+  "remotes": ["jtools=github::r-hub2/uncivilised-lowkey-gnatcatcher-jtools@855d54c1307d669b841e34aa8dbc186c317d2b37", "panelr=github::r-hub2/uncivilised-lowkey-gnatcatcher-panelr@b4ff47579bbd1523411290c5098cdc5201659af3"],
+  "original_metadata": {
+    "Imports": "ggplot2 (>= 3.4.0), cli, generics, broom, jtools (>= 2.3.2),\n        rlang (>= 0.3.0), tibble",
+    "Suggests": "cowplot, broom.mixed, glue, huxtable (>= 3.0.0), lme4,\n        margins, sandwich, survey, knitr, rmarkdown, testthat, vdiffr",
+    "Enhances": "panelr (>= 1.1.0), brms, rstanarm"
+  },
+  "test_metadata": {
+    "Imports": "ggplot2 (>= 3.4.0), cli, generics, broom, jtools (>= 2.3.2),\n        rlang (>= 0.3.0), tibble",
+    "Suggests": "\n    cowplot,\n    broom.mixed,\n    glue,\n    huxtable (>= 3.0.0),\n    lme4,\n    margins,\n    sandwich,\n    survey,\n    knitr,\n    rmarkdown,\n    testthat,\n    vdiffr,\n    panelr (>= 1.1.0)",
+    "Enhances": "\n    brms,\n    rstanarm",
+    "Remotes": "jtools=github::r-hub2/uncivilised-lowkey-gnatcatcher-jtools@855d54c1307d669b841e34aa8dbc186c317d2b37,\n    panelr=github::r-hub2/uncivilised-lowkey-gnatcatcher-panelr@b4ff47579bbd1523411290c5098cdc5201659af3"
+  }
+}

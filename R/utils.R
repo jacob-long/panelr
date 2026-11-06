@@ -36,13 +36,30 @@ make_names <- function(names, int = FALSE) {
 #' @importFrom lme4 isLMM
 #' @importFrom methods as
 
+# S4 coercion drops non-slot attributes, including lme4's covariance metadata.
+as_merMod_class <- function(object, Class) {
+  out <- as(object, Class)
+  extra_attributes <- setdiff(names(attributes(object)),
+                              c(methods::slotNames(object), "class"))
+  for (name in extra_attributes) {
+    attr(out, name) <- attr(object, name, exact = TRUE)
+  }
+  out
+}
+
 to_merMod <- function(x) {
+  stored_call <- if (inherits(x, "wbm")) x@call_info$merMod_call else NULL
   if (isLMM(x)) {
-    x <- as(x, "lmerMod")
+    x <- as_merMod_class(x, "lmerMod")
   } else {
-    x <- as(x, "glmerMod")
+    x <- as_merMod_class(x, "glmerMod")
   }
   x@frame <- as.data.frame(x@frame)
+  # Restore the standard column expected by lme4's saved terms object.
+  if (is.null(x@frame[["(weights)"]]) && !is.null(x@frame[[".weights"]])) {
+    x@frame[["(weights)"]] <- x@frame[[".weights"]]
+  }
+  if (!is.null(stored_call)) x@call <- stored_call
   return(x)
 }
 
@@ -60,40 +77,94 @@ getCall.wbm <- function(x, ...) {
 #'  and simulations from `wbm` models.
 #'
 #' @details
-#' For `wbm` models, `predict()` operates in two main modes:
+#' With no `newdata`, predictions use the fitted model's design matrix.
+#' `re.form = NA` or `~0` excludes random effects; the default includes them.
 #'
-#' * `raw = FALSE` (the default): `newdata` is treated as panel-style data. If it
-#'   is not already a [panel_data()] object, it is converted
-#'   using the `id` and `wave` variables from the original model. The within /
-#'   between decomposition and any detrending are recomputed for `newdata`
-#'   before passing the resulting design matrix to `lme4` via
-#'   [jtools::predict_merMod()] on the underlying `merMod` object.
-#' * `raw = TRUE`: `newdata` is expected to already be on the "model matrix"
-#'   scale used by the fitted `wbm` object, including internal columns such as
-#'   `imean(...)` and any processed interaction terms. In this case, panelr
-#'   does not recompute within / between pieces and simply forwards `newdata`
-#'   to [jtools::predict_merMod()].
+#' With `raw = FALSE`, supply panel histories containing the original predictor
+#' variables and the entity identifier. The outcome is not required unless it
+#' also occurs as a predictor (for example, a lagged outcome). Within-person
+#' means and detrending are calculated from the supplied histories, using the
+#' variable roles, factor coding, basis parameters, and scaling saved at fitting.
+#' Predictions are returned in the input row order. Include the wave variable
+#' for models with time effects, detrending, lags, or leads. Do not use a
+#' hypothetical plotting grid as a panel history: its means are arbitrary.
 #'
-#' When `newdata` is not `panel_data` and `raw = FALSE`, `predict.wbm()` will
-#' synthesize missing `id` or `wave` columns when possible in order to build a
-#' valid panel structure (for example, when `re.form = ~0`). Informational
-#' messages are emitted in these cases. For most within between use cases it is
-#' safer and more transparent to explicitly create a `panel_data` object with
-#' the desired `id` and `wave` variables before calling `predict()`.
+#' With `raw = TRUE`, supply prepared model-scale rows, including `imean(...)`
+#' and processed interaction columns. These columns are passed through unchanged.
+#' This argument is distinct from `interaction.style = "raw"` when fitting.
+#' For models fitted with an offset argument, prepared rows must include
+#' `.offset`; panel histories may instead contain the original offset variables.
 #'
-#' For models fit with `model = "within"`, predictions from `predict.wbm()`
-#' reflect the within specification, which is parameterized using centered
-#' within unit effects and any specified between components. As a consequence,
-#' `predict(wbm_obj)` for a within model is not in general identical to
-#' `predict(to_merMod(wbm_obj))` on the internal `lmerMod` / `glmerMod` object,
-#' even when using the same `re.form` argument, because the fixed effect
-#' structure differs. This is by design: `predict.wbm()` always works on the
-#' within between representation defined by the original `wbm()` call, while
-#' `to_merMod()` exposes the underlying mixed model fit directly.
+#' **Interaction plots**
+#'
+#' [interactions::interact_plot()] and [interactions::cat_plot()] use a separate
+#' hypothetical-grid path through [jtools::make_predictions()]. With an
+#' interactions version supporting `plot.scale`, the default `plot.scale = "within"`
+#' displays numeric within-person predictors as deviations from each person's
+#' observed mean, in original units even for standardized fits. Zero means at
+#' the person's mean. Default predictor ranges use estimation-sample deviations;
+#' numeric within-person moderators default to zero and plus/minus one pooled
+#' within-person SD (or their observed values when there are only two).
+#' Constant predictors/moderators retain their original units or categories.
+#' The outcome remains on its modeled response scale, not a within-person
+#' deviation. `outcome.scale = "link"` instead uses the model's link scale.
+#'
+#' Use `plot.scale = "original"` for raw predictor levels. Plot captions report
+#' reference person means, and values implying deviations outside the observed
+#' within-person range trigger warnings. These marginal range checks do not
+#' establish joint support or rule out other forms of extrapolation. User-supplied
+#' numeric predictor/moderator values and `at` use the selected display scale;
+#' `imean(...)` overrides always use original units. Custom labels are preserved.
+#' Plot `data` must be the original fitting data or a subset with panel
+#' identifiers; excluded estimation rows are dropped and subsets retain fitted
+#' person means. Use `at` for hypothetical values, not modified plotting data.
+#'
+#' Person means and interaction-product means are held at their observation-weighted averages
+#' over the estimation sample, while focal predictors vary. This describes
+#' conditional predictions, not population-average effects or forecasts for a
+#' particular entity. Use `at = list("imean(x)" = value)` (and, when needed,
+#' `"imean(x:z)"`) to set different reference means. Time-invariant moderators
+#' multiply the centered within-person term; their product means are not
+#' independently held fixed as those moderators change. For a within-varying factor,
+#' its reference means are the means of its indicator columns.
+#' Direct calls to `jtools::make_predictions()` (and older interactions versions
+#' without `plot.scale`) retain original-scale inputs. `plot.scale` is a plotting
+#' option, not an argument to `predict()` or an estimation option.
+#'
+#' Automatic plotting grids currently support scalar numeric/factor terms,
+#' including two- and three-way interactions. Scalar transformations such as
+#' `log(x)` require `plot.scale = "original"`; a deviation of `log(x)` is not
+#' a deviation of `x`. Detrended, lagged/lead, and
+#' basis-expansion models require complete panel histories for prediction or
+#' explicitly prepared rows via `make_predictions(..., new_data = ..., raw = TRUE)`.
+#' Partial residuals, custom plotting covariance estimates, and prediction
+#' intervals are not supported. Updated interactions versions provide S3
+#' methods for `sim_slopes()`, `johnson_neyman()`, and `probe_interaction()`.
+#' Numeric focal predictors use exact design-matrix contrasts, not refitting or
+#' recentering. Slopes share the plots' units and reference settings. Tests are
+#' fixed-effect and link-scale: residual-df t approximations for Gaussian mixed
+#' models, normal approximations for generalized models and GEE, with an explicit
+#' `df` override. They are not Satterthwaite/Kenward-Roger tests. Nonlinear/factor
+#' focal predictors, predictor-dependent offsets, rank-deficient fits, custom
+#' covariance estimates, response-scale derivatives for non-identity links,
+#' and FDR-adjusted Johnson-Neyman inference are not supported. These plotting
+#' and slope conventions do not change the fitted estimator.
+#' Models saved by older panelr versions must be refitted to use the new
+#' panel-history and automatic-grid paths; prepared-row predictions remain available.
+#'
+#' Analytic `se.fit` values describe fixed-effect uncertainty, conditional on
+#' the preprocessing/reference quantities; response-scale standard errors use
+#' the delta method. Plot bands are confidence intervals, not intervals for
+#' individual outcomes. `use.re.var = TRUE` is rejected because the previous
+#' variance-addition calculation did not yield valid prediction intervals.
 #'
 #' @param raw Is `newdata` a `merMod` model frame or `panel_data`? TRUE
 #'  indicates a `merMod`-style newdata, with all of the extra columns 
 #'  created by `wbm`. 
+#' @param se.fit Return a list containing predictions and fixed-effect standard
+#'   errors? With `boot = TRUE`, returns bootstrap draws in `fit` instead.
+#' @param use.re.var Unsupported; must be `FALSE`. Random-effect variance is not
+#'   added to fixed-effect standard errors.
 #' @importFrom stats predict na.pass
 #' @inheritParams jtools::predict_merMod
 #' @inheritParams lme4::simulate.merMod
@@ -101,7 +172,7 @@ getCall.wbm <- function(x, ...) {
 #' data("WageData")
 #' wages <- panel_data(WageData, id = id, wave = t)
 #' model <- wbm(lwage ~ lag(union) + wks, data = wages)
-#' # By default, assumes you're using the processed data for newdata
+#' # With no newdata, predictions use the fitted design.
 #' predict(model)
 #' @export
 #' @rdname predict.wbm 
@@ -109,6 +180,7 @@ predict.wbm <- function(object, newdata = NULL, se.fit = FALSE,
                         raw = FALSE, use.re.var = FALSE,
                         re.form = NULL, type = c("link", "response"), 
                         allow.new.levels = TRUE, na.action = na.pass, ...) {
+  type <- match.arg(type)
   
   # Need to re-process data when raw is FALSE
   if (!is.null(newdata) && raw == FALSE) {
@@ -125,196 +197,12 @@ predict.wbm <- function(object, newdata = NULL, se.fit = FALSE,
         object@call_info$meanvars)
   }
   
-  if (isLMM(object)) {
-    object <- as(object, "lmerMod")
-  } else {
-    object <- as(object, "glmerMod")
-  }
-
-  jtools::predict_merMod(object, newdata = newdata, se.fit = se.fit, 
+  predict_wb_mermod(object, newdata = newdata, se.fit = se.fit,
           re.form = re.form, type = type[1], use.re.var = use.re.var,
           allow.new.levels = allow.new.levels, na.action = na.action, ...)
   
 }
 
-process_nonraw_newdata <- function(object, newdata, re.form = NULL) {
-  # Determine if the object is an S4 wbm object or S3 wbgee object
-  if (inherits(object, "wbm")) {
-    # For wbm (S4 object)
-    orig_data <- object@orig_data
-    call_info <- object@call_info
-    formula_obj <- formula(object)
-  } else if (inherits(object, "wbgee")) {
-    # For wbgee (S3 object)
-    orig_data <- object$orig_data
-    call_info <- object$call_info
-    formula_obj <- formula(object)
-  } else {
-    stop("Unsupported model object type.")
-  }
-
-  # Extract id and wave variables from the model object
-  id <- get_id(orig_data)
-  wave <- get_wave(orig_data)
-  pf_allvars <- call_info$pf$allvars
-  
-  # Ensure newdata has the required variables
-  if (!is_panel(newdata)) {
-    # Track whether we synthesize id / wave so we can inform the user.
-    id_created <- FALSE
-    wave_created <- FALSE
-
-    if (inherits(object, "wbm")) {
-      # Need valid ID variable if using random effects
-      if (is.null(re.form) || to_char(re.form) != "~0") {
-        if (id %nin% names(newdata)) {
-          stop_wrap("newdata must contain the '", id, "' variable unless
-                    're.form' is set to ~0.")
-        }
-      } else if (id %nin% names(newdata)) {
-        # Otherwise ID can be anything, just need the column there for
-        # valid panel_data object. We create a synthetic id and inform the user.
-        newdata[[id]] <- 1
-        id_created <- TRUE
-      }
-      # Need user to provide wave if it's part of the model
-      if (wave %nin% names(newdata) & wave %in% pf_allvars) {
-        stop_wrap("newdata must contain the '", wave, "' variable unless
-                    re.form = ~0.")
-      } else if (wave %nin% names(newdata)) {
-        # Otherwise it can be anything; use a simple 1:nrow(newdata) sequence.
-        newdata[[wave]] <- 1:nrow(newdata)
-        wave_created <- TRUE
-      }
-    } else if (inherits(object, "wbgee")) {
-      if (id %nin% names(newdata)) {
-        stop_wrap("newdata must contain the '", id, "' variable.")
-      }
-      # Need user to provide wave if it's part of the model
-      if (wave %nin% names(newdata) & wave %in% pf_allvars) {
-        stop_wrap("newdata must contain the '", wave, "' variable.")
-      } else if (wave %nin% names(newdata)) {
-        # Otherwise it can be anything; use a simple 1:nrow(newdata) sequence.
-        newdata[[wave]] <- 1:nrow(newdata)
-        wave_created <- TRUE
-      }
-    }
-    
-    # Coerce newdata to panel_data
-    newdata <- panel_data(newdata, id = !!sym(id), wave = !!sym(wave))
-
-    # If we had to synthesize id and/or wave, emit an informational message.
-    if (inherits(object, "wbm") && (id_created || wave_created)) {
-      synth_msg <- "newdata was not a panel_data object and is being converted for prediction. "
-      if (id_created) {
-        synth_msg <- paste0(
-          synth_msg,
-          "A synthetic '", id,
-          "' column with value 1 was created because it was not supplied and re.form = ~0. "
-        )
-      }
-      if (wave_created) {
-        synth_msg <- paste0(
-          synth_msg,
-          "A synthetic '", wave,
-          "' sequence 1:nrow(newdata) was created because it was not supplied. "
-        )
-      }
-      synth_msg <- paste0(
-        synth_msg,
-        "For most within-between use cases, it is safer to supply a panel_data object explicitly via panel_data(newdata, id = ..., wave = ...)."
-      )
-      msg_wrap(synth_msg)
-    }
-  }
-
-  # Warn if user appears to be passing preprocessed mean variables while using raw = FALSE.
-  meanvars <- call_info$meanvars
-  if (!is.null(meanvars)) {
-    overlap_meanvars <- intersect(meanvars, names(newdata))
-    if (length(overlap_meanvars) > 0) {
-      msg_wrap(paste0(
-        "newdata contains internal mean variables used by wbm (e.g., ",
-        paste(overlap_meanvars, collapse = ", "),
-        "). With raw = FALSE these variables are recomputed based on newdata. ",
-        "If you intend to pass model-matrix-style data that already includes these columns, ",
-        "consider using predict(..., raw = TRUE)."
-      ))
-    }
-  }
-  
-  # Get the formula and dv from the model
-  dv <- call_info$dv
-  # Parse the formula using wb_formula_parser()
-  pf <- wb_formula_parser(formula_obj, dv, newdata, force.constants = FALSE)
-  newdata <- pf$data
-  
-  # Use model_frame to do variable transformations
-  mf_form <- call_info$mf_form
-  newdata <- model_frame(mf_form, newdata)
-  
-  # Process interactions and other transformations using wb_model()
-  interaction.style <- call_info$interaction.style
-  wb_model_result <- wb_model(
-    model = call_info$model,
-    pf = pf,
-    dv = dv,
-    data = newdata,
-    detrend = call_info$detrend,
-    demean.ints = interaction.style == "double-demean",
-    old.ints = interaction.style == "demean"
-  )
-  newdata <- wb_model_result$data
-  
-  # Handle detrending if applicable
-  if (call_info$detrend == TRUE) {
-    newdata <- detrend(
-      data = newdata,
-      pf = pf,
-      dt_order = call_info$dt_order,
-      balance_correction = call_info$balance_correction,
-      dt_random = call_info$dt_random
-    )
-  }
-  
-  return(newdata)
-}
-
-process_raw_newdata <- function(object, newdata) {
-  # Determine if the object is an S4 wbm object or S3 wbgee object
-  if (inherits(object, "wbm")) {
-    # For wbm (S4 object)
-    frame <- object@frame
-    call_info <- object@call_info
-  } else if (inherits(object, "wbgee")) {
-    # For wbgee (S3 object)
-    frame <- object$frame
-    call_info <- object$call_info
-  } else {
-    stop("Unsupported model object type.")
-  }
-
-  ints <- call_info$interactions
-  if (!is.null(ints)) {
-    # Adjust interaction terms for processing
-    ints <- gsub(":", "*", ints)
-    ints <- gsub("(^.*)(?=\\*)", "`\\1`", ints, perl = TRUE)
-    ints <- gsub("(?<=\\*)(.*$)", "`\\1`", ints, perl = TRUE)
-    
-    # Determine if double-demeaning interactions is necessary
-    interaction.style <- call_info$interaction.style
-    model_type <- call_info$model
-    demean <- interaction.style == "double-demean"
-    if (model_type %in% c("between", "contextual", "random")) {
-      demean <- FALSE
-    }
-    
-    # Process interactions
-    p <- process_interactions(ints, data = newdata, demean.ints = demean)
-    newdata <- p$data
-  }
-  return(newdata)
-}
 
 #' @title Predictions and simulations from within-between GEE models
 #' @description These methods facilitate fairly straightforward predictions
@@ -322,6 +210,9 @@ process_raw_newdata <- function(object, newdata) {
 #' @param raw Is `newdata` a `geeglm` model frame or `panel_data`? TRUE
 #'  indicates a `geeglm`-style newdata, with all of the extra columns 
 #'  created by `wbgee`. 
+#' @details Panel histories and prepared rows follow the same conventions as
+#'   [predict.wbm()]. Interaction plotting uses fixed estimation-sample reference
+#'   means and the fitted GEE covariance matrix for confidence intervals.
 #' @importFrom stats predict na.pass
 #' @inheritParams stats::predict.lm
 #' @examples 
@@ -335,69 +226,6 @@ process_raw_newdata <- function(object, newdata) {
 #' @export
 #' @rdname predict.wbgee
 
-# predict.wbgee <- function(object, newdata = NULL, se.fit = FALSE,
-#                           raw = FALSE, type = c("link", "response"), ...) {
-  
-#   if (!is.null(newdata) & raw == FALSE) {
-#     if (!is_panel(newdata)) {
-#       id <- get_id(object$orig_data)
-#       wave <- get_wave(object$orig_data)
-#       if (id %nin% names(newdata)) {
-#         # otherwise ID can be anything, just need the column there for 
-#         # valid panel_data object
-#         newdata[[id]] <- 1
-#       }
-#       # Need user to provide wave if it's part of the model
-#       if ((wave %nin% names(newdata) & wave %in% object$call_info$pf$allvars)) {
-#         stop_wrap("newdata must contain the ", wave, " variable.")
-#       } else if (wave %nin% names(newdata)) {
-#         # Otherwise it can be anything
-#         newdata[[wave]] <- 1:nrow(newdata)
-#       }
-      
-#       newdata <- panel_data(newdata, id = !! sym(id), wave = !! sym(wave))
-#     }
-    
-#     # Get the formula originally used to pass to model_frame
-#     mf_form <- object$call_info$mf_form
-#     dv <- object$call_info$dv
-#     pf <- wb_formula_parser(formula(object), dv, newdata, force.constants = FALSE)
-#     newdata <- pf$data
-#     # Use model_frame to do variable transformations
-#     newdata <- model_frame(mf_form, newdata)
-    
-#     interaction.style <- object$call_info$interaction.style
-#     newdata <- wb_model(object$call_info$model, pf, dv, newdata,
-#                         object$call_info$detrend, 
-#                         demean.ints = interaction.style == "double-demean",
-#                         old.ints = interaction.style == "demean")$data
-#     if (object$call_info$detrend == TRUE) {
-#       dto <- detrend(newdata, pf, object$call_info$dt_order,
-#                      object$call_info$balance_correction,
-#                      object$call_info$dt_random)
-#       newdata <- dto
-#     }
-#   }
-  
-#   if (raw == TRUE & !is.null(newdata)) {
-#     ints <- attr(object$frame, "interactions")
-#     if (!is.null(ints)) {
-#       ints <- gsub(":", "*", ints)
-#       ints <- gsub("(^.*)(?=\\*)", "`\\1`", ints, perl = TRUE)
-#       ints <- gsub("(?<=\\*)(.*$)", "`\\1`", ints, perl = TRUE)
-#       demean <- attr(object$frame, "interaction.style") == "double-demean"
-#       if (object$call_info$model %in% c("between", "contextual", "random")) {
-#         demean <- FALSE
-#       }
-#       p <- process_interactions(ints, data = newdata, demean.ints = demean)
-#       newdata <- p$data
-#     }
-#   }
-  
-#   # class(object) <- c("geeglm", "gee", "glm", "lm")
-#   predict_gee(object, newdata = newdata, se.fit = se.fit, type = type[1], ...)
-  
-# }
 
 predict.wbgee <- function(object, newdata = NULL, type = c("link", "response"),
                           se.fit = FALSE, raw = FALSE, ...) {
@@ -419,7 +247,7 @@ predict.wbgee <- function(object, newdata = NULL, type = c("link", "response"),
     }
   } else {
     # If newdata is NULL, use the model's original data
-    newdata <- model.frame(object)
+    newdata <- object$frame
   }
 
   # Use predict_gee to obtain predictions (and standard errors if se.fit = TRUE)
@@ -443,21 +271,9 @@ simulate.wbm <- function(object, nsim = 1, seed = NULL, use.u = FALSE,
                          type = c("link", "response"),
                          allow.new.levels = FALSE, na.action = na.pass, ...) {
   
-  if (!is.null(newdata) & raw == FALSE) {
-    mf_form <- object@call_info$mf_form
-    pf <- object@call_info$pf
-    newdata <- model_frame(mf_form, newdata)
-    dv <- object@call_info$dv
-    
-    if (object@call_info$detrend == TRUE) {
-      dto <- detrend(newdata, pf, object@call_info$dt_order,
-                     object@call_info$balance_correction,
-                     object@call_info$dt_random)
-      newdata <- dto
-    }
-
-    newdata <- wb_model(object@call_info$model, pf, dv, newdata,
-                        object@call_info$detrend)$data
+  if (!is.null(newdata)) {
+    newdata <- if (raw) process_raw_newdata(object, newdata) else
+      process_nonraw_newdata(object, newdata, re.form)
   }
   
   if (is.null(attr(attr(object@frame, "terms"), "varnames.fixed"))) {
@@ -466,9 +282,9 @@ simulate.wbm <- function(object, nsim = 1, seed = NULL, use.u = FALSE,
         object@call_info$meanvars)
   }
 
-  object <- to_merMod(object)
+  object <- wb_prediction_backend(object, newdata)
   
-  if (!is.na(re.form)) {
+  if (!identical(re.form, NA)) {
     ## unused terms and type arguments throw warning
     simulate(object, nsim = nsim, seed = seed,
              newdata = newdata, newparams = newparams, re.form = re.form,
@@ -541,8 +357,10 @@ npar.wbm <- function(object) {
 
 formula.wbm <- function(x, raw = FALSE, ...) {
   if (raw == TRUE) {
-    return(x@call_info$merMod_call$formula)
+    return(attr(x@frame, "formula"))
   } else {
+    if (!is.null(x@call_info$prediction$formula)) return(x@call_info$prediction$formula)
+    if (!is.null(x@call_info$pf$raw_formula)) return(x@call_info$pf$raw_formula)
     return(Formula::Formula(as.formula(getCall(x)$formula)))
   }
 }
@@ -553,6 +371,8 @@ formula.wbgee <- function(x, raw = FALSE, ...) {
   if (raw == TRUE) {
     return(x$formula)
   } else {
+    if (!is.null(x$call_info$prediction$formula)) return(x$call_info$prediction$formula)
+    if (!is.null(x$call_info$pf$raw_formula)) return(x$call_info$pf$raw_formula)
     return(Formula::Formula(as.formula(getCall(x)$formula)))
   }
 }
@@ -575,37 +395,40 @@ make_predictions.wbm <- function(model, pred, pred.values = NULL, at = NULL,
   outcome.scale = "response", re.form = ~0, add.re.variance = FALSE, 
   boot = FALSE, sims = 1000, progress = "txt", set.offset = NULL, 
   new_data = NULL, return.orig.data = FALSE, partial.residuals = FALSE, 
-  message = TRUE, raw = TRUE, ...) {
+  message = TRUE, raw = FALSE, robust = FALSE, cluster = NULL, vcov = NULL, ...) {
+
+  if (!identical(robust, FALSE) || !is.null(cluster) || !is.null(vcov)) {
+    stop_wrap("Custom/robust covariance estimates are not supported by wbm prediction grids.")
+  }
+  if (match.arg(int.type) != "confidence") stop_wrap("Only confidence intervals are supported.")
+  if (partial.residuals) stop_wrap("Partial residuals are not supported for wbm prediction grids.")
 
   # Check if user provided own new_data
   if (is.null(new_data)) {
-    meanvars <- model@call_info$meanvars
-    if (!is.null(meanvars)) {
-      meanvarlist <- lapply(data[meanvars], mean, na.rm = TRUE)
-      at <- c(at, meanvarlist)
-    }
+    data <- wb_grid_data(model, data)
     # Get the data ready with make_new_data()
     pm <- jtools::make_new_data(model, pred, pred.values = pred.values, at = at, 
                         data = data, center = center, set.offset = set.offset)
   } else {pm <- new_data}
+
+  prediction_data <- prepare_wb_plot_grid(model, pm, raw)
 
   resp <- jtools::get_response_name(model)
   link_or_lm <- ifelse(family(model)$link == "identity",
                        yes = "response", no = "link")
   
   if (interval == TRUE && boot == FALSE && message == TRUE) {
-    msg_wrap("Confidence intervals for wbm models is an experimental
-              feature. The intervals reflect only the variance of the
-              fixed effects, not the random effects.")
+    msg_wrap("Confidence intervals reflect fixed-effect uncertainty only,
+              conditional on the reference means; they are not prediction intervals.")
   }
   
   # Do the predictions using built-in prediction method if robust is FALSE
   if (interval == FALSE && is.null(model.offset(model.frame(model)))) {
-    predicted <- as.data.frame(predict(model, newdata = pm,
+    predicted <- as.data.frame(predict(model, newdata = prediction_data,
                                        type = link_or_lm,
                                        re.form = re.form,
                                        allow.new.levels = FALSE,
-                                       raw = raw))
+                                       raw = TRUE))
     
     pm[[get_response_name(model)]] <- predicted[[1]]
     
@@ -614,14 +437,14 @@ make_predictions.wbm <- function(model, pred, pred.values = NULL, at = NULL,
     if (interactive() & boot == TRUE & progress != "none") {
       cat("Bootstrap progress:\n")
     }
-    predicted <- predict(model, newdata = pm, use.re.var = add.re.variance,
+    predicted <- predict(model, newdata = prediction_data, use.re.var = add.re.variance,
                          se.fit = TRUE, allow.new.levels = TRUE, 
                          type = link_or_lm, re.form = re.form,
                          boot = boot, sims = sims, prog.arg = progress, 
-                         raw = raw, ...)
+                         raw = TRUE, ...)
     
     if (boot == TRUE) {
-      raw_boot <- predicted
+      raw_boot <- predicted$fit
       
       ## Convert the confidence percentile to a number of S.E. to multiply by
       intw <- 1 - ((1 - int.width) / 2)
@@ -642,7 +465,7 @@ make_predictions.wbm <- function(model, pred, pred.values = NULL, at = NULL,
       intw <- 1 - ((1 - int.width)/2)
       ## Try to get the residual degrees of freedom to get the critical value
       r.df <- try({
-        df.residual(model)
+        if (isLMM(model)) df.residual(model) else Inf
       }, silent = TRUE)
       if (is.numeric(r.df)) {
         ses <- qt(intw, r.df)
@@ -698,18 +521,11 @@ make_predictions.wbm <- function(model, pred, pred.values = NULL, at = NULL,
 partialize.wbm <- function(model, vars = NULL, data = NULL, at = NULL,
                           center = TRUE, scale = c("response", "link"),
                           set.offset = 1, ...) {
-  # Get the original data if new data are not provided
-  if (is.null(data)) {
-    data <- model@frame
-  }
-  if (isLMM(model)) {
-    model <- as(model, "lmerMod")
-  } else {
-    model <- as(model, "glmerMod")
-  }
-  partialize(model, vars = vars, data = data, at = at, 
-             center = center, scale = scale, set.offset = set.offset, ...)
+  stop_wrap("Partial residuals are not supported for within-between prediction grids.")
 }
+
+#' @export
+partialize.wbgee <- partialize.wbm
 
 #' @importFrom jtools make_predictions
 #' @export
@@ -718,24 +534,37 @@ make_predictions.wbgee <- function(model, pred, pred.values = NULL, at = NULL,
   int.type = c("confidence", "prediction"), int.width = .95, 
   outcome.scale = "response", set.offset = NULL, 
   new_data = NULL, return.orig.data = FALSE, partial.residuals = FALSE,
-  message = TRUE, raw = TRUE, ...) {
+  message = TRUE, raw = FALSE, robust = FALSE, cluster = NULL, vcov = NULL, ...) {
+  if (!identical(robust, FALSE) || !is.null(cluster) || !is.null(vcov)) {
+    stop_wrap("Custom covariance estimates are not supported by wbgee prediction grids.")
+  }
+  if (match.arg(int.type) != "confidence") stop_wrap("Only confidence intervals are supported.")
+  if (partial.residuals) stop_wrap("Partial residuals are not supported for wbgee prediction grids.")
   
   # Check if user provided own new_data
   if (is.null(new_data)) {
+    data <- wb_grid_data(model, data)
     # Get the data ready with make_new_data()
     pm <- jtools::make_new_data(model, pred, pred.values = pred.values, at = at, 
                                 data = data, center = center,
                                 set.offset = set.offset)
   } else {pm <- new_data}
+
+  prediction_data <- prepare_wb_plot_grid(model, pm, raw)
   
   resp <- jtools::get_response_name(model)
   link_or_lm <- ifelse(family(model)$link == "identity",
                        yes = "response", no = "link")
 
-  predicted <- as.data.frame(predict(model, newdata = pm, type = link_or_lm,
-                                     raw = raw))
+  predicted <- predict(model, newdata = prediction_data, type = link_or_lm,
+                       se.fit = TRUE, raw = TRUE)
     
   pm[[get_response_name(model)]] <- predicted[[1]]
+  if (interval) {
+    critical <- qnorm(1 - (1 - int.width) / 2)
+    pm[["ymin"]] <- predicted$fit - critical * predicted$se.fit
+    pm[["ymax"]] <- predicted$fit + critical * predicted$se.fit
+  }
   
   
   # Back-convert the predictions to the response scale
@@ -816,19 +645,11 @@ two_sided <- function(x, ...) {
   if (inherits(x, "Formula")) {
     # Extract just the main formula part for wbgee
     x <- formula(x)
-    if (debug) {
-      cat("After Formula conversion:\n")
-      print(x)
-    }
   }
   
   # Basic formula check
   if (inherits(x, "formula")) {
     result <- length(x) > 2
-    if (debug) {
-      cat("Formula length:", length(x), "\n")
-      cat("Returning:", result, "\n")
-    }
     return(result)
   }
   
@@ -848,12 +669,17 @@ two_sided <- function(x, ...) {
 
 #' @export
 get_formula.wblm <- function(model, ...) {
-  formula(formula(model))
+  get_formula.wbm(model, ...)
+}
+
+#' @export
+get_formula.wbm <- function(model, ...) {
+  reformulas::nobars(formula(formula(model), collapse = TRUE))
 }
 
 #' @export
 get_formula.wbgee <- function(model, ...) {
-  stats::formula(formula(model))
+  reformulas::nobars(formula(formula(model), collapse = TRUE))
 }
 
 need_package <- function(x) {

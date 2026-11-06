@@ -1,0 +1,68 @@
+
+R version 4.6.2 (2026-10-29) -- "Diversified Portfolio"
+Copyright (C) 2026 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(testthat)
+> library(vdiffr)
+> library(interactions)
+> 
+> test_check("interactions")
+✖ Detected factor predictor.
+ℹ Plotting with cat_plot() instead.
+ℹ See `?interactions::cat_plot()` for full details on how to specify models
+  with categorical predictors.
+ℹ If you experience errors or unexpected results, try using cat_plot()
+  directly.
+`geom_smooth()` using formula = 'y ~ x'
+`geom_smooth()` using formula = 'y ~ x'
+✖ Detected factor predictor.
+ℹ Plotting with cat_plot() instead.
+ℹ See `?interactions::cat_plot()` for full details on how to specify models
+  with categorical predictors.
+ℹ If you experience errors or unexpected results, try using cat_plot()
+  directly.
+[ FAIL 0 | WARN 0 | SKIP 54 | PASS 396 ]
+
+══ Skipped tests (54) ══════════════════════════════════════════════════════════
+• On CRAN (51): 'test_cat_plot.R:18:1', 'test_cat_plot.R:33:1',
+  'test_cat_plot.R:38:1', 'test_cat_plot.R:43:1', 'test_cat_plot.R:49:1',
+  'test_cat_plot.R:54:1', 'test_cat_plot.R:60:1', 'test_cat_plot.R:66:1',
+  'test_cat_plot.R:72:1', 'test_cat_plot.R:79:1', 'test_cat_plot.R:86:1',
+  'test_cat_plot.R:91:1', 'test_cat_plot.R:97:1', 'test_cat_plot.R:103:1',
+  'test_cat_plot.R:110:1', 'test_cat_plot.R:133:1', 'test_cat_plot.R:140:1',
+  'test_cat_plot.R:154:1', 'test_cat_plot.R:177:1', 'test_cat_plot.R:182:1',
+  'test_cat_plot.R:188:1', 'test_cat_plot.R:194:1', 'test_cat_plot.R:201:1',
+  'test_cat_plot.R:206:1', 'test_cat_plot.R:212:1', 'test_cat_plot.R:218:1',
+  'test_cat_plot.R:225:1', 'test_cat_plot.R:232:1', 'test_cat_plot.R:237:1',
+  'test_cat_plot.R:243:1', 'test_cat_plot.R:249:1', 'test_cat_plot.R:258:1',
+  'test_cat_plot.R:263:1', 'test_cat_plot.R:268:1', 'test_cat_plot.R:274:1',
+  'test_cat_plot.R:279:1', 'test_cat_plot.R:284:1', 'test_cat_plot.R:290:1',
+  'test_interact_plot.R:32:1', 'test_interact_plot.R:49:1',
+  'test_interact_plot.R:109:1', 'test_interact_plot.R:121:1',
+  'test_interact_plot.R:128:1', 'test_interact_plot.R:133:1',
+  'test_interact_plot.R:138:1', 'test_interact_plot.R:174:1',
+  'test_interact_plot.R:183:1', 'test_interact_plot.R:195:1',
+  'test_interact_plot.R:209:1', 'test_interact_plot.R:241:1',
+  'test_interact_plot.R:248:1'
+• {brms} is not installed (2): 'test_cat_plot.R:299:3',
+  'test_interact_plot.R:280:3'
+• {rstanarm} is not installed (1): 'test_interact_plot.R:297:3'
+
+[ FAIL 0 | WARN 0 | SKIP 54 | PASS 396 ]
+> 
+> proc.time()
+   user  system elapsed 
+145.671   0.591  77.269 

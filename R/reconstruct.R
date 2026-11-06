@@ -62,6 +62,25 @@ re_attribute <- function(new, old) {
 
 ##### dplyr ##################################################################
 
+#' @rawNamespace
+#' if (getRversion() >= "3.6.0") {
+#'   S3method(dplyr::dplyr_reconstruct, panel_data)
+#' } else {
+#'   export(dplyr_reconstruct.panel_data)
+#' }
+dplyr_reconstruct.panel_data <- function(data, template) {
+  id <- get_id(template)
+  wave <- get_wave(template)
+  if (!all(c(id, wave) %in% names(data))) {
+    return(tibble::as_tibble(data))
+  }
+  # dplyr calls this after row binding has attached source labels.
+  build_panel_data(data, id = id, wave = wave, validate_order = TRUE,
+                   reshaped = attr(template, "reshaped"),
+                   varying = attr(template, "varying"),
+                   constants = attr(template, "constants"))
+}
+
 #' @export
 #' @importFrom dplyr mutate
 mutate.panel_data <- function(.data, ...) {

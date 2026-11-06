@@ -4,6 +4,12 @@
 wb_formula_parser <- function(formula, dv, data, force.constants = TRUE) {
   # See how many parts the formula has
   conds <- length(formula)[2]
+  formula_vars <- all.vars(formula)
+  missing_vars <- formula_vars[formula_vars %nin% names(data)]
+  if (length(missing_vars) > 0) {
+    stop_wrap("The following variable", ifelse(length(missing_vars) == 1, " was", "s were"),
+              " not found in data: ", paste(missing_vars, collapse = ", "))
+  }
   
   # These are NULL unless user specifies random effects
   ranefs <- NULL
@@ -37,7 +43,7 @@ wb_formula_parser <- function(formula, dv, data, force.constants = TRUE) {
   }
 
   # Deal with non-numeric variables
-  if (any(!sapply(all.vars(formula), function(x) is.numeric(data[[x]])))) {
+  if (any(!sapply(formula_vars, function(x) is.numeric(data[[x]])))) {
     if (conds >= 3) {
       # Remove ranefs from formula for now
       attr(formula, "rhs")[[3]] <- reformulas::nobars(attr(formula, "rhs")[[3]])
@@ -434,7 +440,7 @@ detrend <- function(data, pf, dt_order, balance_correction, dt_random) {
         v_term <- paste(bt(un_bt(v)), "-", bt(un_bt(mean_var)))
         data <- dplyr::mutate(data, 
                               !! un_bt(mean_var) :=
-                                !! parse_expr(un_bt(mean_var)),
+                                imean(!!sym(un_bt(v))),
                               !! un_bt(v) := !! parse_expr(v_term))
       }
     }

@@ -41,6 +41,16 @@ A \code{panel_data} object.
 \description{
 Format your data for use with \pkg{panelr}.
 }
+\details{
+When the first input to \code{\link[dplyr:bind_rows]{dplyr::bind_rows()}} is a \code{panel_data} object,
+the result retains its panel identifiers and is sorted by entity and wave.
+Source labels requested with \code{.id} stay attached to their original rows.
+Direct vctrs operations preserve the requested row order; after reordering
+rows, call \code{panel_data()} again before computing lags or leads.
+
+\code{as_panel_data()} also accepts \code{\link[plm:pdata.frame]{plm::pdata.frame()}} objects. If their index
+columns have been removed, they are restored from the saved panel index.
+}
 \examples{
 data("WageData")
 wages <- panel_data(WageData, id = id, wave = t)

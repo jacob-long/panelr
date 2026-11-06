@@ -146,6 +146,7 @@ wb_prepare_data <- function(formula, data, id = NULL, wave = NULL,
       )
     }
     
+    warn_two_wave_double_demean(data, id, int_config, pf)
     # Send to helper that will demean, etc.
     e <- wb_model(model, pf, dv, data, detrend, demean.ints, old.ints,
                   int_config = int_config)
@@ -154,6 +155,7 @@ wb_prepare_data <- function(formula, data, id = NULL, wave = NULL,
       e$data <- detrend(e$data, pf, dt_order, balance_correction, dt_random)
     } 
     
+    grid_moments <- wb_grid_moments(pf, e$data, int_config)
     # Drop missing cases, collect some metadata 
     e$data <- complete_cases(e$data, min.waves = min.waves)
     num_distinct <- length(unique(e$data[[id]]))
@@ -177,7 +179,7 @@ wb_prepare_data <- function(formula, data, id = NULL, wave = NULL,
     list(e = e, num_distinct = num_distinct, maxwave = maxwave,
          minwave = minwave, weights = weights, offset = offset,
          pf = pf, id = id, wave = wave, dv = dv, orig_data = orig_data,
-         mf_form = mf_form)
+         mf_form = mf_form, grid_moments = grid_moments)
   
 }
 
@@ -206,7 +208,7 @@ make_wb_data <- function(formula, data, id = NULL, wave = NULL,
   interaction.style <- match.arg(interaction.style,
                                  c("double-demean", "demean", "raw"))
   d <- wb_prepare_data(formula = Formula::Formula(formula),
-                       data, id = id, wave = id,
+                       data, id = id, wave = wave,
                        model = model, detrend = detrend, use.wave = use.wave,
                        wave.factor = wave.factor, min.waves = min.waves,
                        balance_correction = balance.correction,
@@ -216,6 +218,30 @@ make_wb_data <- function(formula, data, id = NULL, wave = NULL,
                        old.ints = interaction.style == "demean")
   d$e$data
   
+}
+
+warn_two_wave_double_demean <- function(data, id, int_config, pf) {
+  # With two observations, an even number of centered varying predictors
+  # has the same product at both waves. Cross-level products need not do so.
+  ints <- c(pf$wint_labs, pf$cint_labs)
+  varying_counts <- vapply(ints, function(term) {
+    sum(all.vars(as.formula(paste("~", term))) %in% un_bt(pf$varying))
+  }, integer(1))
+  has_even_within <- any(varying_counts >= 2L & varying_counts %% 2L == 0L)
+  if (!has_even_within || !is_within_model(int_config) ||
+      int_config$style != "double-demean" || use_old_style_ints(int_config)) {
+    return(invisible(FALSE))
+  }
+  waves_per_id <- table(data[[id]])
+  if (nrow(data) > 0L && max(waves_per_id) <= 2) {
+    warn_wrap("Double-demeaned interactions involving an even number of
+              time-varying predictors have no within-entity variation with
+              at most two observations per entity. Consider
+              interaction.style = 'demean' if the conventional interaction
+              estimator matches your intended model.")
+    return(invisible(TRUE))
+  }
+  invisible(FALSE)
 }
 
 

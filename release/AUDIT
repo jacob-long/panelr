@@ -1,0 +1,75 @@
+Final release audit: 2026-11-05
+
+Scope and findings
+  Reviewed the prediction, plotting-grid, contrast-slope, Johnson-Neyman, and
+  ordinary-model refitting paths against their documented contracts and tests.
+  No additional numerical discrepancy was found in those reviewed paths.
+  This is a focused release audit, not a proof of every supported model case.
+
+  One pre-existing jtools defect was reproduced: two_sided(y ~ x) errored
+  because debugging code treated the base debug function as a logical flag.
+  Removed the debugging code, retained the original formula classification,
+  and added seven assertions for formulas, transformations, and Formula objects.
+  Formula is now a test-only Suggests dependency. The fix is in the working
+  JacobTools tree and the isolated 2.3.2 maintenance patch.
+
+  Added the missing usage entry for the scale_lm alias. Interactions release
+  notes now identify panelr >= 1.1.0 and jtools >= 2.3.2 explicitly.
+  No panelr or interactions executable code changed in this final audit.
+
+Interpretation contract
+  Panel histories and hypothetical plotting grids are separate prediction paths.
+  Default within-person axes and moderator values use deviations in original
+  predictor units, including standardized fits. The outcome is not demeaned.
+  Original-scale plots hold reference person/interaction means fixed and label
+  them. Slopes differentiate that same conditional fixed-effect prediction,
+  using the full fitted covariance, not a refit or recomputed panel history.
+  Non-identity links yield link-scale slopes; GEE uses its fitted covariance.
+  Gaussian mixed-model t tests use a stated residual-df approximation, not
+  Satterthwaite/Kenward-Roger. Unsupported cases error explicitly. Johnson-Neyman
+  intervals are pointwise. Documentation and tests make these limits explicit.
+
+Proposed commit boundaries
+  jtools: use release/jtools-2.3.2.patch on its pinned clean base, not the dirty
+    JacobTools tree. Exactly 15 maintenance files, including three regression
+    test files, two verified visual snapshots, documentation, and release metadata.
+    Unrelated glmmTMB work and its metadata changes remain excluded.
+  panelr: reviewed package source, manuals, vignette, regression tests, release
+    metadata, and release/ scripts/evidence. Exclude CRAN-SUBMISSION (the old
+    1.0.1 submission receipt) and Rplots.pdf. Both are also excluded from builds.
+  interactions: reviewed S3 plotting/slope methods, refit preservation, tests,
+    documentation, release metadata, and 67 verified visual snapshots.
+    Keep panelr in Enhances and omit all test-only Remotes metadata.
+  Exact paths and SHA-256 hashes: release/evidence/commit-scope.tsv.
+    Regenerate with Rscript release/record-scope.R ROOT after any source edit.
+    The manifest intentionally omits its own hash. It does not stage files.
+
+Evidence and remaining decisions
+  Final incoming-enabled local package checks: zero errors/warnings for all
+  three candidates, including rebuilt vignettes and PDF manuals. Jtools has
+  two NOTEs (verified Stack Overflow HTTP 403 and local HTML Tidy); panelr and
+  interactions each have only the HTML Tidy NOTE. Packaged test assertions:
+  329 / 785 / 360. Installed coordinated integration: 394 passing assertions.
+  The existing jtools fatten test warning remains, without a package-check
+  WARNING. Final archive hashes and results are in release/evidence/final.
+  All 11 R-hub platform jobs and panelr's Windows Builder R-devel check pass.
+  The jtools code/doc changes above postdate those hosted results: recheck the
+  exact final jtools archive on a hosted R-devel platform before submission.
+  Archive inspection also found a generated tests/testthat/Rplots.pdf in the
+  staged jtools sources. It was moved to the temporary audit logs, and the
+  cleaned archive was rebuilt and checked. No user source file was deleted.
+  Five Windows Builder reports are still outstanding in the local record.
+  URL verification found valid reference identifiers behind HTTP 403 responses;
+  see release/evidence/urls. Do not describe these as broken citations or as
+  unqualified clean incoming checks. Submission comments explain the findings.
+  The tested older stack is ggplot2 3.4.4, reformulas 0.4.2, lme4 1.1-38,
+  cowplot 1.1.3, with other dependencies current. Exact ggplot2 3.4.0 and old R
+  remain untested. No support-version policy was changed based on guesswork.
+
+Next step requiring approval
+  Review and approve the commit boundaries, then create clean release commits
+  and rebuild their tarballs. Do not tag or publish yet. Submit in dependency
+  order: jtools 2.3.2, panelr 1.1.0, interactions 1.3.0. Panelr may go first if
+  its November 14 deadline requires it, since it accepts jtools 2.3.1.
+  Commits, pushes, tags, publication, and CRAN submission require approval.
+  No GitHub issue replies have been posted. Regular R libraries are unchanged.
