@@ -1,0 +1,13 @@
+{
+  "package": "interactions",
+  "version": "1.3.0",
+  "service": "win-devel",
+  "archive": "/private/tmp/panel-release-20261105/checks/interactions/interactions_1.3.0.tar.gz",
+  "sha256": "0413ff25dbf91d770c82337ab19158eb54806f7485148af3ff9cc8e2f58486f7",
+  "test_only_metadata": false,
+  "started_utc": "2026-11-05 06:35:01 UTC",
+  "status": "accepted",
+  "url": "ftp://win-builder.r-project.org/R-devel/interactions_1.3.0.tar.gz",
+  "response_code": 226,
+  "finished_utc": "2026-11-05 06:35:05 UTC"
+}

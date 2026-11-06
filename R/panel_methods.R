@@ -31,12 +31,10 @@ summary.panel_data <- function(object, ..., by.wave = TRUE, by.id = FALSE, skim_
   
   vars <- lapply(vars, parse_expr)
   
-  if (!requireNamespace("skimr")) {
+  if (!summary_panel_data_has_skimr()) {
     msg_wrap("Get better summaries of panel_data frames by installing the 
              skimr package. Falling back to default summary.data.frame...")
-    return(summary.data.frame(suppressMessages({
-      object %>% select(!!! vars)
-    })))
+    return(summary_panel_data_fallback(object, vars))
   }
   
   id <- get_id(object)
@@ -61,6 +59,17 @@ summary.panel_data <- function(object, ..., by.wave = TRUE, by.id = FALSE, skim_
   class(out) <- c("summary.panel_data", class(out))
   out
   
+}
+
+summary_panel_data_has_skimr <- function() {
+  requireNamespace("skimr", quietly = TRUE)
+}
+
+summary_panel_data_fallback <- function(object, vars) {
+  selected <- suppressMessages({
+    dplyr::select(unpanel(object), !!! vars)
+  })
+  summary.data.frame(as.data.frame(selected))
 }
 
 #' @export
@@ -239,11 +248,12 @@ as_panel_data.pdata.frame <- function(data, ...) {
   indices <- plm::index(data)
   id <- names(indices)[1]
   wave <- names(indices)[2]
+  data <- as.data.frame(data, keep.attributes = FALSE)
   if (id %nin% names(data)) {
-    x[id] <- indices[id]
+    data[[id]] <- indices[[id]]
   }
   if (wave %nin% names(data)) {
-    x[wave] <- indices[wave]
+    data[[wave]] <- indices[[wave]]
   }
   panel_data(data, id = !! sym(id), wave = !! sym(wave), ...)
 }

@@ -89,7 +89,10 @@ option is to simply use the product term of the de-meaned variables
 (\code{"raw"}), but Giesselmann and Schmidt-Catran (2020) show this method
 biases the results towards zero effect. The default is \code{"double-demean"}
 but if emulating other software is the goal, \code{"demean"} might be
-preferred.}
+preferred. With two observations per entity, double-demeaned interactions
+between two time-varying predictors have no within-entity variation.
+This limitation does not apply to an interaction between one time-varying
+predictor and one time-invariant predictor.}
 
 \item{...}{Additional arguments provided to \code{\link[lme4:lmer]{lme4::lmer()}},
 \code{\link[lme4:glmer]{lme4::glmer()}}, or \code{\link[lme4:glmer.nb]{lme4::glmer.nb()}}.}

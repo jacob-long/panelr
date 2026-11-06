@@ -68,7 +68,10 @@
 #'  (`"raw"`), but Giesselmann and Schmidt-Catran (2020) show this method 
 #'  biases the results towards zero effect. The default is `"double-demean"`
 #'  but if emulating other software is the goal, `"demean"` might be 
-#'  preferred.
+#'  preferred. With two observations per entity, double-demeaned interactions
+#'  between two time-varying predictors have no within-entity variation.
+#'  This limitation does not apply to an interaction between one time-varying
+#'  predictor and one time-invariant predictor.
 #'     
 #'
 #' @inheritParams jtools::scale_mod
@@ -137,6 +140,19 @@
 #'
 #' Of course, with no time-invariant variables, you need no `|` operators at
 #' all.
+#'
+#' **Categorical predictors**
+#'
+#' Factor predictors are expanded into indicator (0/1) variables, omitting
+#' the first factor level as the reference category. For a time-invariant
+#' factor in the second formula part, each coefficient compares that level
+#' with the reference category, holding the other predictors constant (on the
+#' link scale for generalized models). You do not need to create the indicator
+#' variables yourself. Use [stats::relevel()] before fitting to change the
+#' reference category, for example,
+#' `data$industry <- relevel(data$industry, ref = "Downstream")`.
+#' The factor expansion uses this coding even for ordered factors or factors
+#' with custom contrasts; it does not use polynomial or sum contrasts.
 #'
 #' **Models**
 #'
@@ -243,6 +259,7 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
   the_call <- match.call()
   the_call[[1]] <- substitute(wbm)
   the_env <- parent.frame()
+  offset_expr <- rlang::get_expr(enquo(offset))
   
   if (any(c(detrend, balance_correction))) {
     if (!requireNamespace("tidyr") | !requireNamespace("purrr")) {
@@ -286,7 +303,7 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
   
   if (scale == TRUE) {
     
-    vars <- names(data)[names(data) %nin% c(wave, id)]
+    vars <- names(data)[names(data) %nin% c(wave, id, ".weights", ".offset")]
     if (scale.response == FALSE) {vars <- vars[vars != dv]} 
     data <-
       jtools::gscale(data, vars = vars, n.sd = n.sd, binary.inputs = "0/1")
@@ -305,6 +322,11 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
   if (!is.null(offset)) {
     offset[!is.finite(offset)] <- NA
   }
+
+  # lme4 evaluates weights and offsets in the formula environment. Bind
+  # even NULL values so they cannot resolve to stats::weights/offset.
+  assign("weights", weights, envir = environment(fin_formula))
+  assign("offset", offset, envir = environment(fin_formula))
 
   # Conditionally choose lme4 function based on family argument
   if (as.character(substitute(family))[1] == "gaussian") {
@@ -361,16 +383,19 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
   terms <- attr(fit@frame, "terms")
 
   if (lme4::isLMM(fit)) {
-    out <- as(object = fit, Class = "wblm")
+    out <- as_merMod_class(object = fit, Class = "wblm")
   } else {
-    out <- as(object = fit, Class = "wbglm")
+    out <- as_merMod_class(object = fit, Class = "wbglm")
   }
 
+  prediction_spec <- wb_prediction_spec(formula, prepped, data)
+  prediction_spec$offset_expr <- offset_expr
   out@orig_data <- prepped$orig_data
   if (wave %nin% all.vars(fin_formula)) {
     data <- data[names(data) %nin% wave]
   } 
   out@frame <- as.data.frame(data)
+  if (!is.null(model.offset(fit@frame))) out@frame[["(offset)"]] <- model.offset(fit@frame)
   attr(out@frame, "terms") <- terms 
   attr(out@frame, "formula") <- formula(fit)
   attr(out@frame, "wave") <- prepped$wave
@@ -385,10 +410,11 @@ wbm <- function(formula, data, id = NULL, wave = NULL,
               ints = ints, pvals = pvals, pR2 = pR2, env = the_env,
               mf_form = prepped$mf_form,
               use.wave = use.wave, wave.factor = wave.factor,
-              detrend = detrend, dt_order = dt_order,
-              dt_random = dt_random, balance_correction = balance_correction,
+              detrend = detrend, dt_order = dt.order,
+              dt_random = dt.random, balance_correction = balance.correction,
               pf = pf, merMod_call = merMod_call, 
-              interaction.style = interaction.style)
+              interaction.style = interaction.style,
+              prediction = prediction_spec)
 
   out@call <- the_call
   out@summ <- j
@@ -671,7 +697,7 @@ tidy.wbm <- function(x, conf.int = FALSE, conf.level = .95,
   }
   # Get the random effects if requested
   if ("ran_pars" %in% effects) {
-    ran_pars <- broom.mixed::tidy(as(x, switch(class(x), "wblm" = "lmerMod",
+    ran_pars <- broom.mixed::tidy(as_merMod_class(x, switch(class(x), "wblm" = "lmerMod",
                                              "wbglm" = "glmerMod")),
                             effects = "ran_pars", conf.method = conf.method,
                             conf.level = conf.level, ran_prefix = ran_prefix,

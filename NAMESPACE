@@ -2,6 +2,12 @@
 
 
 if (getRversion() >= "3.6.0") {
+  S3method(dplyr::dplyr_reconstruct, panel_data)
+} else {
+  export(dplyr_reconstruct.panel_data)
+}
+
+if (getRversion() >= "3.6.0") {
   S3method(dplyr::filter, panel_data)
 } else {
   export(filter.panel_data)
@@ -104,6 +110,7 @@ S3method(full_join,panel_data)
 S3method(getCall,wbm)
 S3method(get_formula,wbgee)
 S3method(get_formula,wblm)
+S3method(get_formula,wbm)
 S3method(get_meanvar,WBFormula)
 S3method(group_by,panel_data)
 S3method(has_interactions,WBFormula)
@@ -115,6 +122,7 @@ S3method(make_predictions,wbm)
 S3method(mutate,panel_data)
 S3method(nest,panel_data)
 S3method(nobs,wbm)
+S3method(partialize,wbgee)
 S3method(partialize,wbm)
 S3method(predict,wbgee)
 S3method(predict,wbm)
@@ -170,6 +178,7 @@ export(asym)
 export(asym_gee)
 export(balance_panel)
 export(complete_data)
+export(elongate_panel)
 export(fdm)
 export(filter)
 export(get_id)
@@ -184,8 +193,10 @@ export(make_diff_data)
 export(make_wb_data)
 export(model_frame)
 export(panel_data)
+export(prepare_wb_plot)
 export(scan_gaps)
 export(unpanel)
+export(wb_slope_design)
 export(wbgee)
 export(wbm)
 export(wbm_stan)

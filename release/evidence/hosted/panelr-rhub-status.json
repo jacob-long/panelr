@@ -1,0 +1,52 @@
+{
+  "package": "panelr",
+  "checked_utc": "2026-11-05 22:04:06 UTC",
+  "run_id": 41980893261,
+  "url": "https://github.com/r-hub2/uncivilised-lowkey-gnatcatcher-panelr/actions/runs/41980893261",
+  "status": "completed",
+  "conclusion": "success",
+  "jobs": [
+    {
+      "id": 127090508326,
+      "name": "update-repo",
+      "html_url": "https://github.com/r-hub2/uncivilised-lowkey-gnatcatcher-panelr/actions/runs/41980893261/job/127090508326",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 127090565265,
+      "name": "setup",
+      "html_url": "https://github.com/r-hub2/uncivilised-lowkey-gnatcatcher-panelr/actions/runs/41980893261/job/127090565265",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 127090605939,
+      "name": "ubuntu-release",
+      "html_url": "https://github.com/r-hub2/uncivilised-lowkey-gnatcatcher-panelr/actions/runs/41980893261/job/127090605939",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 127090605971,
+      "name": "windows (r-release-windows) (R-release)",
+      "html_url": "https://github.com/r-hub2/uncivilised-lowkey-gnatcatcher-panelr/actions/runs/41980893261/job/127090605971",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 127090605985,
+      "name": "windows (R-devel)",
+      "html_url": "https://github.com/r-hub2/uncivilised-lowkey-gnatcatcher-panelr/actions/runs/41980893261/job/127090605985",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 127090606062,
+      "name": "ubuntu-clang",
+      "html_url": "https://github.com/r-hub2/uncivilised-lowkey-gnatcatcher-panelr/actions/runs/41980893261/job/127090606062",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ]
+}

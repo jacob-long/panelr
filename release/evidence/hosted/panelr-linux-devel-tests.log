@@ -1,0 +1,46 @@
+
+R Under development (unstable) (2026-11-02 r90827) -- "Unsuffered Consequences"
+Copyright (C) 2026 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(testthat)
+> library(panelr)
+Loading required package: lme4
+Loading required package: Matrix
+
+Attaching package: 'panelr'
+
+The following object is masked from 'package:stats':
+
+    filter
+
+> 
+> test_check("panelr")
+[ FAIL 0 | WARN 0 | SKIP 10 | PASS 706 ]
+
+══ Skipped tests (10) ══════════════════════════════════════════════════════════
+• Installed interactions lacks component-aware plots (2):
+  'test-plot-interface.R:160:3', 'test-plot-interface.R:188:3'
+• interactions needs the S3 slope methods (8): 'test-simple-slopes.R:51:3',
+  'test-simple-slopes.R:76:3', 'test-simple-slopes.R:93:3',
+  'test-simple-slopes.R:118:3', 'test-simple-slopes.R:132:3',
+  'test-simple-slopes.R:146:3', 'test-simple-slopes.R:165:3',
+  'test-simple-slopes.R:189:3'
+
+[ FAIL 0 | WARN 0 | SKIP 10 | PASS 706 ]
+> 
+> proc.time()
+   user  system elapsed 
+ 51.493   0.475  34.593 

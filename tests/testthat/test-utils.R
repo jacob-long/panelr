@@ -64,6 +64,11 @@ test_that("long_panel works (basic case)", {
   expect_true(all(long_panel(w, prefix = "_W", begin = 1, end = 3) == l))
 })
 
+test_that("elongate_panel is an alias for long_panel", {
+  expect_equal(elongate_panel(w, prefix = "_W", begin = 1, end = 3),
+               long_panel(w, prefix = "_W", begin = 1, end = 3))
+})
+
 w <- tibble::tribble(
   ~Q1_W1, ~Q1_W2, ~Q1_W3, ~Q2_W1, ~Q2_W3,
   1,      1.5,     2,      5,      10,
@@ -311,6 +316,16 @@ test_that("summary.panel_data works", {
   expect_output(print(summary(w[1:14,], lwage, blk, by.id = TRUE, by.wave = FALSE)))
 })
 }
+
+test_that("summary.panel_data fallback works without skimr", {
+  wages <- panel_data(WageData, id = id, wave = t)
+  out <- panelr:::summary_panel_data_fallback(
+    wages,
+    rlang::exprs(lwage, exp, wks)
+  )
+  expect_true(inherits(out, "table"))
+  expect_true(all(c("lwage", "exp", "wks") %in% trimws(colnames(out))))
+})
 
 test_that("complete_data works", {
   expect_is(complete_data(w, lwage, blk), "panel_data")

@@ -1,0 +1,18 @@
+{
+  "package": "jtools",
+  "version": "2.3.2",
+  "service": "rhub",
+  "archive": "/private/tmp/panel-release-20261105/checks/jtools/jtools_2.3.2.tar.gz",
+  "sha256": "89ed8666e8d90b8b4a87884a893fd7b611e0aec965ab1ea29cb67d9e7cc462d2",
+  "started_utc": "2026-11-05 06:25:09 UTC",
+  "status": "accepted",
+  "platforms": ["ubuntu-release", "ubuntu-clang", "windows"],
+  "response": {
+    "result": "OK",
+    "repo_url": "https://github.com/r-hub2/uncivilised-lowkey-gnatcatcher-jtools",
+    "actions_url": "https://github.com/r-hub2/uncivilised-lowkey-gnatcatcher-jtools/actions",
+    "id": "nonsticky-zethuswasp",
+    "name": "ubuntu-release,ubuntu-clang,windows"
+  },
+  "finished_utc": "2026-11-05 06:25:24 UTC"
+}

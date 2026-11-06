@@ -380,3 +380,7 @@ long_panel <- function(data, prefix = NULL, suffix = NULL, begin = NULL,
   return(unpanel(tmp_pd))
   
 }
+
+#' @rdname long_panel
+#' @export
+elongate_panel <- long_panel

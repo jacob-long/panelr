@@ -1,0 +1,627 @@
+diff --git a/DESCRIPTION b/DESCRIPTION
+--- a/DESCRIPTION
++++ b/DESCRIPTION
+@@ -1,7 +1,7 @@
+ Package: jtools
+ Type: Package
+ Title: Analysis and Presentation of Social Scientific Data
+-Version: 2.3.1
++Version: 2.3.2
+ Authors@R: person(c("Jacob","A."), "Long", email = "jacob.long@sc.edu",
+   role = c("aut", "cre"), comment = c(ORCID = "0000-0002-1582-6214"))
+ Description: This is a collection of tools for more efficiently understanding 
+@@ -24,14 +24,16 @@
+     pander,
+     pkgconfig,
+     rlang,
++    reformulas (>= 0.4.2),
+     sandwich,
+     tibble
+ Suggests:
+   boot,
++  Formula,
+   huxtable,
+   kableExtra,
+   lme4,
+-  lmerTest,
++  lmerTest (>= 3.2-1),
+   MASS,
+   methods,
+   pbkrtest,
+diff --git a/NEWS.md b/NEWS.md
+--- a/NEWS.md
++++ b/NEWS.md
+@@ -1,3 +1,20 @@
++# jtools 2.3.2
++
++* Internal model updates now retain weights and offsets when those arguments
++  are omitted; explicit `NULL` still removes them.
++* Formula helpers no longer fail because of a stray debugging flag.
++* Quasi-Poisson and quasi-binomial pseudo-R-squared calculations now refit the
++  saved design matrix with the original estimation-sample weights and total
++  offset. This prevents silently unweighted likelihoods and dependence on
++  altered source data or replayed subset expressions.
++* Null models and centered/scaled refits no longer apply the original subset
++  twice. Explicit scaling data are aligned to fitted observations and checked
++  against the saved model frame before refitting.
++* Mixed-model prediction uses reformulas directly for random-effect formula
++  processing, avoiding deprecated lme4 entry points.
++* Satterthwaite tests require lmerTest 3.2-1 or later for compatibility with
++  current lme4. Older installations receive an explicit upgrade message.
++
+ # jtools 2.3.1
+ 
+ Bug fixes:
+diff --git a/R/internal.R b/R/internal.R
+--- a/R/internal.R
++++ b/R/internal.R
+@@ -101,20 +101,11 @@
+   if (inherits(x, "Formula")) {
+     # Extract just the main formula part for wbgee
+     x <- formula(x)
+-    if (debug) {
+-      cat("After Formula conversion:\n")
+-      print(x)
+-    }
+   }
+   
+   # Basic formula check
+   if (inherits(x, "formula")) {
+-    result <- length(x) > 2
+-    if (debug) {
+-      cat("Formula length:", length(x), "\n")
+-      cat("Returning:", result, "\n")
+-    }
+-    return(result)
++    return(length(x) > 2)
+   }
+   
+   # For other cases
+@@ -286,11 +277,8 @@
+   if (!is.null(data)) call$data <- data
+   if (!is.null(formula)) call$formula <- update.formula(call$formula, formula)
+   env <- attr(term, ".Environment")
+-  # Jacob add
+-  # if (!is.null(offset))
+-  call$offset <- offset
+-  # if (!is.null(weights))
+-  call$weights <- weights
++  if (!missing(offset)) call$offset <- offset
++  if (!missing(weights)) call$weights <- weights
+ 
+ 
+   extras <- as.list(match.call())[-1]
+diff --git a/R/pR2.R b/R/pR2.R
+--- a/R/pR2.R
++++ b/R/pR2.R
+@@ -72,16 +72,17 @@
+   # in the new, modified environment
+   call$formula <- form
+   call$data <- NULL
++  # The model frame already contains exactly the estimation sample.
++  call$subset <- NULL
++  call$na.action <- stats::na.fail
+   # Conditionally add the names of the offset and weights args
+   if (!is.null(.offset)) {
+     call$offset <- quote(.offset)
+-  }
++  } else call$offset <- NULL
+   if (!is.null(.weights)) {
+     call$weights <- quote(.weights)
+-  }
+-  if ("start" %in% names(call)) {
+-    call$start <- NULL
+-  } 
++  } else call$weights <- NULL
++  call$start <- call$etastart <- call$mustart <- NULL
+   # Can't attach the family object from glm.nb objects because of 
+   # the theta parameter being estimated based on the model spec.
+   if (!grepl("Negative Binomial", get_family(object)$family)) {
+@@ -99,7 +100,7 @@
+   }
+   
+   llhNull <- getLL(objectNull)
+-  n <- dim(object$model)[1]
++  n <- nrow(frame)
+   pR2Work(llh, llhNull, n, object, objectNull)
+   
+ }
+@@ -114,18 +115,20 @@
+   quasis <- c("quasibinomial","quasipoisson","quasi")
+   if (fam %nin% quasis) {
+     return(logLik(object))
+-  } else {
+-    if (fam == "quasipoisson") {
+-      poisson_family <- poisson(link = link)
+-      logLik(j_update(object, family = poisson_family))
+-    } else if (fam == "quasibinomial") {
+-      binom_family <- binomial(link = link)
+-      logLik(j_update(object, family = binom_family))
+-    } else {
+-      NA
+-    }
+   }
+-  
++  if (fam == "quasi") return(NA_real_)
++
++  # Refit the saved design, not a call that can replay subsets or changed data.
++  frame <- model.frame(object)
++  likelihood_family <- if (fam == "quasipoisson") poisson(link) else binomial(link)
++  refit <- stats::glm.fit(x = stats::model.matrix(object),
++                          y = stats::model.response(frame),
++                          weights = model.weights(frame),
++                          offset = model.offset(frame),
++                          family = likelihood_family, control = object$control,
++                          intercept = attr(terms(object), "intercept") == 1L)
++  class(refit) <- c("glm", "lm")
++  logLik(refit)
+ }
+ 
+ ### Have to specify data differently than pscl to fix namespace issues
+diff --git a/R/scale_lm.R b/R/scale_lm.R
+--- a/R/scale_lm.R
++++ b/R/scale_lm.R
+@@ -9,7 +9,8 @@
+ 
+ 
+ #' @export
+-#'
++#' @rdname scale_mod
++#' @usage scale_lm(model, ...)
+ 
+ scale_lm <- scale_mod
+ 
+@@ -49,6 +50,9 @@
+ #'   frame is used to re-fit the model instead of the [stats::model.frame()]
+ #'   of the model. This is particularly useful if you have variable
+ #'   transformations or polynomial terms specified in the formula.
++#'   For default-method refits, supply unchanged fitting data with its original
++#'   row names. Rows are aligned to the estimation sample and checked against
++#'   the fitted model frame; the original subset is not applied again.
+ #'
+ #' @param vars A character vector of variable names that you want to be
+ #'   scaled. If NULL, the default, it is all predictors.
+@@ -193,11 +197,20 @@
+ 
+   if (!is.null(data)) {
+ 
++    data <- as.data.frame(data)
++    rows <- match(rownames(mf), rownames(data))
++    if (anyNA(rows)) {
++      stop_wrap("Scaling data must include every fitted observation with its original row name.")
++    }
++    data <- data[rows, , drop = FALSE]
++    rebuilt <- model.frame(terms(model), data, na.action = stats::na.pass)
++    if (!isTRUE(all.equal(rebuilt, mf[names(rebuilt)], check.attributes = FALSE))) {
++      stop_wrap("Scaling data must reproduce the fitted model frame.",
++                  " Supply unchanged fitting data with original row names.")
++    }
+     mf <- data
+     # Keep only variables used
+     mf <- get_all_vars(formula(model), data = mf)
+-    # And only the complete cases
+-    mf <- mf[complete.cases(mf),]
+ 
+   } else {
+ 
+@@ -241,6 +254,9 @@
+   # in the new, modified environment
+   call$formula <- form
+   call$data <- NULL
++  # Scaling starts from the fitted rows, so the original subset is already applied.
++  call$subset <- NULL
++  call$na.action <- stats::na.fail
+   # Conditionally add the names of the offset and weights args
+   if (!is.null(the_offset)) {
+     call$offset <- quote(the_offset)
+diff --git a/R/lme4_utils.R b/R/lme4_utils.R
+--- a/R/lme4_utils.R
++++ b/R/lme4_utils.R
+@@ -196,7 +196,7 @@
+ 
+ reOnly <- function(f, response = FALSE) {
+   response <- if (response && length(f) == 3) { f[[2]] } else { NULL }
+-  reformulate(paste0("(", vapply(lme4::findbars(f), safeDeparse,
++  reformulate(paste0("(", vapply(reformulas::findbars(f), safeDeparse,
+                                  ""), ")"), response = response)
+ }
+ 
+@@ -238,7 +238,7 @@
+         0) {
+       newdata <- newdata[-fit.na.action, ]
+     }
+-    ReTrms <- lme4::mkReTrms(lme4::findbars(re.form[[2]]), rfd)
++    ReTrms <- reformulas::mkReTrms(reformulas::findbars(re.form[[2]]), rfd)
+     ReTrms <- within(ReTrms, Lambdat@x <- unname(lme4::getME(object,
+                                                        "theta")[Lind]))
+     if (!allow.new.levels && any(vapply(ReTrms$flist, anyNA,
+diff --git a/R/mer_utils.r b/R/mer_utils.r
+--- a/R/mer_utils.r
++++ b/R/mer_utils.r
+@@ -284,7 +284,7 @@
+   random.formula <- if (any(class(model) %in% c("lmerMod", "lmerModLmerTest",
+                                                 "glmerMod", "glmmTMB"))) {
+ 
+-        paste("(", lme4::findbars(formula(model)), ")", collapse = " + ")
++        paste("(", reformulas::findbars(formula(model)), ")", collapse = " + ")
+ 
+   }
+ 
+@@ -393,6 +393,8 @@
+ }
+ 
+ get_all_sat <- function(model) {
++  rlang::check_installed("lmerTest", version = "3.2.1",
++                        reason = "for Satterthwaite tests compatible with current lme4.")
+   if ("lmerModLmerTest" %nin% class(model)) {
+     new_mod <- lmerTest::as_lmerModLmerTest(model)
+   } else {new_mod <- model}
+diff --git a/man/center_mod.Rd b/man/center_mod.Rd
+--- a/man/center_mod.Rd
++++ b/man/center_mod.Rd
+@@ -30,7 +30,10 @@
+ \item{data}{If you provide the data used to fit the model here, that data
+ frame is used to re-fit the model instead of the \code{\link[stats:model.frame]{stats::model.frame()}}
+ of the model. This is particularly useful if you have variable
+-transformations or polynomial terms specified in the formula.}
++transformations or polynomial terms specified in the formula.
++For default-method refits, supply unchanged fitting data with its original
++row names. Rows are aligned to the estimation sample and checked against
++the fitted model frame; the original subset is not applied again.}
+ 
+ \item{apply.weighted.contrasts}{Factor variables cannot be scaled, but you
+ can set the contrasts such that the intercept in a regression model will
+diff --git a/man/scale_mod.Rd b/man/scale_mod.Rd
+--- a/man/scale_mod.Rd
++++ b/man/scale_mod.Rd
+@@ -2,12 +2,14 @@
+ % Please edit documentation in R/scale_lm.R
+ \name{scale_mod}
+ \alias{scale_mod}
+-\alias{scale_mod.default}
+ \alias{scale_lm}
++\alias{scale_mod.default}
+ \title{Scale variables in fitted regression models}
+ \usage{
+ scale_mod(model, ...)
+ 
++scale_lm(model, ...)
++
+ \method{scale_mod}{default}(
+   model,
+   binary.inputs = "0/1",
+@@ -55,7 +57,10 @@
+ \item{data}{If you provide the data used to fit the model here, that data
+ frame is used to re-fit the model instead of the \code{\link[stats:model.frame]{stats::model.frame()}}
+ of the model. This is particularly useful if you have variable
+-transformations or polynomial terms specified in the formula.}
++transformations or polynomial terms specified in the formula.
++For default-method refits, supply unchanged fitting data with its original
++row names. Rows are aligned to the estimation sample and checked against
++the fitted model frame; the original subset is not applied again.}
+ 
+ \item{vars}{A character vector of variable names that you want to be
+ scaled. If NULL, the default, it is all predictors.}
+diff --git a/tests/testthat/test-refit-preservation.R b/tests/testthat/test-refit-preservation.R
+new file mode 100644
+--- /dev/null
++++ b/tests/testthat/test-refit-preservation.R
+@@ -0,0 +1,141 @@
++refit_data <- function() {
++  set.seed(22)
++  d <- data.frame(x = rnorm(100), w = sample(1:4, 100, TRUE),
++                   o = runif(100, -1, 1))
++  d$count <- rpois(100, exp(.2 + .5 * d$x + d$o))
++  d$trials <- sample(5:15, 100, TRUE)
++  d$success <- rbinom(100, d$trials, plogis(-.3 + .7 * d$x + d$o))
++  d$failure <- d$trials - d$success
++  d
++}
++
++test_that("update helpers preserve omitted weights and offsets", {
++  d <- refit_data()
++  m <- lm(count ~ x, d, weights = w, offset = o)
++  kept <- j_update(m)
++  expect_equal(coef(kept), coef(m))
++  expect_equal(model.weights(model.frame(kept)), d$w)
++  expect_equal(model.offset(model.frame(kept)), d$o)
++  removed <- j_update(m, weights = NULL, offset = NULL)
++  expect_null(model.weights(model.frame(removed)))
++  expect_null(model.offset(model.frame(removed)))
++  replacement <- j_update(m, weights = rep(1, nrow(d)), offset = rep(0, nrow(d)))
++  expect_equal(coef(replacement), coef(lm(count ~ x, d)))
++})
++
++expect_quasi_fit_statistics <- function(quasi_fit, reference, null_reference) {
++  before <- quasi_fit
++  actual <- suppressMessages(pR2(quasi_fit))
++  full_ll <- as.numeric(logLik(reference))
++  null_ll <- as.numeric(logLik(null_reference))
++  n <- nrow(model.frame(quasi_fit))
++  G2 <- 2 * (full_ll - null_ll)
++  expected_mc <- 1 - full_ll / null_ll
++  expected_cu <- (1 - exp(-G2 / n)) / (1 - exp(2 * null_ll / n))
++  expect_equal(as.numeric(getLL(quasi_fit)), full_ll, tolerance = 1e-8)
++  expect_equal(as.numeric(actual$llhNull), null_ll, tolerance = 1e-8)
++  expect_equal(actual$G2, G2, tolerance = 1e-8)
++  expect_equal(actual$McFadden, expected_mc, tolerance = 1e-8)
++  expect_equal(actual$r2CU, expected_cu, tolerance = 1e-8)
++  output <- suppressMessages(summ(quasi_fit))
++  expect_equal(attr(output, "rsqmc"), expected_mc, tolerance = 1e-8)
++  expect_equal(attr(output, "rsq"), expected_cu, tolerance = 1e-8)
++  expect_equal(unname(output$coeftable[, "Est."]), unname(coef(quasi_fit)))
++  expect_identical(quasi_fit, before)
++}
++
++test_that("weighted quasi-family fit statistics match explicit likelihood refits", {
++  d <- refit_data()
++  for (family in c("poisson", "binomial")) {
++    form <- if (family == "poisson") count ~ x else cbind(success, failure) ~ x
++    qfamily <- if (family == "poisson") quasipoisson() else quasibinomial()
++    lfamily <- if (family == "poisson") poisson() else binomial()
++    q <- glm(form, d, family = qfamily, weights = w, offset = o)
++    m <- glm(form, d, family = lfamily, weights = w, offset = o)
++    m0 <- glm(update(form, . ~ 1), d, family = lfamily, weights = w, offset = o)
++    expect_quasi_fit_statistics(q, m, m0)
++  }
++})
++
++test_that("subsetted null models retain the full-model estimation sample", {
++  d <- refit_data()
++  d$x[c(30, 50)] <- NA
++  d$w[40] <- NA
++  q <- glm(count ~ x + offset(o), d, family = quasipoisson, weights = w,
++             subset = 21:100, na.action = na.exclude)
++  used <- d[as.integer(rownames(model.frame(q))), ]
++  m <- glm(count ~ x + offset(o), used, family = poisson, weights = w)
++  m0 <- glm(count ~ 1 + offset(o), used, family = poisson, weights = w)
++  expect_quasi_fit_statistics(q, m, m0)
++  expect_equal(pR2(m)$McFadden, 1 - as.numeric(logLik(m)) / as.numeric(logLik(m0)))
++  ordinary <- glm(count ~ x, d, family = poisson, weights = w, offset = o,
++                   subset = x > 0, na.action = na.exclude)
++  used <- d[as.integer(rownames(model.frame(ordinary))), ]
++  null <- glm(count ~ 1, used, family = poisson, weights = w, offset = o)
++  expect_equal(pR2(ordinary)$McFadden, 1 - as.numeric(logLik(ordinary)) / as.numeric(logLik(null)))
++})
++
++test_that("likelihood refits use saved design rows and the total offset", {
++  d <- refit_data()
++  q <- glm(count ~ poly(x, 2) + offset(o), d, family = quasipoisson,
++             weights = w, offset = x / 10, subset = 21:100)
++  m <- glm(count ~ poly(x, 2) + offset(o), d, family = poisson,
++             weights = w, offset = x / 10, subset = 21:100)
++  expected <- logLik(m)
++  d$x <- d$x + 100
++  d$w <- 1
++  d$o <- 0
++  expect_equal(as.numeric(getLL(q)), as.numeric(expected), tolerance = 1e-8)
++})
++
++test_that("centered and scaled summaries preserve subsetted fits", {
++  d <- refit_data()
++  d$x[30] <- NA
++  m <- glm(count ~ x, d, family = quasipoisson, weights = w, offset = o,
++             subset = 21:100, na.action = na.exclude)
++  base <- suppressMessages(summ(m))
++  for (changed in list(center_mod(m), scale_mod(m),
++                        center_mod(m, data = d[100:1, ]), scale_mod(m, data = d))) {
++    expect_equal(nobs(changed), nobs(m))
++    expect_equal(model.weights(model.frame(changed)), model.weights(model.frame(m)))
++    expect_equal(model.offset(model.frame(changed)), model.offset(model.frame(m)))
++    expect_equal(as.numeric(getLL(changed)), as.numeric(getLL(m)), tolerance = 1e-8)
++    result <- suppressMessages(summ(changed))
++    expect_equal(attr(result, "rsqmc"), attr(base, "rsqmc"), tolerance = 1e-8)
++  }
++  unweighted <- glm(count ~ x, d, family = quasipoisson, subset = 21:100)
++  expect_equal(nobs(scale_mod(unweighted, data = d)), nobs(unweighted))
++  expect_error(scale_mod(m, data = d[-40, ]), "every fitted observation")
++  d$x[40] <- d$x[40] + 2
++  expect_error(scale_mod(m, data = d), "reproduce the fitted model frame")
++})
++
++test_that("zero weights, non-log links, and model-free objects retain likelihoods", {
++  d <- refit_data()
++  d$w[1:5] <- 0
++  q <- glm(count ~ x, d, family = quasipoisson, weights = w, offset = o)
++  m <- glm(count ~ x, d, family = poisson, weights = w, offset = o)
++  expect_equal(as.numeric(getLL(q)), as.numeric(logLik(m)))
++  q <- glm(cbind(success, failure) ~ x, d, family = quasibinomial("probit"),
++             weights = w, offset = o)
++  m <- glm(cbind(success, failure) ~ x, d, family = binomial("probit"),
++             weights = w, offset = o)
++  expect_equal(as.numeric(getLL(q)), as.numeric(logLik(m)))
++  q <- glm(count ~ x, d, family = quasipoisson, weights = w,
++             offset = o, model = FALSE, subset = 21:100)
++  used <- d[21:100, ]
++  m <- glm(count ~ x, used, family = poisson, weights = w, offset = o)
++  m0 <- glm(count ~ 1, used, family = poisson, weights = w, offset = o)
++  expect_quasi_fit_statistics(q, m, m0)
++})
++
++test_that("default-method mixed-model scaling retains subsetted observations", {
++  skip_if_not_installed("lme4")
++  d <- refit_data()
++  d$id <- factor(rep(1:20, each = 5))
++  m <- suppressMessages(lme4::lmer(count ~ x + (1 | id), d, weights = w,
++                                   subset = 21:100))
++  scaled <- suppressMessages(scale_mod(m, data = d))
++  expect_equal(nobs(scaled), nobs(m))
++  expect_equal(model.weights(model.frame(scaled)), model.weights(model.frame(m)))
++})
+diff --git a/tests/testthat/test-release-compatibility.R b/tests/testthat/test-release-compatibility.R
+new file mode 100644
+--- /dev/null
++++ b/tests/testthat/test-release-compatibility.R
+@@ -0,0 +1,7 @@
++test_that("Satterthwaite inference reports the required dependency version", {
++  skip_if_not_installed("lme4")
++  skip_if_not_installed("lmerTest", "3.2.1")
++  m <- lme4::lmer(Reaction ~ Days + (Days | Subject), lme4::sleepstudy)
++  expected <- summary(lmerTest::as_lmerModLmerTest(m))$coefficients
++  expect_equal(get_all_sat(m), expected)
++})
+diff --git a/tests/testthat/_snaps/effect-plot/glmer-offset.svg b/tests/testthat/_snaps/effect-plot/glmer-offset.svg
+--- a/tests/testthat/_snaps/effect-plot/glmer-offset.svg
++++ b/tests/testthat/_snaps/effect-plot/glmer-offset.svg
+@@ -27,28 +27,28 @@
+ </defs>
+ <g clip-path='url(#cpMzUuMjR8NzE0LjUyfDM3Ljk1fDU0NS4xMQ==)'>
+ <rect x='35.24' y='37.95' width='679.28' height='507.17' style='stroke-width: 0.00; stroke: #FFFFFF; fill: #FFFFFF;' />
+-<polyline points='35.24,373.56 714.52,373.56 ' style='stroke-width: 1.07; stroke: #E8E8E8; stroke-dasharray: 9.96,4.27; stroke-linecap: butt;' />
+-<polyline points='35.24,182.88 714.52,182.88 ' style='stroke-width: 1.07; stroke: #E8E8E8; stroke-dasharray: 9.96,4.27; stroke-linecap: butt;' />
+-<circle cx='132.28' cy='221.76' r='4.09' style='stroke-width: 0.71; fill: #000000;' />
+-<circle cx='294.01' cy='354.77' r='4.09' style='stroke-width: 0.71; fill: #000000;' />
+-<circle cx='455.75' cy='436.12' r='4.09' style='stroke-width: 0.71; fill: #000000;' />
+-<circle cx='617.48' cy='485.88' r='4.09' style='stroke-width: 0.71; fill: #000000;' />
++<polyline points='35.24,373.79 714.52,373.79 ' style='stroke-width: 1.07; stroke: #E8E8E8; stroke-dasharray: 9.96,4.27; stroke-linecap: butt;' />
++<polyline points='35.24,183.82 714.52,183.82 ' style='stroke-width: 1.07; stroke: #E8E8E8; stroke-dasharray: 9.96,4.27; stroke-linecap: butt;' />
++<circle cx='132.28' cy='222.76' r='4.09' style='stroke-width: 0.71; fill: #000000;' />
++<circle cx='294.01' cy='355.19' r='4.09' style='stroke-width: 0.71; fill: #000000;' />
++<circle cx='455.75' cy='436.19' r='4.09' style='stroke-width: 0.71; fill: #000000;' />
++<circle cx='617.48' cy='485.73' r='4.09' style='stroke-width: 0.71; fill: #000000;' />
+ <polyline points='71.63,61.00 192.93,61.00 ' style='stroke-width: 2.35; stroke-linecap: butt;' />
+-<polyline points='132.28,61.00 132.28,331.17 ' style='stroke-width: 2.35; stroke-linecap: butt;' />
+-<polyline points='71.63,331.17 192.93,331.17 ' style='stroke-width: 2.35; stroke-linecap: butt;' />
+-<polyline points='233.36,267.00 354.66,267.00 ' style='stroke-width: 2.35; stroke-linecap: butt;' />
+-<polyline points='294.01,267.00 294.01,416.62 ' style='stroke-width: 2.35; stroke-linecap: butt;' />
+-<polyline points='233.36,416.62 354.66,416.62 ' style='stroke-width: 2.35; stroke-linecap: butt;' />
+-<polyline points='395.10,363.65 516.40,363.65 ' style='stroke-width: 2.35; stroke-linecap: butt;' />
+-<polyline points='455.75,363.65 455.75,482.41 ' style='stroke-width: 2.35; stroke-linecap: butt;' />
+-<polyline points='395.10,482.41 516.40,482.41 ' style='stroke-width: 2.35; stroke-linecap: butt;' />
+-<polyline points='556.83,418.65 678.13,418.65 ' style='stroke-width: 2.35; stroke-linecap: butt;' />
+-<polyline points='617.48,418.65 617.48,522.06 ' style='stroke-width: 2.35; stroke-linecap: butt;' />
++<polyline points='132.28,61.00 132.28,332.47 ' style='stroke-width: 2.35; stroke-linecap: butt;' />
++<polyline points='71.63,332.47 192.93,332.47 ' style='stroke-width: 2.35; stroke-linecap: butt;' />
++<polyline points='233.36,267.08 354.66,267.08 ' style='stroke-width: 2.35; stroke-linecap: butt;' />
++<polyline points='294.01,267.08 294.01,417.13 ' style='stroke-width: 2.35; stroke-linecap: butt;' />
++<polyline points='233.36,417.13 354.66,417.13 ' style='stroke-width: 2.35; stroke-linecap: butt;' />
++<polyline points='395.10,363.17 516.40,363.17 ' style='stroke-width: 2.35; stroke-linecap: butt;' />
++<polyline points='455.75,363.17 455.75,482.62 ' style='stroke-width: 2.35; stroke-linecap: butt;' />
++<polyline points='395.10,482.62 516.40,482.62 ' style='stroke-width: 2.35; stroke-linecap: butt;' />
++<polyline points='556.83,417.73 678.13,417.73 ' style='stroke-width: 2.35; stroke-linecap: butt;' />
++<polyline points='617.48,417.73 617.48,522.06 ' style='stroke-width: 2.35; stroke-linecap: butt;' />
+ <polyline points='556.83,522.06 678.13,522.06 ' style='stroke-width: 2.35; stroke-linecap: butt;' />
+ </g>
+ <g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1NzYuMDA=)'>
+-<text x='24.19' y='376.59' text-anchor='middle' style='font-size: 8.80px; fill: #34495E; font-family: sans;' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.1</text>
+-<text x='24.19' y='185.90' text-anchor='middle' style='font-size: 8.80px; fill: #34495E; font-family: sans;' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.2</text>
++<text x='24.19' y='376.82' text-anchor='middle' style='font-size: 8.80px; fill: #34495E; font-family: sans;' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.1</text>
++<text x='24.19' y='186.85' text-anchor='middle' style='font-size: 8.80px; fill: #34495E; font-family: sans;' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.2</text>
+ <text x='132.28' y='557.01' text-anchor='middle' style='font-size: 8.80px; fill: #34495E; font-family: sans;' textLength='4.89px' lengthAdjust='spacingAndGlyphs'>1</text>
+ <text x='294.01' y='557.01' text-anchor='middle' style='font-size: 8.80px; fill: #34495E; font-family: sans;' textLength='4.89px' lengthAdjust='spacingAndGlyphs'>2</text>
+ <text x='455.75' y='557.01' text-anchor='middle' style='font-size: 8.80px; fill: #34495E; font-family: sans;' textLength='4.89px' lengthAdjust='spacingAndGlyphs'>3</text>
+diff --git a/tests/testthat/_snaps/effect-plot/glmer.svg b/tests/testthat/_snaps/effect-plot/glmer.svg
+--- a/tests/testthat/_snaps/effect-plot/glmer.svg
++++ b/tests/testthat/_snaps/effect-plot/glmer.svg
+@@ -27,22 +27,22 @@
+ </defs>
+ <g clip-path='url(#cpNDAuMTN8NzE0LjUyfDM3Ljk1fDU0NS4xMQ==)'>
+ <rect x='40.13' y='37.95' width='674.39' height='507.17' style='stroke-width: 0.00; stroke: #FFFFFF; fill: #FFFFFF;' />
+-<polyline points='40.13,524.17 714.52,524.17 ' style='stroke-width: 1.07; stroke: #E8E8E8; stroke-dasharray: 9.96,4.27; stroke-linecap: butt;' />
+-<polyline points='40.13,416.11 714.52,416.11 ' style='stroke-width: 1.07; stroke: #E8E8E8; stroke-dasharray: 9.96,4.27; stroke-linecap: butt;' />
+-<polyline points='40.13,308.04 714.52,308.04 ' style='stroke-width: 1.07; stroke: #E8E8E8; stroke-dasharray: 9.96,4.27; stroke-linecap: butt;' />
+-<polyline points='40.13,199.98 714.52,199.98 ' style='stroke-width: 1.07; stroke: #E8E8E8; stroke-dasharray: 9.96,4.27; stroke-linecap: butt;' />
+-<polyline points='40.13,91.91 714.52,91.91 ' style='stroke-width: 1.07; stroke: #E8E8E8; stroke-dasharray: 9.96,4.27; stroke-linecap: butt;' />
++<polyline points='40.13,524.11 714.52,524.11 ' style='stroke-width: 1.07; stroke: #E8E8E8; stroke-dasharray: 9.96,4.27; stroke-linecap: butt;' />
++<polyline points='40.13,416.07 714.52,416.07 ' style='stroke-width: 1.07; stroke: #E8E8E8; stroke-dasharray: 9.96,4.27; stroke-linecap: butt;' />
++<polyline points='40.13,308.02 714.52,308.02 ' style='stroke-width: 1.07; stroke: #E8E8E8; stroke-dasharray: 9.96,4.27; stroke-linecap: butt;' />
++<polyline points='40.13,199.97 714.52,199.97 ' style='stroke-width: 1.07; stroke: #E8E8E8; stroke-dasharray: 9.96,4.27; stroke-linecap: butt;' />
++<polyline points='40.13,91.92 714.52,91.92 ' style='stroke-width: 1.07; stroke: #E8E8E8; stroke-dasharray: 9.96,4.27; stroke-linecap: butt;' />
+ <polyline points='48.89,545.11 48.89,37.95 ' style='stroke-width: 1.07; stroke: #E8E8E8; stroke-dasharray: 9.96,4.27; stroke-linecap: butt;' />
+ <polyline points='267.85,545.11 267.85,37.95 ' style='stroke-width: 1.07; stroke: #E8E8E8; stroke-dasharray: 9.96,4.27; stroke-linecap: butt;' />
+ <polyline points='486.81,545.11 486.81,37.95 ' style='stroke-width: 1.07; stroke: #E8E8E8; stroke-dasharray: 9.96,4.27; stroke-linecap: butt;' />
+ <polyline points='705.76,545.11 705.76,37.95 ' style='stroke-width: 1.07; stroke: #E8E8E8; stroke-dasharray: 9.96,4.27; stroke-linecap: butt;' />
+-<polyline points='70.79,522.06 76.98,515.98 83.17,509.92 89.36,503.89 95.56,497.88 101.75,491.89 107.94,485.93 114.14,479.99 120.33,474.08 126.52,468.20 132.71,462.34 138.91,456.50 145.10,450.69 151.29,444.91 157.48,439.15 163.68,433.43 169.87,427.73 176.06,422.05 182.26,416.41 188.45,410.79 194.64,405.20 200.83,399.64 207.03,394.10 213.22,388.60 219.41,383.12 225.60,377.68 231.80,372.26 237.99,366.87 244.18,361.52 250.38,356.19 256.57,350.89 262.76,345.62 268.95,340.39 275.15,335.18 281.34,330.00 287.53,324.86 293.72,319.74 299.92,314.66 306.11,309.61 312.30,304.59 318.50,299.60 324.69,294.64 330.88,289.71 337.07,284.81 343.27,279.95 349.46,275.12 355.65,270.32 361.84,265.55 368.04,260.81 374.23,256.10 380.42,251.43 386.62,246.79 392.81,242.18 399.00,237.60 405.19,233.05 411.39,228.54 417.58,224.06 423.77,219.61 429.96,215.19 436.16,210.80 442.35,206.45 448.54,202.13 454.74,197.84 460.93,193.58 467.12,189.35 473.31,185.16 479.51,181.00 485.70,176.87 491.89,172.77 498.08,168.70 504.28,164.66 510.47,160.66 516.66,156.69 522.86,152.75 529.05,148.84 535.24,144.96 541.43,141.11 547.63,137.29 553.82,133.51 560.01,129.75 566.20,126.03 572.40,122.34 578.59,118.68 584.78,115.04 590.98,111.44 597.17,107.87 603.36,104.33 609.55,100.82 615.75,97.34 621.94,93.89 628.13,90.47 634.32,87.08 640.52,83.72 646.71,80.38 652.90,77.08 659.10,73.81 665.29,70.56 671.48,67.35 677.67,64.16 683.87,61.00 ' style='stroke-width: 2.35; stroke-linecap: butt;' />
++<polyline points='70.79,522.06 76.98,515.98 83.17,509.92 89.36,503.89 95.56,497.88 101.75,491.89 107.94,485.93 114.14,479.99 120.33,474.08 126.52,468.20 132.71,462.33 138.91,456.50 145.10,450.69 151.29,444.91 157.48,439.15 163.68,433.42 169.87,427.72 176.06,422.05 182.26,416.40 188.45,410.79 194.64,405.20 200.83,399.63 207.03,394.10 213.22,388.60 219.41,383.12 225.60,377.68 231.80,372.26 237.99,366.87 244.18,361.51 250.38,356.19 256.57,350.89 262.76,345.62 268.95,340.38 275.15,335.18 281.34,330.00 287.53,324.86 293.72,319.74 299.92,314.66 306.11,309.60 312.30,304.58 318.50,299.59 324.69,294.63 330.88,289.71 337.07,284.81 343.27,279.95 349.46,275.11 355.65,270.31 361.84,265.54 368.04,260.81 374.23,256.10 380.42,251.43 386.62,246.78 392.81,242.17 399.00,237.60 405.19,233.05 411.39,228.54 417.58,224.05 423.77,219.61 429.96,215.19 436.16,210.80 442.35,206.45 448.54,202.13 454.74,197.84 460.93,193.58 467.12,189.35 473.31,185.16 479.51,180.99 485.70,176.86 491.89,172.76 498.08,168.70 504.28,164.66 510.47,160.66 516.66,156.68 522.86,152.74 529.05,148.83 535.24,144.96 541.43,141.11 547.63,137.29 553.82,133.51 560.01,129.75 566.20,126.03 572.40,122.34 578.59,118.67 584.78,115.04 590.98,111.44 597.17,107.87 603.36,104.33 609.55,100.82 615.75,97.34 621.94,93.89 628.13,90.47 634.32,87.08 640.52,83.71 646.71,80.38 652.90,77.08 659.10,73.81 665.29,70.56 671.48,67.35 677.67,64.16 683.87,61.00 ' style='stroke-width: 2.35; stroke-linecap: butt;' />
+ </g>
+ <g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1NzYuMDA=)'>
+-<text x='26.64' y='527.20' text-anchor='middle' style='font-size: 8.80px; fill: #34495E; font-family: sans;' textLength='17.13px' lengthAdjust='spacingAndGlyphs'>0.65</text>
+-<text x='26.64' y='419.13' text-anchor='middle' style='font-size: 8.80px; fill: #34495E; font-family: sans;' textLength='17.13px' lengthAdjust='spacingAndGlyphs'>0.70</text>
+-<text x='26.64' y='311.07' text-anchor='middle' style='font-size: 8.80px; fill: #34495E; font-family: sans;' textLength='17.13px' lengthAdjust='spacingAndGlyphs'>0.75</text>
+-<text x='26.64' y='203.00' text-anchor='middle' style='font-size: 8.80px; fill: #34495E; font-family: sans;' textLength='17.13px' lengthAdjust='spacingAndGlyphs'>0.80</text>
++<text x='26.64' y='527.14' text-anchor='middle' style='font-size: 8.80px; fill: #34495E; font-family: sans;' textLength='17.13px' lengthAdjust='spacingAndGlyphs'>0.65</text>
++<text x='26.64' y='419.09' text-anchor='middle' style='font-size: 8.80px; fill: #34495E; font-family: sans;' textLength='17.13px' lengthAdjust='spacingAndGlyphs'>0.70</text>
++<text x='26.64' y='311.04' text-anchor='middle' style='font-size: 8.80px; fill: #34495E; font-family: sans;' textLength='17.13px' lengthAdjust='spacingAndGlyphs'>0.75</text>
++<text x='26.64' y='202.99' text-anchor='middle' style='font-size: 8.80px; fill: #34495E; font-family: sans;' textLength='17.13px' lengthAdjust='spacingAndGlyphs'>0.80</text>
+ <text x='26.64' y='94.94' text-anchor='middle' style='font-size: 8.80px; fill: #34495E; font-family: sans;' textLength='17.13px' lengthAdjust='spacingAndGlyphs'>0.85</text>
+ <text x='48.89' y='557.01' text-anchor='middle' style='font-size: 8.80px; fill: #34495E; font-family: sans;' textLength='9.79px' lengthAdjust='spacingAndGlyphs'>10</text>
+ <text x='267.85' y='557.01' text-anchor='middle' style='font-size: 8.80px; fill: #34495E; font-family: sans;' textLength='9.79px' lengthAdjust='spacingAndGlyphs'>20</text>
+diff --git a/cran-comments.md b/cran-comments.md
+--- a/cran-comments.md
++++ b/cran-comments.md
+@@ -1,5 +1,55 @@
++## Release scope
++
++Version 2.3.2 is a narrow maintenance update for model refitting with
++weights, offsets, and subsets, quasi-family likelihood summaries, and
++compatibility with recent lme4/reformulas. It also removes a stray debugging
++flag that made formula helpers fail. It excludes unrelated glmmTMB
++development work from the working repository.
++
+ ## Test environments
+-* Local macOS (aarch64), R 4.5.1
+ 
++* Local macOS (aarch64), R 4.5.1, ggplot2 4.0.3, lme4 2.1-0.
++* Targeted tests also pass with ggplot2 3.4.4, reformulas 0.4.2,
++  and lme4 1.1-38 (80 assertions, no warnings or skips).
++* R-hub Linux R-release (R 4.6.2), Linux clang R-devel, and Windows R-devel
++  (r90836) all pass.
++
+ ## R CMD check results
+-0 ERRORs | 0 WARNINGs | 0 NOTEs
++
++Final local `--as-cran`, including incoming checks, vignettes and PDF manual:
++
++0 ERRORs | 0 WARNINGs | 2 NOTEs
++
++HTML Tidy is too old to validate the HTML manual. The second NOTE is an HTTP
++403 response from a Stack Overflow reference. The official Stack Exchange API
++confirms that answer 41031088 still belongs to question 34418822, so the
++reference is retained. This is a draft release report, not a submission.
++The packaged suite passes 329 assertions; its existing ggplot2 `fatten`
++deprecation warning remains. The earlier full visual suite passes 402
++assertions. All 74 legacy SVGs are unchanged in a paired baseline/candidate
++comparison using identical dependencies and seeds.
++
++## Downstream checks
++
++Baseline/candidate comparisons found no new failures among autostats,
++bruceR, dpm, webSDM, released panelr, and released interactions. bruceR, dpm,
++and webSDM pass without errors, warnings, or notes. autostats has the same
++xgboost-related failures with both dependency sets. Released panelr 1.0.1
++fails with lme4 2.1-0 in both sets; the coordinated panelr 1.1.0 candidate
++fixes that incompatibility. Released interactions 1.2.0 passes with only an
++existing unused-import NOTE.
++
++These local reverse checks run examples, tests, and vignette R code, but
++skip PDF manuals and vignette rebuilding.
++
++## Hosted checks
++
++All three R-hub platform checks finish with Status: OK (no errors, warnings,
++or notes). The suites pass 311 assertions, with the existing ggplot2 `fatten`
++test warning and 34 visual/optional-package skips. R-devel also reports an
++informational missing usage entry for the legacy scale_lm alias; that usage
++entry has now been added without changing that function's implementation.
++The formula-helper fix, its tests, and the usage documentation postdate the
++hosted run. They pass the final local check and older-dependency tests; a fresh
++hosted check of the final archive remains necessary before submission.
++Windows Builder R-release/R-devel uploads are accepted; reports are pending.
+diff --git a/tests/testthat/test-formula-helpers.R b/tests/testthat/test-formula-helpers.R
+new file mode 100644
+--- /dev/null
++++ b/tests/testthat/test-formula-helpers.R
+@@ -0,0 +1,13 @@
++test_that("formula helpers do not depend on a global debug flag", {
++  expect_true(two_sided(y ~ x))
++  expect_false(two_sided(~x))
++  expect_equal(all_vars(y ~ x + z), c("y", "x", "z"))
++  expect_false(any_transforms(y ~ x + z))
++  expect_true(any_transforms(y ~ log(x)))
++})
++
++test_that("formula helpers handle Formula objects", {
++  skip_if_not_installed("Formula")
++  expect_true(two_sided(Formula::Formula(y ~ x | z)))
++  expect_false(two_sided(Formula::Formula(~x | z)))
++})

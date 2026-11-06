@@ -59,7 +59,11 @@ extract_fn_name <- function(term) {
   if (is.null(parsed) || !is.call(parsed)) {
     return(NULL)
   }
-  as.character(parsed[[1]])
+  head <- parsed[[1]]
+  if (is.call(head) && as.character(head[[1]]) %in% c("::", ":::")) {
+    return(as.character(head[[3]]))
+  }
+  as.character(head)
 }
 
 #' Check if a function is a known basis function
@@ -149,41 +153,10 @@ reconstruct_basis_call <- function(term, new_var, attrs = NULL) {
   # Replace the first argument (the variable)
   parsed[[2]] <- parse(text = new_var)[[1]]
   
-  # Add attributes as explicit arguments if provided
-  if (!is.null(attrs) && length(attrs) > 0) {
-    for (attr_name in names(attrs)) {
-      attr_val <- attrs[[attr_name]]
-      # Convert to R expression
-      attr_expr <- NULL
-      
-      if (is.matrix(attr_val)) {
-        # For poly coefs which is a matrix, skip it - poly uses its own method
-        next
-      } else if (is.numeric(attr_val) && length(attr_val) > 1) {
-        # Vector: use c()
-        attr_expr <- paste0("c(", paste(format(attr_val, digits = 15), collapse = ", "), ")")
-      } else if (is.numeric(attr_val) && length(attr_val) == 1) {
-        attr_expr <- format(attr_val, digits = 15)
-      } else if (is.logical(attr_val) && length(attr_val) == 1) {
-        attr_expr <- if (attr_val) "TRUE" else "FALSE"
-      } else {
-        # Skip complex attributes (NULL, functions, etc.)
-        next
-      }
-      
-      # Safely parse the expression
-      if (!is.null(attr_expr) && nchar(attr_expr) > 0) {
-        parsed_expr <- tryCatch(
-          parse(text = attr_expr),
-          error = function(e) NULL
-        )
-        if (!is.null(parsed_expr) && length(parsed_expr) > 0) {
-          parsed[[attr_name]] <- parsed_expr[[1]]
-        }
-      }
-    }
+  # Embed saved values directly, preserving polynomial coefficients and full precision.
+  if (length(attrs)) {
+    for (name in names(attrs)) parsed[[name]] <- attrs[[name]]
   }
-  
   deparse(parsed, width.cutoff = 500)
 }
 

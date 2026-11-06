@@ -1,0 +1,73 @@
+
+R version 4.5.1 (2025-06-13) -- "Great Square Root"
+Copyright (C) 2025 The R Foundation for Statistical Computing
+Platform: aarch64-apple-darwin20
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(testthat)
+> library(vdiffr)
+> library(interactions)
+> 
+> test_check("interactions")
+`geom_smooth()` using formula = 'y ~ x'
+✖ Detected factor predictor.
+ℹ Plotting with cat_plot() instead.
+ℹ See `?interactions::cat_plot()` for full details on how to specify models
+  with categorical predictors.
+ℹ If you experience errors or unexpected results, try using cat_plot()
+  directly.
+[ FAIL 0 | WARN 0 | SKIP 54 | PASS 394 ]
+
+══ Skipped tests (54) ══════════════════════════════════════════════════════════
+• On CRAN (54): 'test_cat_plot.R:20:3', 'test_cat_plot.R:35:3',
+  'test_cat_plot.R:40:3', 'test_cat_plot.R:46:3', 'test_cat_plot.R:51:3',
+  'test_cat_plot.R:57:3', 'test_cat_plot.R:63:3', 'test_cat_plot.R:69:3',
+  'test_cat_plot.R:76:3', 'test_cat_plot.R:83:3', 'test_cat_plot.R:88:3',
+  'test_cat_plot.R:94:3', 'test_cat_plot.R:100:3', 'test_cat_plot.R:107:3',
+  'test_cat_plot.R:114:3', 'test_cat_plot.R:135:3', 'test_cat_plot.R:149:3',
+  'test_cat_plot.R:157:3', 'test_cat_plot.R:179:3', 'test_cat_plot.R:185:3',
+  'test_cat_plot.R:191:3', 'test_cat_plot.R:198:3', 'test_cat_plot.R:203:3',
+  'test_cat_plot.R:209:3', 'test_cat_plot.R:215:3', 'test_cat_plot.R:222:3',
+  'test_cat_plot.R:229:3', 'test_cat_plot.R:234:3', 'test_cat_plot.R:240:3',
+  'test_cat_plot.R:246:3', 'test_cat_plot.R:253:3', 'test_cat_plot.R:260:3',
+  'test_cat_plot.R:265:3', 'test_cat_plot.R:271:3', 'test_cat_plot.R:276:3',
+  'test_cat_plot.R:281:3', 'test_cat_plot.R:287:3', 'test_cat_plot.R:293:3',
+  'test_cat_plot.R:302:3', 'test_interact_plot.R:35:3',
+  'test_interact_plot.R:52:3', 'test_interact_plot.R:112:3',
+  'test_interact_plot.R:125:3', 'test_interact_plot.R:130:3',
+  'test_interact_plot.R:135:3', 'test_interact_plot.R:145:3',
+  'test_interact_plot.R:180:3', 'test_interact_plot.R:187:3',
+  'test_interact_plot.R:199:3', 'test_interact_plot.R:220:3',
+  'test_interact_plot.R:245:3', 'test_interact_plot.R:252:3',
+  'test_interact_plot.R:284:3', 'test_interact_plot.R:300:3'
+
+[ FAIL 0 | WARN 0 | SKIP 54 | PASS 394 ]
+Deleting unused snapshots:
+• interact_plot/pbfcont.svg
+• interact_plot/plm0.svg
+• interact_plot/plm1.svg
+• interact_plot/plme4.svg
+• interact_plot/plme4i.svg
+• interact_plot/plmlabelsc2.svg
+• interact_plot/plmlabelscpred-interact-plot-to-cat-plot.svg
+• interact_plot/plmlabelscpred.svg
+• interact_plot/plmlabelscs.svg
+• interact_plot/plmlinearchnp.svg
+• interact_plot/plmm.svg
+• interact_plot/plmruglb.svg
+• interact_plot/psvy1.svg
+> 
+> proc.time()
+   user  system elapsed 
+ 25.629   0.723  26.617 

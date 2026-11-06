@@ -33,6 +33,11 @@ created by \code{wbgee}.}
 These methods facilitate fairly straightforward predictions
 from \code{wbgee} models.
 }
+\details{
+Panel histories and prepared rows follow the same conventions as
+\code{\link[=predict.wbm]{predict.wbm()}}. Interaction plotting uses fixed estimation-sample reference
+means and the fitted GEE covariance matrix for confidence intervals.
+}
 \examples{
 if (requireNamespace("geepack")) {
   data("WageData")

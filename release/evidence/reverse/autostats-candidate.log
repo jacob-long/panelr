@@ -1,0 +1,114 @@
+* using log directory ‘/private/tmp/panel-release-20261105/revdep/checks/autostats/candidate/autostats.Rcheck’
+* using R version 4.5.1 (2025-06-13)
+* using platform: aarch64-apple-darwin20
+* R was compiled by
+    Apple clang version 16.0.0 (clang-1600.0.26.6)
+    GNU Fortran (GCC) 14.2.0
+* running under: macOS 27.0.1
+* using session charset: UTF-8
+* using options ‘--no-manual --no-build-vignettes’
+* checking for file ‘autostats/DESCRIPTION’ ... OK
+* checking extension type ... Package
+* this is package ‘autostats’ version ‘0.4.2’
+* package encoding: UTF-8
+* checking package namespace information ... OK
+* checking package dependencies ... INFO
+Packages suggested but not available for checking:
+  'BBmisc', 'ranger', 'XICOR'
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* checking whether package ‘autostats’ can be installed ... OK
+* checking installed package size ... OK
+* checking package directory ... OK
+* checking ‘build’ directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking code files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking loading without being on the library search path ... OK
+* checking dependencies in R code ... NOTE
+Namespaces in Imports field not imported from:
+  ‘broom.mixed’ ‘Ckmeans.1d.dp’ ‘data.table’ ‘igraph’
+  All declared Imports should be used.
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... INFO
+Package unavailable to check Rd xrefs: ‘XICOR’
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking for unstated dependencies in examples ... OK
+* checking installed files from ‘inst/doc’ ... OK
+* checking files in ‘vignettes’ ... OK
+* checking examples ... ERROR
+Running examples in ‘autostats-Ex.R’ failed
+The error most likely occurred in:
+
+> ### Name: auto_variable_contributions
+> ### Title: Plot Variable Contributions
+> ### Aliases: auto_variable_contributions
+> 
+> ### ** Examples
+> 
+> 
+> iris %>%
++ framecleaner::create_dummies() %>%
++ auto_variable_contributions(
++  tidy_formula(., target = Petal.Width)
++  )
+1 column(s) have become 3 dummy columns
+Error in if (validate & xgb_obj != "multi:softprob") { : 
+  argument is of length zero
+Calls: %>% -> auto_variable_contributions
+Execution halted
+* checking for unstated dependencies in vignettes ... OK
+* checking package vignettes ... OK
+* checking running R code from vignettes ... ERROR
+Errors in running code in vignettes:
+when running code in ‘autostats.Rmd’
+  ...
+
+> species_formula
+Species ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width
+<environment: 0x1070a72f0>
+
+> iris %>% auto_variable_contributions(species_formula)
+
+  When sourcing ‘autostats.R’:
+Error: argument is of length zero
+Execution halted
+when running code in ‘tidyXgboost.Rmd’
+  ...
+> xgb_tuned_fit_grid <- xgb_tuned_grid %>% parsnip::fit(iris_train) %>% 
++     parsnip::extract_fit_engine()
+
+> xgb_tuned_fit_grid %>% visualize_model()
+
+> xgb_base <- iris_train %>% tidy_xgboost(formula = petal_form)
+
+  When sourcing ‘tidyXgboost.R’:
+Error: argument is of length zero
+Execution halted
+
+  ‘autostats.Rmd’ using ‘UTF-8’... failed
+  ‘tidyXgboost.Rmd’ using ‘UTF-8’... failed
+* checking re-building of vignette outputs ... SKIPPED
+* DONE
+Status: 2 ERRORs, 1 NOTE

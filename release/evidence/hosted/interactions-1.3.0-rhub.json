@@ -1,0 +1,19 @@
+{
+  "package": "interactions",
+  "version": "1.3.0",
+  "service": "rhub",
+  "archive": "/private/tmp/panel-release-20261105/hosted/integration-911232598c23/interactions_1.3.0.tar.gz",
+  "sha256": "ea65f6300a64afe97032568baf15a90b9b603b03fac0c208323ebb05eb79de08",
+  "test_only_metadata": true,
+  "started_utc": "2026-11-05 06:35:46 UTC",
+  "status": "accepted",
+  "platforms": ["ubuntu-release", "ubuntu-clang", "r-release-windows", "windows"],
+  "response": {
+    "result": "OK",
+    "repo_url": "https://github.com/r-hub2/uncivilised-lowkey-gnatcatcher-interactions",
+    "actions_url": "https://github.com/r-hub2/uncivilised-lowkey-gnatcatcher-interactions/actions",
+    "id": "enjoyable-nauplius",
+    "name": "ubuntu-release,ubuntu-clang,r-release-windows,windows"
+  },
+  "finished_utc": "2026-11-05 06:35:59 UTC"
+}

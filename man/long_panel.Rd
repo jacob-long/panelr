@@ -2,9 +2,26 @@
 % Please edit documentation in R/reshapers.R
 \name{long_panel}
 \alias{long_panel}
+\alias{elongate_panel}
 \title{Convert wide panels to long format}
 \usage{
 long_panel(
+  data,
+  prefix = NULL,
+  suffix = NULL,
+  begin = NULL,
+  end = NULL,
+  id = "id",
+  wave = "wave",
+  periods = NULL,
+  label_location = c("end", "beginning"),
+  as_panel_data = TRUE,
+  match = ".*",
+  use.regex = FALSE,
+  check.varying = TRUE
+)
+
+elongate_panel(
   data,
   prefix = NULL,
   suffix = NULL,

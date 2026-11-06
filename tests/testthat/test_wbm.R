@@ -151,6 +151,41 @@ test_that("wbm summary works (with use.wave)", {
   expect_output(print(swb))
 })
 
+test_that("wbm treats wave.factor as an unordered model factor", {
+  expect_warning(
+    wb_wave_factor <- wbm(wks ~ union + lag(lwage) | blk, data = wages,
+                          use.wave = TRUE, wave.factor = TRUE, pvals = FALSE),
+    NA
+  )
+  expect_true(is.factor(wb_wave_factor@frame[[get_wave(wages)]]))
+  expect_false(is.ordered(wb_wave_factor@frame[[get_wave(wages)]]))
+})
+
+test_that("wbm reports missing formula variables clearly", {
+  expect_error(wbm(wks ~ missing_predictor, data = wages),
+               "missing_predictor")
+})
+
+test_that("make_wb_data warns for double-demeaned interactions with two waves", {
+  two_wave <- panel_data(
+    data.frame(
+      id = rep(1:6, each = 2),
+      wave = rep(1:2, times = 6),
+      y = seq_len(12),
+      x1 = c(1, 2, 2, 4, 3, 6, 4, 8, 5, 10, 6, 12),
+      x2 = c(2, 1, 4, 2, 6, 3, 8, 4, 10, 5, 12, 6)
+    ),
+    id = id,
+    wave = wave
+  )
+  expect_warning(
+    out <- make_wb_data(y ~ x1 * x2, data = two_wave),
+    "Double-demeaned interactions"
+  )
+  expect_s3_class(out, "panel_data")
+  expect_identical(get_wave(out), "wave")
+})
+
 context("wbm pseudo-R2")
 wb <- wbm(wks ~ union + lag(lwage) | blk, data = wages, pR2 = TRUE)
 

@@ -1,6 +1,6 @@
 Package: panelr
 Title: Regression Models and Utilities for Repeated Measures and Panel Data
-Version: 1.0.1
+Version: 1.1.0
 Authors@R: person("Jacob A.", "Long", email = "jacob.long@sc.edu", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-1582-6214"))
 Author: Jacob A. Long [aut, cre] (<https://orcid.org/0000-0002-1582-6214>)
 Maintainer: Jacob A. Long <jacob.long@sc.edu>
@@ -28,7 +28,7 @@ Imports: crayon,
       Formula,
       ggplot2,
       jtools (>= 2.3.1),
-      lmerTest,
+      lmerTest (>= 3.2-1),
       magrittr,
       methods,
       purrr,
@@ -45,6 +45,7 @@ Suggests: AER,
     clubSandwich,
     geepack,
     generics,
+    interactions,
     nlme,
     plm,
     sandwich,

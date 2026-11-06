@@ -39,16 +39,15 @@
 \item{newdata}{data frame for which to evaluate
     predictions.}
 
-\item{se.fit}{Include standard errors with the predictions? Note that
-these standard errors by default include only fixed effects variance.
-See details for more info. Default is FALSE.}
+\item{se.fit}{Return a list containing predictions and fixed-effect standard
+errors? With \code{boot = TRUE}, returns bootstrap draws in \code{fit} instead.}
 
 \item{raw}{Is \code{newdata} a \code{merMod} model frame or \code{panel_data}? TRUE
 indicates a \code{merMod}-style newdata, with all of the extra columns
 created by \code{wbm}.}
 
-\item{use.re.var}{If \code{se.fit} is TRUE, include random effects variance in
-standard errors? Default is FALSE.}
+\item{use.re.var}{Unsupported; must be \code{FALSE}. Random-effect variance is not
+added to fixed-effect standard errors.}
 
 \item{re.form}{(formula, \code{NULL}, or \code{NA}) specify which random effects to condition on when predicting.  If \code{NULL},
     include all random effects; if \code{NA} or \code{~0},
@@ -94,42 +93,91 @@ These methods facilitate fairly straightforward predictions
 and simulations from \code{wbm} models.
 }
 \details{
-For \code{wbm} models, \code{predict()} operates in two main modes:
-\itemize{
-\item \code{raw = FALSE} (the default): \code{newdata} is treated as panel-style data. If it
-is not already a \code{\link[=panel_data]{panel_data()}} object, it is converted
-using the \code{id} and \code{wave} variables from the original model. The within /
-between decomposition and any detrending are recomputed for \code{newdata}
-before passing the resulting design matrix to \code{lme4} via
-\code{\link[jtools:predict_merMod]{jtools::predict_merMod()}} on the underlying \code{merMod} object.
-\item \code{raw = TRUE}: \code{newdata} is expected to already be on the "model matrix"
-scale used by the fitted \code{wbm} object, including internal columns such as
-\code{imean(...)} and any processed interaction terms. In this case, panelr
-does not recompute within / between pieces and simply forwards \code{newdata}
-to \code{\link[jtools:predict_merMod]{jtools::predict_merMod()}}.
-}
+With no \code{newdata}, predictions use the fitted model's design matrix.
+\code{re.form = NA} or \code{~0} excludes random effects; the default includes them.
 
-When \code{newdata} is not \code{panel_data} and \code{raw = FALSE}, \code{predict.wbm()} will
-synthesize missing \code{id} or \code{wave} columns when possible in order to build a
-valid panel structure (for example, when \code{re.form = ~0}). Informational
-messages are emitted in these cases. For most within between use cases it is
-safer and more transparent to explicitly create a \code{panel_data} object with
-the desired \code{id} and \code{wave} variables before calling \code{predict()}.
+With \code{raw = FALSE}, supply panel histories containing the original predictor
+variables and the entity identifier. The outcome is not required unless it
+also occurs as a predictor (for example, a lagged outcome). Within-person
+means and detrending are calculated from the supplied histories, using the
+variable roles, factor coding, basis parameters, and scaling saved at fitting.
+Predictions are returned in the input row order. Include the wave variable
+for models with time effects, detrending, lags, or leads. Do not use a
+hypothetical plotting grid as a panel history: its means are arbitrary.
 
-For models fit with \code{model = "within"}, predictions from \code{predict.wbm()}
-reflect the within specification, which is parameterized using centered
-within unit effects and any specified between components. As a consequence,
-\code{predict(wbm_obj)} for a within model is not in general identical to
-\code{predict(to_merMod(wbm_obj))} on the internal \code{lmerMod} / \code{glmerMod} object,
-even when using the same \code{re.form} argument, because the fixed effect
-structure differs. This is by design: \code{predict.wbm()} always works on the
-within between representation defined by the original \code{wbm()} call, while
-\code{to_merMod()} exposes the underlying mixed model fit directly.
+With \code{raw = TRUE}, supply prepared model-scale rows, including \code{imean(...)}
+and processed interaction columns. These columns are passed through unchanged.
+This argument is distinct from \code{interaction.style = "raw"} when fitting.
+For models fitted with an offset argument, prepared rows must include
+\code{.offset}; panel histories may instead contain the original offset variables.
+
+\strong{Interaction plots}
+
+\code{\link[interactions:interact_plot]{interactions::interact_plot()}} and \code{\link[interactions:cat_plot]{interactions::cat_plot()}} use a separate
+hypothetical-grid path through \code{\link[jtools:make_predictions]{jtools::make_predictions()}}. With an
+interactions version supporting \code{plot.scale}, the default \code{plot.scale = "within"}
+displays numeric within-person predictors as deviations from each person's
+observed mean, in original units even for standardized fits. Zero means at
+the person's mean. Default predictor ranges use estimation-sample deviations;
+numeric within-person moderators default to zero and plus/minus one pooled
+within-person SD (or their observed values when there are only two).
+Constant predictors/moderators retain their original units or categories.
+The outcome remains on its modeled response scale, not a within-person
+deviation. \code{outcome.scale = "link"} instead uses the model's link scale.
+
+Use \code{plot.scale = "original"} for raw predictor levels. Plot captions report
+reference person means, and values implying deviations outside the observed
+within-person range trigger warnings. These marginal range checks do not
+establish joint support or rule out other forms of extrapolation. User-supplied
+numeric predictor/moderator values and \code{at} use the selected display scale;
+\code{imean(...)} overrides always use original units. Custom labels are preserved.
+Plot \code{data} must be the original fitting data or a subset with panel
+identifiers; excluded estimation rows are dropped and subsets retain fitted
+person means. Use \code{at} for hypothetical values, not modified plotting data.
+
+Person means and interaction-product means are held at their observation-weighted averages
+over the estimation sample, while focal predictors vary. This describes
+conditional predictions, not population-average effects or forecasts for a
+particular entity. Use \code{at = list("imean(x)" = value)} (and, when needed,
+\code{"imean(x:z)"}) to set different reference means. Time-invariant moderators
+multiply the centered within-person term; their product means are not
+independently held fixed as those moderators change. For a within-varying factor,
+its reference means are the means of its indicator columns.
+Direct calls to \code{jtools::make_predictions()} (and older interactions versions
+without \code{plot.scale}) retain original-scale inputs. \code{plot.scale} is a plotting
+option, not an argument to \code{predict()} or an estimation option.
+
+Automatic plotting grids currently support scalar numeric/factor terms,
+including two- and three-way interactions. Scalar transformations such as
+\code{log(x)} require \code{plot.scale = "original"}; a deviation of \code{log(x)} is not
+a deviation of \code{x}. Detrended, lagged/lead, and
+basis-expansion models require complete panel histories for prediction or
+explicitly prepared rows via \code{make_predictions(..., new_data = ..., raw = TRUE)}.
+Partial residuals, custom plotting covariance estimates, and prediction
+intervals are not supported. Updated interactions versions provide S3
+methods for \code{sim_slopes()}, \code{johnson_neyman()}, and \code{probe_interaction()}.
+Numeric focal predictors use exact design-matrix contrasts, not refitting or
+recentering. Slopes share the plots' units and reference settings. Tests are
+fixed-effect and link-scale: residual-df t approximations for Gaussian mixed
+models, normal approximations for generalized models and GEE, with an explicit
+\code{df} override. They are not Satterthwaite/Kenward-Roger tests. Nonlinear/factor
+focal predictors, predictor-dependent offsets, rank-deficient fits, custom
+covariance estimates, response-scale derivatives for non-identity links,
+and FDR-adjusted Johnson-Neyman inference are not supported. These plotting
+and slope conventions do not change the fitted estimator.
+Models saved by older panelr versions must be refitted to use the new
+panel-history and automatic-grid paths; prepared-row predictions remain available.
+
+Analytic \code{se.fit} values describe fixed-effect uncertainty, conditional on
+the preprocessing/reference quantities; response-scale standard errors use
+the delta method. Plot bands are confidence intervals, not intervals for
+individual outcomes. \code{use.re.var = TRUE} is rejected because the previous
+variance-addition calculation did not yield valid prediction intervals.
 }
 \examples{
 data("WageData")
 wages <- panel_data(WageData, id = id, wave = t)
 model <- wbm(lwage ~ lag(union) + wks, data = wages)
-# By default, assumes you're using the processed data for newdata
+# With no newdata, predictions use the fitted design.
 predict(model)
 }
