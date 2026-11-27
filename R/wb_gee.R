@@ -516,7 +516,7 @@ confint.wbgee <- function(object, parm, level = 0.95, cov = NULL,
 }
 
 # adapted from MESS package
-qic <- function (object, tol = .Machine$double.eps, ...) {
+qic <- function (object, tol = .Machine$double.eps, env = parent.frame(), ...) {
   invert <- if ("MASS" %in% loadedNamespaces()) {
     get("ginv", asNamespace("MASS"))
   }
@@ -534,9 +534,13 @@ qic <- function (object, tol = .Machine$double.eps, ...) {
                     warn_wrap("Error calculating QIC: distribution not 
                               recognized"))
     if (is.character(quasi)) return(NULL)
-    object$call$corstr <- "independence"
-    object$call$zcor <- NULL
-    model.indep <- eval(object, parent.frame())
+    if (identical(object$corstr, "independence")) {
+      model.indep <- object
+    } else {
+      object$call$corstr <- "independence"
+      object$call$zcor <- NULL
+      model.indep <- eval(object$call, envir = env)
+    }
     AIinverse <- invert(model.indep$geese$vbeta.naiv, tol = tol)
     Vr <- object$geese$vbeta
     trace <- sum(diag(AIinverse %*% Vr))

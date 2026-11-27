@@ -273,4 +273,40 @@ test_that("wbgee predictions work w/ raw newdata", {
     t = 5, check.names = FALSE
   ), raw = TRUE)[[1]], "numeric")
 })
+
+test_that("wbgee and asym_gee QIC/CIC match geepack::QIC using independence model", {
+  mod <- wbgee(lwage ~ wks + union | blk, data = wages, cor.str = "ar1")
+  ref_mod <- geepack::geeglm(
+    lwage ~ `imean(wks)` + `imean(union)` + wks + union + blk,
+    data = mod$frame, id = id, waves = wave, corstr = "ar1", family = gaussian
+  )
+  ref_qic <- geepack::QIC(ref_mod)
+
+  expect_equal(unname(mod$call_info$qic), unname(ref_qic["QIC"]), tolerance = 1e-6)
+  expect_equal(unname(mod$call_info$qicu), unname(ref_qic["QICu"]), tolerance = 1e-6)
+  expect_equal(unname(mod$call_info$cic), unname(ref_qic["CIC"]), tolerance = 1e-6)
+
+  mod_exch <- wbgee(union ~ wks | blk, data = wages, family = binomial,
+                    cor.str = "exchangeable")
+  ref_exch <- geepack::geeglm(
+    union ~ `imean(wks)` + wks + blk,
+    data = mod_exch$frame, id = id, waves = wave,
+    corstr = "exchangeable", family = binomial
+  )
+  ref_exch_qic <- geepack::QIC(ref_exch)
+
+  expect_equal(unname(mod_exch$call_info$qic), unname(ref_exch_qic["QIC"]), tolerance = 1e-6)
+  expect_equal(unname(mod_exch$call_info$cic), unname(ref_exch_qic["CIC"]), tolerance = 1e-6)
+
+  mod_asym <- asym_gee(wks ~ union + lwage, data = wages, cor.str = "ar1")
+  ref_asym <- geepack::geeglm(
+    wks ~ `+union` + `-union` + `+lwage` + `-lwage`,
+    data = mod_asym$frame, id = id, waves = wave,
+    corstr = "ar1", family = gaussian
+  )
+  ref_asym_qic <- geepack::QIC(ref_asym)
+
+  expect_equal(unname(mod_asym$call_info$qic), unname(ref_asym_qic["QIC"]), tolerance = 1e-6)
+  expect_equal(unname(mod_asym$call_info$cic), unname(ref_asym_qic["CIC"]), tolerance = 1e-6)
+})
 }
